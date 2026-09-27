@@ -35,6 +35,7 @@ h3{font-size:16px;font-weight:600;}
 .brand svg{width:28px;height:28px;}
 .brand small{font-weight:400;color:var(--muted);font-size:13px;}
 .user{display:flex;align-items:center;gap:14px;font-size:13.5px;color:var(--ink-soft);}
+@media (max-width:600px){.user{gap:8px;} #quien{display:none;} .brand small{display:none;}}
 
 /* Botones y formularios */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:13px;font-weight:500;border:1px solid var(--ink);background:transparent;color:var(--ink);padding:9px 16px;cursor:pointer;border-radius:var(--radius);text-decoration:none;white-space:nowrap;transition:background .15s,color .15s;}

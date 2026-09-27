@@ -30,14 +30,14 @@
 <header class="top">
   <div class="top-inner">
     <a class="brand" href="cliente.html" id="logo">A²WD <small>/ mi proyecto</small></a>
-    <div class="user"><span id="quien"></span><button class="btn small ghost" id="salir">Salir</button></div>
+    <div class="user"><span id="quien"></span><button class="btn small ghost" id="cambiarPw">Contraseña</button><button class="btn small ghost" id="salir">Salir</button></div>
   </div>
 </header>
 
 <main class="layout" id="app"><p class="muted">Cargando…</p></main>
 
 <script type="module">
-import { sb, exigirSesion, salir, esc, urlSegura, fecha, toast, ESTADOS, ORDEN_ESTADOS, LOGO } from './app.js';
+import { sb, exigirSesion, salir, esc, urlSegura, fecha, toast, ESTADOS, ORDEN_ESTADOS, LOGO, activarCambioPassword } from './app.js';
 
 document.getElementById('logo').insertAdjacentHTML('afterbegin', LOGO);
 const ctx = await exigirSesion('cliente');
@@ -45,6 +45,7 @@ if (!ctx) throw new Error('Sin sesión');
 const { perfil } = ctx;
 document.getElementById('quien').textContent = perfil.nombre || perfil.email;
 document.getElementById('salir').onclick = salir;
+activarCambioPassword();
 
 const app = document.getElementById('app');
 const { data: proyectos, error } = await sb.from('proyectos').select('*').order('created_at', { ascending: false });
