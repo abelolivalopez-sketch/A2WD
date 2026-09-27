@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Panel creador · A2WD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="portal.css">
+<style>
+  .shell{max-width:1240px;margin:0 auto;padding:0 24px 60px;display:grid;grid-template-columns:190px minmax(0,1fr);gap:36px;}
+  .side{position:sticky;top:70px;align-self:start;padding-top:32px;display:flex;flex-direction:column;gap:2px;}
+  .side a{font-family:'IBM Plex Mono';font-size:13.5px;padding:9px 12px;text-decoration:none;color:var(--ink-soft);border-left:2px solid transparent;display:flex;justify-content:space-between;}
+  .side a:hover{color:var(--ink);}
+  .side a.on{color:var(--ink);border-left-color:var(--ink);background:var(--soft);}
+  .side .num{font-size:11px;background:var(--ink);color:var(--bg);padding:1px 6px;}
+  main{padding-top:32px;min-width:0;}
+  @media (max-width:820px){
+    .shell{grid-template-columns:1fr;gap:0;}
+    .side{position:static;flex-direction:row;overflow-x:auto;padding-top:14px;border-bottom:1px solid var(--line);}
+    .side a{border-left:0;border-bottom:2px solid transparent;white-space:nowrap;gap:8px;}
+    .side a.on{border-bottom-color:var(--ink);}
+  }
+  .cabecera{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:24px;}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;}
+  @media (max-width:900px){.kpis{grid-template-columns:repeat(2,1fr);}}
+  .kpi .v{font-family:'IBM Plex Mono';font-size:28px;font-weight:600;margin-top:4px;}
+  .herr{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+  .herr input{max-width:280px;} .herr select{max-width:180px;}
+  .dos{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:22px;align-items:start;}
+  @media (max-width:1000px){.dos{grid-template-columns:1fr;}}
+  dl.datos{display:grid;grid-template-columns:120px 1fr;gap:8px 14px;font-size:14px;}
+  dl.datos dt{font-family:'IBM Plex Mono';font-size:12px;color:var(--muted);padding-top:2px;}
+  dl.datos dd{word-break:break-word;}
+  .volver{font-family:'IBM Plex Mono';font-size:13px;color:var(--muted);text-decoration:none;display:inline-block;margin-bottom:14px;}
+  .item{padding:14px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;}
+  .item:last-child{border-bottom:0;}
+  .acciones{display:flex;gap:8px;flex-wrap:wrap;}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <a class="brand" href="#resumen" id="logo">A²WD <small>/ creador</small></a>
+    <div class="user"><span id="quien"></span><button class="btn small ghost" id="salir">Salir</button></div>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="side" id="side">
+    <a href="#resumen" data-s="resumen">Resumen</a>
+    <a href="#clientes" data-s="clientes">Clientes</a>
+    <a href="#proyectos" data-s="proyectos">Proyectos</a>
+    <a href="#mensajes" data-s="mensajes">Mensajes <span class="num oculto" id="nSinLeer"></span></a>
+    <a href="#facturas" data-s="facturas">Facturas</a>
+  </nav>
+  <main id="vista"><p class="muted">Cargando…</p></main>
+</div>
+
+<dialog id="dlg">
+  <form id="dlgForm" method="dialog">
+    <div class="dlg-head"><h3 id="dlgTitulo"></h3><button type="button" class="x" id="dlgX" aria-label="Cerrar">×</button></div>
+    <div class="dlg-body" id="dlgCampos"></div>
+    <div class="dlg-foot"><button type="button" class="btn ghost" id="dlgCancelar">Cancelar</button><button type="submit" class="btn solid">Guardar</button></div>
+  </form>
+</dialog>
+
+<script type="module">
+import { sb, exigirSesion, salir, esc, urlSegura, fecha, euros, toast, ESTADOS, ORDEN_ESTADOS, LOGO } from './app.js';
+
+document.getElementById('logo').insertAdjacentHTML('afterbegin', LOGO);
+const ctx = await exigirSesion('creador');
+if (!ctx) throw new Error('Sin sesión');
+const { perfil } = ctx;
+document.getElementById('quien').textContent = perfil.nombre || perfil.email;
+document.getElementById('salir').onclick = salir;
+
+const vista = document.getElementById('vista');
+const ESTADOS_CLIENTE = { potencial: 'Potencial', activo: 'Activo', pausado: 'Pausado', antiguo: 'Antiguo' };
+const ESTADOS_FACTURA = { borrador: 'Borrador', pendiente: 'Pendiente', pagada: 'Pagada', vencida: 'Vencida', anulada: 'Anulada' };
+const tagEstado = (e) => `<span class="tag ${e === 'entregado' ? 'ok' : e === 'revision' ? 'warn' : ''}">${ESTADOS[e] || e}</span>`;
+const tagFactura = (e) => `<span class="tag ${e === 'pagada' ? 'ok' : e === 'vencida' ? 'bad' : e === 'pendiente' ? 'warn' : ''}">${ESTADOS_FACTURA[e] || e}</span>`;
+const opts = (obj) => Object.entries(obj).map(([v, l]) => ({ v, l }));
+const fallo = (error, texto = 'Algo salió mal') => { if (error) { console.error(error); toast(`${texto}: ${error.message}`, 'bad'); return true; } return false; };
+
+// ---------- Formulario genérico en diálogo ----------
+const dlg = document.getElementById('dlg');
+let onGuardar = null;
+function abrirForm({ titulo, campos, valores = {}, guardar }) {
+  document.getElementById('dlgTitulo').textContent = titulo;
+  document.getElementById('dlgCampos').innerHTML = campos.map((c) => {
+    const v = valores[c.k] ?? c.def ?? '';
+    const req = c.req ? 'required' : '';
+    let input;
+    if (c.tipo === 'textarea') input = `<textarea name="${c.k}" ${req}>${esc(v)}</textarea>`;
+    else if (c.tipo === 'select') input = `<select name="${c.k}" ${req}>${c.opciones.map((o) => `<option value="${esc(o.v)}" ${String(o.v) === String(v) ? 'selected' : ''}>${esc(o.l)}</option>`).join('')}</select>`;
+    else input = `<input name="${c.k}" type="${c.tipo || 'text'}" value="${esc(v)}" ${c.attrs || ''} ${req}>`;
+    return `<div class="campo"><label>${esc(c.label)}${c.req ? ' *' : ''}</label>${input}</div>`;
+  }).join('');
+  onGuardar = async (datos) => guardar(datos);
+  dlg.showModal();
+}
+const cerrar = () => dlg.close();
+document.getElementById('dlgX').onclick = cerrar;
+document.getElementById('dlgCancelar').onclick = cerrar;
+document.getElementById('dlgForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const datos = Object.fromEntries(new FormData(e.target));
+  for (const k in datos) if (datos[k] === '') datos[k] = null;
+  const btn = e.target.querySelector('[type=submit]');
+  btn.disabled = true;
+  const ok = await onGuardar(datos);
+  btn.disabled = false;
+  if (ok !== false) { cerrar(); router(); }
+});
+
+// ---------- Definición de formularios ----------
+const camposCliente = [
+  { k: 'nombre', label: 'Nombre de contacto', req: true },
+  { k: 'email', label: 'Correo (con el que entrará al portal)', tipo: 'email', req: true },
+  { k: 'empresa', label: 'Empresa / negocio' },
+  { k: 'telefono', label: 'Teléfono', tipo: 'tel' },
+  { k: 'nif', label: 'NIF / CIF' },
+  { k: 'direccion', label: 'Dirección fiscal' },
+  { k: 'servicios', label: 'Servicios contratados', attrs: 'placeholder="Web, mantenimiento, hosting…"' },
+  { k: 'estado', label: 'Estado', tipo: 'select', opciones: opts(ESTADOS_CLIENTE), def: 'activo' },
+  { k: 'notas_privadas', label: 'Notas privadas (el cliente no las ve)', tipo: 'textarea' },
+];
+async function camposProyecto() {
+  const { data: clientes } = await sb.from('clientes').select('id,nombre,empresa').order('nombre');
+  return [
+    { k: 'cliente_id', label: 'Cliente', tipo: 'select', req: true, opciones: (clientes || []).map((c) => ({ v: c.id, l: c.empresa ? `${c.nombre} · ${c.empresa}` : c.nombre })) },
+    { k: 'nombre', label: 'Nombre del proyecto', req: true },
+    { k: 'descripcion', label: 'Descripción (la ve el cliente)', tipo: 'textarea' },
+    { k: 'url_preview', label: 'Enlace de vista previa', tipo: 'url', attrs: 'placeholder="https://…"' },
+    { k: 'estado', label: 'Fase', tipo: 'select', opciones: opts(ESTADOS), def: 'diseno' },
+    { k: 'progreso', label: 'Progreso (%)', tipo: 'number', attrs: 'min="0" max="100"', def: 0 },
+    { k: 'fecha_entrega', label: 'Fecha de entrega prevista', tipo: 'date' },
+  ];
+}
+async function camposFactura(clienteFijo) {
+  const [{ data: clientes }, { data: proyectos }] = await Promise.all([
+    sb.from('clientes').select('id,nombre,empresa').order('nombre'),
+    sb.from('proyectos').select('id,nombre').order('nombre'),
+  ]);
+  return [
+    { k: 'cliente_id', label: 'Cliente', tipo: 'select', req: true, def: clienteFijo, opciones: (clientes || []).map((c) => ({ v: c.id, l: c.empresa ? `${c.nombre} · ${c.empresa}` : c.nombre })) },
+    { k: 'proyecto_id', label: 'Proyecto', tipo: 'select', opciones: [{ v: '', l: '— Ninguno —' }, ...(proyectos || []).map((p) => ({ v: p.id, l: p.nombre }))] },
+    { k: 'tipo', label: 'Tipo', tipo: 'select', opciones: [{ v: 'factura', l: 'Factura' }, { v: 'presupuesto', l: 'Presupuesto' }] },
+    { k: 'numero', label: 'Número', attrs: 'placeholder="2026-001"' },
+    { k: 'concepto', label: 'Concepto', req: true },
+    { k: 'base', label: 'Base imponible (€)', tipo: 'number', attrs: 'step="0.01" min="0"', req: true },
+    { k: 'iva_pct', label: 'IVA (%)', tipo: 'number', attrs: 'step="0.01" min="0"', def: 21 },
+    { k: 'estado', label: 'Estado', tipo: 'select', opciones: opts(ESTADOS_FACTURA), def: 'pendiente' },
+    { k: 'fecha_emision', label: 'Fecha de emisión', tipo: 'date', def: new Date().toISOString().slice(0, 10) },
+    { k: 'fecha_vencimiento', label: 'Vencimiento', tipo: 'date' },
+  ];
+}
+
+const guardarEn = (tabla, id) => async (datos) => {
+  const q = id ? sb.from(tabla).update(datos).eq('id', id) : sb.from(tabla).insert(datos);
+  const { error } = await q;
+  if (fallo(error, 'No se pudo guardar')) return false;
+  toast('Guardado');
+};
+async function borrar(tabla, id, texto, despues) {
+  if (!confirm(`¿Seguro que quieres borrar ${texto}? No se puede deshacer.`)) return;
+  const { error } = await sb.from(tabla).delete().eq('id', id);
+  if (fallo(error, 'No se pudo borrar')) return;
+  toast('Borrado');
+  if (despues) location.hash = despues; else router();
+}
+
+// ---------- Invitar al portal ----------
+async function invitar(email) {
+  const redirectTo = new URL('login.html', location.href).href;
+  const { data, error } = await sb.functions.invoke('invitar-cliente', { body: { email, redirectTo } });
+  if (error) {
+    let msg = error.message;
+    try { msg = (await error.context.json()).error || msg; } catch {}
+    toast('No se pudo invitar: ' + msg, 'bad');
+    return;
+  }
+  if (data?.ok) toast('Invitación enviada a ' + email);
+}
+
+// ---------- Contador de mensajes sin leer ----------
+async function actualizarSinLeer() {
+  const { count } = await sb.from('comentarios').select('id', { count: 'exact', head: true }).eq('leido', false);
+  const el = document.getElementById('nSinLeer');
+  el.textContent = count || '';
+  el.classList.toggle('oculto', !count);
+}
+
+// =================== VISTAS ===================
+async function vResumen() {
+  const [c, p, m, f] = await Promise.all([
+    sb.from('clientes').select('id', { count: 'exact', head: true }).eq('estado', 'activo'),
+    sb.from('proyectos').select('*, clientes(nombre)').neq('estado', 'entregado').order('fecha_entrega', { nullsFirst: false }),
+    sb.from('comentarios').select('*, proyectos(nombre)').eq('leido', false).order('created_at', { ascending: false }).limit(8),
+    sb.from('facturas').select('total').in('estado', ['pendiente', 'vencida']).eq('tipo', 'factura'),
+  ]);
+  const pendiente = (f.data || []).reduce((s, x) => s + Number(x.total), 0);
+  vista.innerHTML = `
+    <div class="cabecera"><div><p class="eyebrow">Panel de creador</p><h1>Hola, ${esc(perfil.nombre || '')}</h1></div>
+      <div class="acciones"><button class="btn" id="nCli">+ Cliente</button><button class="btn solid" id="nPro">+ Proyecto</button></div></div>
+    <div class="kpis">
+      <div class="card kpi"><p class="eyebrow">Clientes activos</p><p class="v">${c.count ?? 0}</p></div>
+      <div class="card kpi"><p class="eyebrow">Proyectos en curso</p><p class="v">${p.data?.length ?? 0}</p></div>
+      <div class="card kpi"><p class="eyebrow">Mensajes sin leer</p><p class="v">${m.data?.length ?? 0}</p></div>
+      <div class="card kpi"><p class="eyebrow">Por cobrar</p><p class="v">${euros(pendiente)}</p></div>
+    </div>
+    <div class="dos">
+      <div class="card"><h3>Proyectos en curso</h3>
+        ${p.data?.length ? p.data.map((x) => `
+          <div class="item" style="cursor:pointer" data-go="#proyecto/${x.id}">
+            <div><p style="font-weight:600">${esc(x.nombre)}</p><p class="muted" style="font-size:13px">${esc(x.clientes?.nombre)} · entrega ${fecha(x.fecha_entrega)}</p>
+              <div class="barra" style="width:160px;margin-top:8px"><i style="width:${x.progreso}%"></i></div></div>
+            <div>${tagEstado(x.estado)}</div>
+          </div>`).join('') : `<p class="muted" style="margin-top:10px">No hay proyectos en curso.</p>`}
+      </div>
+      <div class="card"><h3>Últimos mensajes sin leer</h3>
+        ${m.data?.length ? m.data.map((x) => `
+          <div class="item" style="cursor:pointer;display:block" data-go="#proyecto/${x.proyecto_id}">
+            <p class="mono muted" style="font-size:11.5px">${esc(x.autor_nombre)} · ${esc(x.proyectos?.nombre)} · ${fecha(x.created_at, true)}</p>
+            <p style="margin-top:3px">${esc(x.mensaje.length > 140 ? x.mensaje.slice(0, 140) + '…' : x.mensaje)}</p>
+          </div>`).join('') : `<p class="muted" style="margin-top:10px">Estás al día.</p>`}
+      </div>
+    </div>`;
+  document.getElementById('nCli').onclick = () => abrirForm({ titulo: 'Nuevo cliente', campos: camposCliente, guardar: guardarEn('clientes') });
+  document.getElementById('nPro').onclick = async () => abrirForm({ titulo: 'Nuevo proyecto', campos: await camposProyecto(), guardar: guardarEn('proyectos') });
+}
+
+async function vClientes() {
+  const { data, error } = await sb.from('clientes').select('*, proyectos(count)').order('created_at', { ascending: false });
+  if (fallo(error)) return;
+  vista.innerHTML = `
+    <div class="cabecera"><div><p class="eyebrow">Base de datos</p><h1>Clientes</h1></div><button class="btn solid" id="nCli">+ Nuevo cliente</button></div>
+    <div class="herr"><input id="buscar" type="search" placeholder="Buscar nombre, empresa, correo…">
+      <select id="filtro"><option value="">Todos los estados</option>${opts(ESTADOS_CLIENTE).map((o) => `<option value="${o.v}">${o.l}</option>`).join('')}</select></div>
+    <div class="card" style="padding:0"><div class="tabla-wrap"><table>
+      <thead><tr><th>Cliente</th><th>Contacto</th><th>Servicios</th><th>Proyectos</th><th>Portal</th><th>Estado</th></tr></thead>
+      <tbody id="filas"></tbody></table></div></div>`;
+  const pintar = () => {
+    const t = document.getElementById('buscar').value.toLowerCase();
+    const f = document.getElementById('filtro').value;
+    const lista = data.filter((c) => (!f || c.estado === f) && [c.nombre, c.empresa, c.email, c.telefono, c.nif].join(' ').toLowerCase().includes(t));
+    document.getElementById('filas').innerHTML = lista.length ? lista.map((c) => `
+      <tr class="click" data-go="#cliente/${c.id}">
+        <td><strong>${esc(c.nombre)}</strong><br><span class="muted" style="font-size:13px">${esc(c.empresa || '')}</span></td>
+        <td>${esc(c.email)}<br><span class="muted" style="font-size:13px">${esc(c.telefono || '')}</span></td>
+        <td>${esc(c.servicios || '—')}</td>
+        <td class="mono">${c.proyectos?.[0]?.count ?? 0}</td>
+        <td>${c.user_id ? '<span class="tag ok">Activo</span>' : '<span class="tag">Sin invitar</span>'}</td>
+        <td><span class="tag ${c.estado === 'activo' ? 'dark' : ''}">${ESTADOS_CLIENTE[c.estado]}</span></td>
+      </tr>`).join('') : `<tr><td colspan="6"><div class="vacio" style="border:0">${data.length ? 'Sin resultados' : 'Aún no hay clientes. Crea el primero.'}</div></td></tr>`;
+  };
+  document.getElementById('buscar').oninput = pintar;
+  document.getElementById('filtro').onchange = pintar;
+  pintar();
+  document.getElementById('nCli').onclick = () => abrirForm({ titulo: 'Nuevo cliente', campos: camposCliente, guardar: guardarEn('clientes') });
+}
+
+async function vCliente(id) {
+  const [{ data: c, error }, { data: proyectos }, { data: facturas }] = await Promise.all([
+    sb.from('clientes').select('*').eq('id', id).single(),
+    sb.from('proyectos').select('*').eq('cliente_id', id).order('created_at', { ascending: false }),
+    sb.from('facturas').select('*').eq('cliente_id', id).order('fecha_emision', { ascending: false }),
+  ]);
+  if (fallo(error, 'Cliente no encontrado')) return;
+  const facturado = (facturas || []).filter((f) => f.tipo === 'factura' && f.estado === 'pagada').reduce((s, f) => s + Number(f.total), 0);
+  vista.innerHTML = `
+    <a class="volver" href="#clientes">← Clientes</a>
+    <div class="cabecera"><div><p class="eyebrow">${esc(c.empresa || 'Cliente')}</p><h1>${esc(c.nombre)}</h1></div>
+      <div class="acciones">
+        ${c.user_id ? '<span class="tag ok" style="align-self:center">Acceso al portal activo</span>' : `<button class="btn solid" id="inv">Invitar al portal</button>`}
+        <button class="btn" id="edit">Editar</button><button class="btn danger" id="del">Borrar</button></div></div>
+    <div class="dos">
+      <div class="stack">
+        <div class="card"><h3 style="margin-bottom:14px">Datos</h3><dl class="datos">
+          <dt>Correo</dt><dd><a href="mailto:${esc(c.email)}">${esc(c.email)}</a></dd>
+          <dt>Teléfono</dt><dd>${c.telefono ? `<a href="tel:${esc(c.telefono)}">${esc(c.telefono)}</a>` : '—'}</dd>
+          <dt>NIF / CIF</dt><dd>${esc(c.nif || '—')}</dd>
+          <dt>Dirección</dt><dd>${esc(c.direccion || '—')}</dd>
+          <dt>Servicios</dt><dd>${esc(c.servicios || '—')}</dd>
+          <dt>Estado</dt><dd>${ESTADOS_CLIENTE[c.estado]}</dd>
+          <dt>Alta</dt><dd>${fecha(c.created_at)}</dd>
+          <dt>Facturado</dt><dd class="mono">${euros(facturado)}</dd>
+        </dl></div>
+        <div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><h3>Proyectos</h3><button class="btn small" id="nPro">+ Proyecto</button></div>
+          ${proyectos?.length ? proyectos.map((p) => `
+            <div class="item" style="cursor:pointer" data-go="#proyecto/${p.id}"><div><p style="font-weight:600">${esc(p.nombre)}</p><p class="muted" style="font-size:13px">${p.progreso}% · entrega ${fecha(p.fecha_entrega)}</p></div>${tagEstado(p.estado)}</div>`).join('')
+            : `<p class="muted" style="margin-top:10px">Sin proyectos todavía.</p>`}
+        </div>
+      </div>
+      <div class="stack">
+        <div class="card"><h3 style="margin-bottom:10px">Notas privadas</h3><p style="white-space:pre-wrap" class="${c.notas_privadas ? '' : 'muted'}">${esc(c.notas_privadas || 'Sin notas.')}</p></div>
+        <div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><h3>Facturas y presupuestos</h3><button class="btn small" id="nFac">+ Nueva</button></div>
+          ${facturas?.length ? facturas.map((f) => `
+            <div class="item"><div><p style="font-weight:600">${esc(f.numero || (f.tipo === 'presupuesto' ? 'Presupuesto' : 'Factura'))}</p><p class="muted" style="font-size:13px">${esc(f.concepto)} · ${fecha(f.fecha_emision)}</p></div>
+              <div style="text-align:right"><p class="mono">${euros(f.total)}</p>${tagFactura(f.estado)}</div></div>`).join('')
+            : `<p class="muted" style="margin-top:10px">Sin facturas.</p>`}
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('edit').onclick = () => abrirForm({ titulo: 'Editar cliente', campos: camposCliente, valores: c, guardar: guardarEn('clientes', id) });
+  document.getElementById('del').onclick = () => borrar('clientes', id, `a ${c.nombre} y todos sus proyectos`, '#clientes');
+  document.getElementById('inv')?.addEventListener('click', async (e) => { e.target.disabled = true; await invitar(c.email); e.target.disabled = false; });
+  document.getElementById('nPro').onclick = async () => abrirForm({ titulo: 'Nuevo proyecto', campos: await camposProyecto(), valores: { cliente_id: id }, guardar: guardarEn('proyectos') });
+  document.getElementById('nFac').onclick = async () => abrirForm({ titulo: 'Nueva factura o presupuesto', campos: await camposFactura(id), guardar: guardarEn('facturas') });
+}
+
+async function vProyectos() {
+  const { data, error } = await sb.from('proyectos').select('*, clientes(nombre,empresa)').order('created_at', { ascending: false });
+  if (fallo(error)) return;
+  vista.innerHTML = `
+    <div class="cabecera"><div><p class="eyebrow">Trabajo</p><h1>Proyectos</h1></div><button class="btn solid" id="nPro">+ Nuevo proyecto</button></div>
+    <div class="card" style="padding:0"><div class="tabla-wrap"><table>
+      <thead><tr><th>Proyecto</th><th>Cliente</th><th>Fase</th><th>Progreso</th><th>Entrega</th><th>Vista previa</th></tr></thead>
+      <tbody>${data.length ? data.map((p) => {
+        const u = urlSegura(p.url_preview);
+        return `<tr class="click" data-go="#proyecto/${p.id}">
+          <td><strong>${esc(p.nombre)}</strong></td><td>${esc(p.clientes?.nombre)}</td><td>${tagEstado(p.estado)}</td>
+          <td><div class="barra" style="width:90px;display:inline-block;vertical-align:middle"><i style="width:${p.progreso}%"></i></div> <span class="mono" style="font-size:12px">${p.progreso}%</span></td>
+          <td>${fecha(p.fecha_entrega)}</td>
+          <td>${u ? `<a class="mono" style="font-size:13px" href="${esc(u)}" target="_blank" rel="noopener" data-stop>Abrir ↗</a>` : '—'}</td></tr>`;
+      }).join('') : `<tr><td colspan="6"><div class="vacio" style="border:0">Aún no hay proyectos.</div></td></tr>`}</tbody></table></div></div>`;
+  document.getElementById('nPro').onclick = async () => abrirForm({ titulo: 'Nuevo proyecto', campos: await camposProyecto(), guardar: guardarEn('proyectos') });
+}
+
+async function vProyecto(id) {
+  const [{ data: p, error }, { data: avances }, { data: comentarios }] = await Promise.all([
+    sb.from('proyectos').select('*, clientes(id,nombre,email,user_id)').eq('id', id).single(),
+    sb.from('avances').select('*').eq('proyecto_id', id).order('created_at', { ascending: false }),
+    sb.from('comentarios').select('*').eq('proyecto_id', id).order('created_at'),
+  ]);
+  if (fallo(error, 'Proyecto no encontrado')) return;
+  const u = urlSegura(p.url_preview);
+  const idx = ORDEN_ESTADOS.indexOf(p.estado);
+  const enlacePortal = new URL('login.html', location.href).href;
+  vista.innerHTML = `
+    <a class="volver" href="#cliente/${p.clientes.id}">← ${esc(p.clientes.nombre)}</a>
+    <div class="cabecera"><div><p class="eyebrow">Proyecto</p><h1>${esc(p.nombre)}</h1></div>
+      <div class="acciones">${u ? `<a class="btn" href="${esc(u)}" target="_blank" rel="noopener">Ver web ↗</a>` : ''}
+        <button class="btn" id="copiar">Copiar enlace del portal</button>
+        <button class="btn" id="edit">Editar</button><button class="btn danger" id="del">Borrar</button></div></div>
+    ${!p.clientes.user_id ? `<div class="card" style="margin-bottom:18px;border-color:var(--warn)"><p><strong>El cliente aún no tiene acceso al portal.</strong> <span class="muted">Invítale desde su ficha para que pueda ver este proyecto.</span></p></div>` : ''}
+    <div class="dos">
+      <div class="stack">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><h3>Estado</h3><span class="mono muted" style="font-size:13px">${p.progreso}% · entrega ${fecha(p.fecha_entrega)}</span></div>
+          <div class="barra" style="margin:14px 0 4px"><i style="width:${p.progreso}%"></i></div>
+          <div class="fases">${ORDEN_ESTADOS.map((e, i) => `<div class="fase ${i < idx ? 'hecha' : ''} ${i === idx ? 'actual' : ''}">${ESTADOS[e]}</div>`).join('')}</div>
+          ${p.descripcion ? `<p class="muted" style="margin-top:16px;white-space:pre-wrap">${esc(p.descripcion)}</p>` : ''}
+        </div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center"><h3>Avances publicados</h3><button class="btn small solid" id="nAv">+ Publicar avance</button></div>
+          ${avances?.length ? avances.map((a) => {
+            const au = urlSegura(a.url);
+            return `<div class="item"><div><p class="mono muted" style="font-size:11.5px">${fecha(a.created_at)}</p><p style="font-weight:600">${esc(a.titulo)}</p>
+              ${a.descripcion ? `<p class="muted" style="white-space:pre-wrap">${esc(a.descripcion)}</p>` : ''}
+              ${au ? `<a class="mono" style="font-size:13px" href="${esc(au)}" target="_blank" rel="noopener">Ver ↗</a>` : ''}</div>
+              <button class="btn small ghost" data-del-av="${a.id}">Borrar</button></div>`;
+          }).join('') : `<p class="muted" style="margin-top:10px">Publica el primer avance para que el cliente lo vea.</p>`}
+        </div>
+      </div>
+      <div class="card">
+        <h3>Conversación con el cliente</h3>
+        <p class="muted" style="font-size:13.5px;margin:4px 0 16px">Lo que escribas aquí lo verá ${esc(p.clientes.nombre)}.</p>
+        <div class="hilo" id="hilo">${comentarios?.length ? comentarios.map((c) => `
+          <div class="msg ${c.autor_rol === 'creador' ? 'mio' : ''}"><p class="meta">${esc(c.autor_nombre)} · ${fecha(c.created_at, true)}</p><p>${esc(c.mensaje)}</p></div>`).join('')
+          : `<p class="muted" style="font-size:13.5px">Sin mensajes todavía.</p>`}</div>
+        <form id="fCom" style="margin-top:16px"><textarea id="txt" maxlength="4000" placeholder="Responder…" required></textarea>
+          <button class="btn solid" style="margin-top:10px;width:100%">Enviar</button></form>
+      </div>
+    </div>`;
+  const hilo = document.getElementById('hilo'); hilo.scrollTop = hilo.scrollHeight;
+
+  // Al abrir el proyecto, se marcan sus mensajes como leídos
+  if (comentarios?.some((c) => !c.leido)) { await sb.from('comentarios').update({ leido: true }).eq('proyecto_id', id).eq('leido', false); actualizarSinLeer(); }
+
+  document.getElementById('copiar').onclick = async () => { await navigator.clipboard.writeText(enlacePortal); toast('Enlace copiado: ' + enlacePortal); };
+  document.getElementById('edit').onclick = async () => abrirForm({ titulo: 'Editar proyecto', campos: await camposProyecto(), valores: p, guardar: guardarEn('proyectos', id) });
+  document.getElementById('del').onclick = () => borrar('proyectos', id, 'este proyecto', '#cliente/' + p.clientes.id);
+  document.getElementById('nAv').onclick = () => abrirForm({
+    titulo: 'Publicar avance',
+    campos: [{ k: 'titulo', label: 'Título', req: true, attrs: 'placeholder="Página de inicio terminada"' },
+             { k: 'descripcion', label: 'Qué ha cambiado', tipo: 'textarea' },
+             { k: 'url', label: 'Enlace (opcional)', tipo: 'url', attrs: 'placeholder="https://…"' }],
+    guardar: async (d) => guardarEn('avances')({ ...d, proyecto_id: id }),
+  });
+  vista.querySelectorAll('[data-del-av]').forEach((b) => (b.onclick = () => borrar('avances', b.dataset.delAv, 'este avance')));
+  document.getElementById('fCom').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const txt = document.getElementById('txt').value.trim(); if (!txt) return;
+    e.target.querySelector('button').disabled = true;
+    const { error } = await sb.from('comentarios').insert({ proyecto_id: id, mensaje: txt });
+    if (fallo(error, 'No se pudo enviar')) { e.target.querySelector('button').disabled = false; return; }
+    router();
+  });
+}
+
+async function vMensajes() {
+  const { data, error } = await sb.from('comentarios').select('*, proyectos(nombre, clientes(nombre))').order('created_at', { ascending: false }).limit(100);
+  if (fallo(error)) return;
+  vista.innerHTML = `
+    <div class="cabecera"><div><p class="eyebrow">Bandeja</p><h1>Mensajes de clientes</h1></div></div>
+    <div class="card">${data.filter((c) => c.autor_rol !== 'creador').map((c) => `
+      <div class="item" style="cursor:pointer;display:block" data-go="#proyecto/${c.proyecto_id}">
+        <p class="mono muted" style="font-size:11.5px">${c.leido ? '' : '<span class="tag dark" style="margin-right:6px">Nuevo</span>'}${esc(c.proyectos?.clientes?.nombre)} · ${esc(c.proyectos?.nombre)} · ${fecha(c.created_at, true)}</p>
+        <p style="margin-top:4px;white-space:pre-wrap">${esc(c.mensaje)}</p></div>`).join('') || '<p class="muted">No hay mensajes de clientes.</p>'}
+    </div>`;
+}
+
+async function vFacturas() {
+  const { data, error } = await sb.from('facturas').select('*, clientes(nombre,empresa)').order('fecha_emision', { ascending: false });
+  if (fallo(error)) return;
+  const suma = (e) => data.filter((f) => f.tipo === 'factura' && e.includes(f.estado)).reduce((s, f) => s + Number(f.total), 0);
+  vista.innerHTML = `
+    <div class="cabecera"><div><p class="eyebrow">Facturación</p><h1>Facturas y presupuestos</h1></div><button class="btn solid" id="nFac">+ Nueva</button></div>
+    <div class="kpis" style="grid-template-columns:repeat(3,1fr)">
+      <div class="card kpi"><p class="eyebrow">Cobrado</p><p class="v">${euros(suma(['pagada']))}</p></div>
+      <div class="card kpi"><p class="eyebrow">Pendiente</p><p class="v">${euros(suma(['pendiente']))}</p></div>
+      <div class="card kpi"><p class="eyebrow">Vencido</p><p class="v">${euros(suma(['vencida']))}</p></div>
+    </div>
+    <div class="card" style="padding:0"><div class="tabla-wrap"><table>
+      <thead><tr><th>Número</th><th>Cliente</th><th>Concepto</th><th>Emisión</th><th>Base</th><th>Total</th><th>Estado</th><th></th></tr></thead>
+      <tbody>${data.length ? data.map((f) => `<tr>
+        <td class="mono">${esc(f.numero || '—')}<br><span class="muted" style="font-size:11px">${f.tipo === 'presupuesto' ? 'Presupuesto' : 'Factura'}</span></td>
+        <td><a href="#cliente/${f.cliente_id}">${esc(f.clientes?.nombre)}</a></td><td>${esc(f.concepto)}</td><td>${fecha(f.fecha_emision)}</td>
+        <td class="mono">${euros(f.base)}</td><td class="mono"><strong>${euros(f.total)}</strong></td><td>${tagFactura(f.estado)}</td>
+        <td><button class="btn small ghost" data-edit="${f.id}">Editar</button></td></tr>`).join('')
+        : `<tr><td colspan="8"><div class="vacio" style="border:0">Aún no hay facturas.</div></td></tr>`}</tbody></table></div></div>`;
+  document.getElementById('nFac').onclick = async () => abrirForm({ titulo: 'Nueva factura o presupuesto', campos: await camposFactura(), guardar: guardarEn('facturas') });
+  vista.querySelectorAll('[data-edit]').forEach((b) => (b.onclick = async () => {
+    const f = data.find((x) => x.id === b.dataset.edit);
+    const { total, clientes, ...valores } = f;
+    abrirForm({ titulo: 'Editar ' + f.tipo, campos: await camposFactura(), valores, guardar: guardarEn('facturas', f.id) });
+  }));
+}
+
+// =================== ROUTER ===================
+async function router() {
+  const [seccion, id] = (location.hash.slice(1) || 'resumen').split('/');
+  const menu = { cliente: 'clientes', proyecto: 'proyectos' }[seccion] || seccion;
+  document.querySelectorAll('#side a').forEach((a) => a.classList.toggle('on', a.dataset.s === menu));
+  const vistas = { resumen: vResumen, clientes: vClientes, cliente: vCliente, proyectos: vProyectos, proyecto: vProyecto, mensajes: vMensajes, facturas: vFacturas };
+  await (vistas[seccion] || vResumen)(id);
+  actualizarSinLeer();
+}
+// Clics en filas/tarjetas con data-go
+vista.addEventListener('click', (e) => {
+  if (e.target.closest('a,button')) return;
+  const go = e.target.closest('[data-go]');
+  if (go) location.hash = go.dataset.go;
+});
+window.addEventListener('hashchange', () => { router(); window.scrollTo(0, 0); });
+router();
+</script>
+</body>
+</html>

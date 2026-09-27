@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Mi proyecto · A2WD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="portal.css">
+<style>
+  .layout{max-width:1240px;margin:0 auto;padding:32px 24px 60px;}
+  .selector{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 28px;}
+  .selector button{font-family:'IBM Plex Mono';font-size:13px;padding:8px 14px;border:1px solid var(--line);background:none;color:var(--ink-soft);cursor:pointer;}
+  .selector button.on{border-color:var(--ink);color:var(--ink);background:var(--soft);}
+  .grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:22px;align-items:start;}
+  @media (max-width:960px){.grid{grid-template-columns:1fr;}}
+  .preview{border:1px solid var(--line);background:var(--soft);}
+  .preview-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line);}
+  .preview-bar .url{font-family:'IBM Plex Mono';font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .preview iframe{display:block;width:100%;height:560px;border:0;background:#fff;}
+  @media (max-width:600px){.preview iframe{height:420px;}}
+  .avance{padding:16px 0;border-bottom:1px solid var(--line);}
+  .avance:last-child{border-bottom:0;}
+  .avance .meta{font-family:'IBM Plex Mono';font-size:11.5px;color:var(--muted);}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <a class="brand" href="cliente.html" id="logo">A²WD <small>/ mi proyecto</small></a>
+    <div class="user"><span id="quien"></span><button class="btn small ghost" id="salir">Salir</button></div>
+  </div>
+</header>
+
+<main class="layout" id="app"><p class="muted">Cargando…</p></main>
+
+<script type="module">
+import { sb, exigirSesion, salir, esc, urlSegura, fecha, toast, ESTADOS, ORDEN_ESTADOS, LOGO } from './app.js';
+
+document.getElementById('logo').insertAdjacentHTML('afterbegin', LOGO);
+const ctx = await exigirSesion('cliente');
+if (!ctx) throw new Error('Sin sesión');
+const { perfil } = ctx;
+document.getElementById('quien').textContent = perfil.nombre || perfil.email;
+document.getElementById('salir').onclick = salir;
+
+const app = document.getElementById('app');
+const { data: proyectos, error } = await sb.from('proyectos').select('*').order('created_at', { ascending: false });
+
+if (error) {
+  app.innerHTML = `<div class="vacio">No se pudieron cargar tus proyectos. Recarga la página.</div>`;
+} else if (!proyectos.length) {
+  app.innerHTML = `
+    <p class="eyebrow">Hola, ${esc(perfil.nombre || '')}</p>
+    <h1>Tu proyecto se está preparando</h1>
+    <p class="muted" style="margin-top:10px">En cuanto lo demos de alta, aquí verás la web, los avances y podrás escribirnos.</p>`;
+} else {
+  let actual = proyectos[0].id;
+  const pintarSelector = () => proyectos.length < 2 ? '' :
+    `<div class="selector">${proyectos.map((p) => `<button data-id="${p.id}" class="${p.id === actual ? 'on' : ''}">${esc(p.nombre)}</button>`).join('')}</div>`;
+
+  async function mostrar(id) {
+    actual = id;
+    const p = proyectos.find((x) => x.id === id);
+    const [{ data: avances }, { data: comentarios }] = await Promise.all([
+      sb.from('avances').select('*').eq('proyecto_id', id).order('created_at', { ascending: false }),
+      sb.from('comentarios').select('*').eq('proyecto_id', id).order('created_at'),
+    ]);
+    const url = urlSegura(p.url_preview);
+    const idx = ORDEN_ESTADOS.indexOf(p.estado);
+
+    app.innerHTML = `
+      <p class="eyebrow">Hola, ${esc(perfil.nombre || '')}</p>
+      <h1>${esc(p.nombre)}</h1>
+      ${p.descripcion ? `<p class="muted" style="margin-top:8px;max-width:70ch">${esc(p.descripcion)}</p>` : ''}
+      ${pintarSelector()}
+      <div class="grid" style="${proyectos.length < 2 ? 'margin-top:28px' : ''}">
+        <div class="stack">
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap">
+              <h3>Estado del proyecto</h3>
+              <span class="mono muted" style="font-size:13px">${p.progreso}% · entrega ${fecha(p.fecha_entrega)}</span>
+            </div>
+            <div class="barra" style="margin:14px 0 4px"><i style="width:${p.progreso}%"></i></div>
+            <div class="fases">${ORDEN_ESTADOS.map((e, i) =>
+              `<div class="fase ${i < idx ? 'hecha' : ''} ${i === idx ? 'actual' : ''}">${ESTADOS[e]}</div>`).join('')}</div>
+          </div>
+          ${url ? `
+          <div class="preview">
+            <div class="preview-bar">
+              <span class="url">${esc(url)}</span>
+              <a class="btn small" href="${esc(url)}" target="_blank" rel="noopener">Abrir web ↗</a>
+            </div>
+            <iframe src="${esc(url)}" title="Vista previa de ${esc(p.nombre)}" loading="lazy"></iframe>
+          </div>` : `<div class="vacio">La vista previa de tu web estará disponible pronto.</div>`}
+          <div class="card">
+            <h3 style="margin-bottom:4px">Avances</h3>
+            ${avances?.length ? avances.map((a) => {
+              const u = urlSegura(a.url);
+              return `<div class="avance">
+                <p class="meta">${fecha(a.created_at)}</p>
+                <p style="font-weight:600;margin:2px 0">${esc(a.titulo)}</p>
+                ${a.descripcion ? `<p class="muted" style="white-space:pre-wrap">${esc(a.descripcion)}</p>` : ''}
+                ${u ? `<a class="mono" style="font-size:13px" href="${esc(u)}" target="_blank" rel="noopener">Ver ↗</a>` : ''}
+              </div>`;
+            }).join('') : `<p class="muted" style="margin-top:10px">Aún no hay avances publicados.</p>`}
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Dudas y comentarios</h3>
+          <p class="muted" style="font-size:13.5px;margin:4px 0 16px">Escríbenos lo que quieras cambiar o preguntar.</p>
+          <div class="hilo" id="hilo">
+            ${comentarios?.length ? comentarios.map((c) => `
+              <div class="msg ${c.autor_id === perfil.id ? 'mio' : ''}">
+                <p class="meta">${esc(c.autor_rol === 'creador' ? 'A2WD · ' + (c.autor_nombre || '') : 'Tú')} · ${fecha(c.created_at, true)}</p>
+                <p>${esc(c.mensaje)}</p>
+              </div>`).join('') : `<p class="muted" style="font-size:13.5px">Todavía no hay mensajes.</p>`}
+          </div>
+          <form id="fComentario" style="margin-top:16px">
+            <textarea id="txt" maxlength="4000" placeholder="Escribe tu mensaje…" required></textarea>
+            <button class="btn solid" style="margin-top:10px;width:100%" type="submit">Enviar</button>
+          </form>
+        </div>
+      </div>`;
+
+    const hilo = document.getElementById('hilo');
+    hilo.scrollTop = hilo.scrollHeight;
+    app.querySelectorAll('.selector button').forEach((b) => (b.onclick = () => mostrar(b.dataset.id)));
+    document.getElementById('fComentario').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const txt = document.getElementById('txt').value.trim();
+      if (!txt) return;
+      e.target.querySelector('button').disabled = true;
+      const { error } = await sb.from('comentarios').insert({ proyecto_id: id, mensaje: txt });
+      if (error) { toast('No se pudo enviar el mensaje', 'bad'); e.target.querySelector('button').disabled = false; return; }
+      toast('Mensaje enviado');
+      mostrar(id);
+    });
+  }
+  mostrar(actual);
+}
+</script>
+</body>
+</html>
