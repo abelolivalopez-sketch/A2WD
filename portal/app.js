@@ -1,6 +1,8 @@
 // Utilidades compartidas del portal A2WD
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { SUPABASE_URL, SUPABASE_KEY } from './config.js';
+import { t, LOCALE } from './i18n.js';
+export { t, LANG, selectorIdioma } from './i18n.js';
 
 export const configurado = !SUPABASE_URL.includes('TU-PROYECTO') && !SUPABASE_KEY.startsWith('TU-');
 export const sb = configurado ? createClient(SUPABASE_URL, SUPABASE_KEY) : null;
@@ -28,7 +30,7 @@ export const urlSegura = (u) => {
 export const fecha = (d, conHora = false) => {
   if (!d) return '—';
   const f = new Date(d);
-  return f.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', ...(conHora ? { hour: '2-digit', minute: '2-digit' } : {}) });
+  return f.toLocaleDateString(LOCALE, { day: '2-digit', month: 'short', year: 'numeric', ...(conHora ? { hour: '2-digit', minute: '2-digit' } : {}) });
 };
 
 export const euros = (n) => Number(n || 0).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
@@ -79,14 +81,14 @@ export function activarCambioPassword() {
   const dlg = document.createElement('dialog');
   dlg.innerHTML = `
     <form method="dialog" id="fPw">
-      <div class="dlg-head"><h3>Cambiar contraseña</h3><button type="button" class="x" data-cerrar aria-label="Cerrar">×</button></div>
+      <div class="dlg-head"><h3>${t('cambiar_pw')}</h3><button type="button" class="x" data-cerrar aria-label="${t('cerrar')}">×</button></div>
       <div class="dlg-body">
-        <div class="campo"><label for="pwN1">Nueva contraseña</label><input id="pwN1" type="password" autocomplete="new-password" minlength="8" required></div>
-        <div class="campo"><label for="pwN2">Repítela</label><input id="pwN2" type="password" autocomplete="new-password" minlength="8" required></div>
-        <p class="muted" style="font-size:13px">Mínimo 8 caracteres.</p>
+        <div class="campo"><label for="pwN1">${t('nueva_pw')}</label><input id="pwN1" type="password" autocomplete="new-password" minlength="8" required></div>
+        <div class="campo"><label for="pwN2">${t('repite_pw')}</label><input id="pwN2" type="password" autocomplete="new-password" minlength="8" required></div>
+        <p class="muted" style="font-size:13px">${t('min8')}</p>
         <p class="error" id="pwErr"></p>
       </div>
-      <div class="dlg-foot"><button type="button" class="btn ghost" data-cerrar>Cancelar</button><button type="submit" class="btn solid">Guardar</button></div>
+      <div class="dlg-foot"><button type="button" class="btn ghost" data-cerrar>${t('cancelar')}</button><button type="submit" class="btn solid">${t('guardar')}</button></div>
     </form>`;
   document.body.appendChild(dlg);
   dlg.querySelectorAll('[data-cerrar]').forEach((b) => (b.onclick = () => dlg.close()));
@@ -95,13 +97,13 @@ export function activarCambioPassword() {
     e.preventDefault();
     const p1 = dlg.querySelector('#pwN1').value, p2 = dlg.querySelector('#pwN2').value;
     const err = dlg.querySelector('#pwErr');
-    if (p1 !== p2) { err.textContent = 'Las contraseñas no coinciden.'; return; }
+    if (p1 !== p2) { err.textContent = t('no_coinciden'); return; }
     const b = e.target.querySelector('[type=submit]'); b.disabled = true;
     const { error } = await sb.auth.updateUser({ password: p1 });
     b.disabled = false;
-    if (error) { err.textContent = 'No se pudo cambiar: ' + error.message; return; }
+    if (error) { err.textContent = t('err_guardar_pw', { e: error.message }); return; }
     dlg.close();
-    toast('Contraseña actualizada');
+    toast(t('pw_ok'));
   });
 }
 
@@ -116,12 +118,12 @@ export function chatAsistente({ destino = null, proyecto = () => null, modo = ()
   caja.className = 'asis-panel' + (flotante ? ' flotante oculto' : '');
   caja.innerHTML = `
     <div class="asis-cab">
-      <div><strong>✦ Rodolfo</strong><p class="muted">Asistente virtual de A2WD · Écris dans ta langue · Write in your language</p></div>
-      ${flotante ? '<button class="x" data-cerrar aria-label="Cerrar">×</button>' : ''}
+      <div><strong>✦ Rodolfo</strong><p class="muted">${t('rod_sub')}</p></div>
+      ${flotante ? `<button class="x" data-cerrar aria-label="${t('cerrar')}">×</button>` : ''}
     </div>
     <div class="asis-msgs" aria-live="polite"></div>
     <div class="asis-sug"></div>
-    <form class="asis-form"><input type="text" maxlength="1000" placeholder="Escribe tu pregunta…" aria-label="Pregunta" required><button class="btn solid small" type="submit">Enviar</button></form>`;
+    <form class="asis-form"><input type="text" maxlength="1000" placeholder="${t('rod_ph')}" aria-label="${t('rod_ph')}" required><button class="btn solid small" type="submit">${t('enviar')}</button></form>`;
   const msgs = caja.querySelector('.asis-msgs');
   const sug = caja.querySelector('.asis-sug');
   const form = caja.querySelector('form');
@@ -134,27 +136,27 @@ export function chatAsistente({ destino = null, proyecto = () => null, modo = ()
     msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight;
     return d;
   };
-  burbuja('¡Hola! Soy Rodolfo, el asistente virtual de A2WD. Pregúntame sobre tu proyecto o sobre cómo funciona el portal.', 'bot');
+  burbuja(t('rod_hola'), 'bot');
   const sugerir = (lista) => {
     sug.innerHTML = '';
-    (lista || []).forEach((t) => {
-      const b = document.createElement('button'); b.type = 'button'; b.className = 'chip-sug'; b.textContent = t;
-      b.onclick = () => { input.value = t; form.requestSubmit(); };
+    (lista || []).forEach((q) => {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'chip-sug'; b.textContent = q;
+      b.onclick = () => { input.value = q; form.requestSubmit(); };
       sug.appendChild(b);
     });
     msgs.scrollTop = msgs.scrollHeight;
   };
-  sugerir(['¿Cómo va mi web?', '¿Cómo pido un cambio?', '¿Qué significa la fase actual?']);
+  sugerir(t('rod_sug'));
 
   async function pasarAlEquipo(texto, preguntaId, boton) {
     const pid = proyecto();
-    if (!pid) { toast('No hay proyecto al que enviar la pregunta', 'bad'); return; }
+    if (!pid) { toast(t('rod_sin_proy'), 'bad'); return; }
     boton.disabled = true;
-    const { data: nuevo, error } = await sb.from('comentarios').insert({ proyecto_id: pid, mensaje: '[Pregunta al asistente] ' + texto }).select('id').single();
-    if (error) { boton.disabled = false; toast('No se pudo enviar', 'bad'); return; }
+    const { data: nuevo, error } = await sb.from('comentarios').insert({ proyecto_id: pid, mensaje: t('rod_prefijo') + texto }).select('id').single();
+    if (error) { boton.disabled = false; toast(t('rod_err_envio'), 'bad'); return; }
     sb.functions.invoke('analizar-comentario', { body: { comentario_id: nuevo.id } }).catch(() => {});
     if (preguntaId) sb.functions.invoke('asistente-chat', { body: { accion: 'enviada_equipo', pregunta_id: preguntaId } }).catch(() => {});
-    boton.replaceWith(Object.assign(document.createElement('p'), { className: 'asis-ok', textContent: '✓ Enviada al equipo. Te responderán en "Dudas y comentarios".' }));
+    boton.replaceWith(Object.assign(document.createElement('p'), { className: 'asis-ok', textContent: t('rod_pasada') }));
     document.dispatchEvent(new CustomEvent('asistente:enviado'));
   }
 
@@ -171,7 +173,7 @@ export function chatAsistente({ destino = null, proyecto = () => null, modo = ()
     form.querySelector('button').disabled = false;
     pensando.remove();
     if (error || !data?.ok) {
-      let msg = data?.error || 'No he podido responder ahora mismo. Inténtalo en un momento.';
+      let msg = data?.error || t('rod_error');
       try { msg = (await error.context.json()).error || msg; } catch {}
       burbuja(msg, 'bot error');
       return;
@@ -179,12 +181,12 @@ export function chatAsistente({ destino = null, proyecto = () => null, modo = ()
     const b = burbuja(data.respuesta, 'bot');
     historial.push({ rol: 'cliente', texto }, { rol: 'asistente', texto: data.respuesta });
     if (prueba) {
-      const t = document.createElement('p'); t.className = 'asis-meta';
-      t.textContent = data.sabe ? '✓ Respondida con el conocimiento' : '⚠ No lo sabía: conviene enseñárselo';
-      b.appendChild(t);
+      const meta = document.createElement('p'); meta.className = 'asis-meta';
+      meta.textContent = data.sabe ? '✓ Respondida con el conocimiento' : '⚠ No lo sabía: conviene enseñárselo';
+      b.appendChild(meta);
     } else if (!data.sabe) {
       const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'btn small';
-      btn.textContent = 'Pasar la pregunta al equipo';
+      btn.textContent = t('rod_pasar');
       btn.onclick = () => pasarAlEquipo(texto, data.pregunta_id, btn);
       b.appendChild(btn);
     }
@@ -195,7 +197,7 @@ export function chatAsistente({ destino = null, proyecto = () => null, modo = ()
   if (flotante) {
     const fab = document.createElement('button');
     fab.className = 'asis-fab'; fab.type = 'button'; fab.innerHTML = '✦ <span>Rodolfo</span>';
-    fab.setAttribute('aria-label', 'Abrir el asistente Rodolfo');
+    fab.setAttribute('aria-label', t('rod_abrir'));
     fab.onclick = () => { caja.classList.toggle('oculto'); if (!caja.classList.contains('oculto')) input.focus(); };
     caja.querySelector('[data-cerrar]').onclick = () => caja.classList.add('oculto');
     document.body.append(caja, fab);

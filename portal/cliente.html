@@ -29,15 +29,24 @@
 <body>
 <header class="top">
   <div class="top-inner">
-    <a class="brand" href="cliente.html" id="logo">A²WD <small>/ mi proyecto</small></a>
-    <div class="user"><a class="btn small ghost" href="../index.html" title="Volver a la web de A2WD">← Web</a><span id="quien"></span><button class="btn small ghost" id="cambiarPw">Contraseña</button><button class="btn small ghost" id="salir">Salir</button></div>
+    <a class="brand" href="cliente.html" id="logo">A²WD <small id="subMarca">/ mi proyecto</small></a>
+    <div class="user"><div id="idioma"></div><a class="btn small ghost" href="../index.html" id="irWeb">← Web</a><span id="quien"></span><button class="btn small ghost" id="cambiarPw">Contraseña</button><button class="btn small ghost" id="salir">Salir</button></div>
   </div>
 </header>
 
-<main class="layout" id="app"><p class="muted">Cargando…</p></main>
+<main class="layout" id="app"><p class="muted" id="cargando"></p></main>
 
 <script type="module">
-import { sb, exigirSesion, salir, esc, urlSegura, fecha, toast, ESTADOS, ORDEN_ESTADOS, LOGO, activarCambioPassword, chatAsistente } from './app.js';
+import { sb, exigirSesion, salir, esc, urlSegura, fecha, toast, ORDEN_ESTADOS, LOGO, activarCambioPassword, chatAsistente, t, selectorIdioma } from './app.js';
+
+// Textos fijos de la cabecera en el idioma del cliente
+document.getElementById('cargando').textContent = t('cargando');
+document.getElementById('subMarca').textContent = '/ ' + t('mi_proyecto');
+document.getElementById('irWeb').textContent = t('web');
+document.getElementById('irWeb').title = t('web_title');
+document.getElementById('cambiarPw').textContent = t('contrasena');
+document.getElementById('salir').textContent = t('salir');
+selectorIdioma(document.getElementById('idioma'));
 
 document.getElementById('logo').insertAdjacentHTML('afterbegin', LOGO);
 const ctx = await exigirSesion('cliente');
@@ -51,12 +60,12 @@ const app = document.getElementById('app');
 const { data: proyectos, error } = await sb.from('proyectos').select('*').order('created_at', { ascending: false });
 
 if (error) {
-  app.innerHTML = `<div class="vacio">No se pudieron cargar tus proyectos. Recarga la página.</div>`;
+  app.innerHTML = `<div class="vacio">${t('err_proyectos')}</div>`;
 } else if (!proyectos.length) {
   app.innerHTML = `
-    <p class="eyebrow">Hola, ${esc(perfil.nombre || '')}</p>
-    <h1>Tu proyecto se está preparando</h1>
-    <p class="muted" style="margin-top:10px">En cuanto lo demos de alta, aquí verás la web, los avances y podrás escribirnos.</p>`;
+    <p class="eyebrow">${esc(t('hola', { n: perfil.nombre || '' }))}</p>
+    <h1>${t('preparando')}</h1>
+    <p class="muted" style="margin-top:10px">${t('preparando_sub')}</p>`;
 } else {
   let actual = proyectos[0].id;
   const pintarSelector = () => proyectos.length < 2 ? '' :
@@ -73,7 +82,7 @@ if (error) {
     const idx = ORDEN_ESTADOS.indexOf(p.estado);
 
     app.innerHTML = `
-      <p class="eyebrow">Hola, ${esc(perfil.nombre || '')}</p>
+      <p class="eyebrow">${esc(t('hola', { n: perfil.nombre || '' }))}</p>
       <h1>${esc(p.nombre)}</h1>
       ${p.descripcion ? `<p class="muted" style="margin-top:8px;max-width:70ch">${esc(p.descripcion)}</p>` : ''}
       ${pintarSelector()}
@@ -81,48 +90,48 @@ if (error) {
         <div class="stack">
           <div class="card">
             <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap">
-              <h3>Estado del proyecto</h3>
-              <span class="mono muted" style="font-size:13px">${p.progreso}% · entrega ${fecha(p.fecha_entrega)}</span>
+              <h3>${t('estado_proyecto')}</h3>
+              <span class="mono muted" style="font-size:13px">${p.progreso}% · ${t('entrega', { f: fecha(p.fecha_entrega) })}</span>
             </div>
             <div class="barra" style="margin:14px 0 4px"><i style="width:${p.progreso}%"></i></div>
             <div class="fases">${ORDEN_ESTADOS.map((e, i) =>
-              `<div class="fase ${i < idx ? 'hecha' : ''} ${i === idx ? 'actual' : ''}">${ESTADOS[e]}</div>`).join('')}</div>
+              `<div class="fase ${i < idx ? 'hecha' : ''} ${i === idx ? 'actual' : ''}">${t('fase_' + e)}</div>`).join('')}</div>
           </div>
           ${url ? `
           <div class="preview">
             <div class="preview-bar">
               <span class="url">${esc(url)}</span>
-              <a class="btn small" href="${esc(url)}" target="_blank" rel="noopener">Abrir web ↗</a>
+              <a class="btn small" href="${esc(url)}" target="_blank" rel="noopener">${t('abrir_web')}</a>
             </div>
-            <iframe src="${esc(url)}" title="Vista previa de ${esc(p.nombre)}" loading="lazy"></iframe>
-          </div>` : `<div class="vacio">La vista previa de tu web estará disponible pronto.</div>`}
+            <iframe src="${esc(url)}" title="${esc(t('vista_previa_de', { n: p.nombre }))}" loading="lazy"></iframe>
+          </div>` : `<div class="vacio">${t('vista_pronto')}</div>`}
           <div class="card">
-            <h3 style="margin-bottom:4px">Avances</h3>
+            <h3 style="margin-bottom:4px">${t('avances')}</h3>
             ${avances?.length ? avances.map((a) => {
               const u = urlSegura(a.url);
               return `<div class="avance">
                 <p class="meta">${fecha(a.created_at)}</p>
                 <p style="font-weight:600;margin:2px 0">${esc(a.titulo)}</p>
                 ${a.descripcion ? `<p class="muted" style="white-space:pre-wrap">${esc(a.descripcion)}</p>` : ''}
-                ${u ? `<a class="mono" style="font-size:13px" href="${esc(u)}" target="_blank" rel="noopener">Ver ↗</a>` : ''}
+                ${u ? `<a class="mono" style="font-size:13px" href="${esc(u)}" target="_blank" rel="noopener">${t('ver')}</a>` : ''}
               </div>`;
-            }).join('') : `<p class="muted" style="margin-top:10px">Aún no hay avances publicados.</p>`}
+            }).join('') : `<p class="muted" style="margin-top:10px">${t('sin_avances')}</p>`}
           </div>
         </div>
 
         <div class="card">
-          <h3>Dudas y comentarios</h3>
-          <p class="muted" style="font-size:13.5px;margin:4px 0 16px">Escríbenos lo que quieras cambiar o preguntar.</p>
+          <h3>${t('dudas')}</h3>
+          <p class="muted" style="font-size:13.5px;margin:4px 0 16px">${t('dudas_sub')}</p>
           <div class="hilo" id="hilo">
             ${comentarios?.length ? comentarios.map((c) => `
               <div class="msg ${c.autor_id === perfil.id ? 'mio' : ''}">
-                <p class="meta">${esc(c.autor_rol === 'creador' ? 'A2WD · ' + (c.autor_nombre || '') : 'Tú')} · ${fecha(c.created_at, true)}</p>
+                <p class="meta">${esc(c.autor_rol === 'creador' ? 'A2WD · ' + (c.autor_nombre || '') : t('tu'))} · ${fecha(c.created_at, true)}</p>
                 <p>${esc(c.mensaje)}</p>
-              </div>`).join('') : `<p class="muted" style="font-size:13.5px">Todavía no hay mensajes.</p>`}
+              </div>`).join('') : `<p class="muted" style="font-size:13.5px">${t('sin_mensajes')}</p>`}
           </div>
           <form id="fComentario" style="margin-top:16px">
-            <textarea id="txt" maxlength="4000" placeholder="Escribe tu mensaje…" required></textarea>
-            <button class="btn solid" style="margin-top:10px;width:100%" type="submit">Enviar</button>
+            <textarea id="txt" maxlength="4000" placeholder="${t('escribe_msg')}" required></textarea>
+            <button class="btn solid" style="margin-top:10px;width:100%" type="submit">${t('enviar')}</button>
           </form>
         </div>
       </div>`;
@@ -136,10 +145,10 @@ if (error) {
       if (!txt) return;
       e.target.querySelector('button').disabled = true;
       const { data: nuevo, error } = await sb.from('comentarios').insert({ proyecto_id: id, mensaje: txt }).select('id').single();
-      if (error) { toast('No se pudo enviar el mensaje', 'bad'); e.target.querySelector('button').disabled = false; return; }
+      if (error) { toast(t('msg_error'), 'bad'); e.target.querySelector('button').disabled = false; return; }
       // El asistente de A2WD analiza el mensaje en segundo plano (el cliente no ve el resultado)
       sb.functions.invoke('analizar-comentario', { body: { comentario_id: nuevo.id } }).catch(() => {});
-      toast('Mensaje enviado');
+      toast(t('msg_enviado'));
       mostrar(id);
     });
   }
