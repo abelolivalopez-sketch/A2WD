@@ -66,8 +66,8 @@ export async function exigirSesion(rolRequerido) {
 }
 
 export async function salir() {
-  await sb.auth.signOut();
-  location.replace('login.html');
+  try { await sb.auth.signOut(); } catch { try { await sb.auth.signOut({ scope: 'local' }); } catch {} }
+  location.replace('../index.html');
 }
 
 export const LOGO = `<svg viewBox="0 0 100 100" fill="none" aria-hidden="true"><path d="M50,50 C50,35 38,22 24,22 C11,22 2,33 2,47 C2,61 11,72 24,72 C38,72 50,59 50,50 C50,35 62,22 76,22 C89,22 98,33 98,47 C98,61 89,72 76,72 C62,72 50,59 50,50 Z" stroke="currentColor" stroke-width="7"/></svg>`;
