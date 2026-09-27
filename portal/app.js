@@ -135,11 +135,16 @@ export function chatAsistente({ destino = null, proyecto = () => null, modo = ()
     return d;
   };
   burbuja('¡Hola! Soy Rodolfo, el asistente virtual de A2WD. Pregúntame sobre tu proyecto o sobre cómo funciona el portal.', 'bot');
-  ['¿Cómo va mi web?', '¿Cómo pido un cambio?', '¿Qué significa la fase actual?'].forEach((t) => {
-    const b = document.createElement('button'); b.type = 'button'; b.className = 'chip-sug'; b.textContent = t;
-    b.onclick = () => { input.value = t; form.requestSubmit(); };
-    sug.appendChild(b);
-  });
+  const sugerir = (lista) => {
+    sug.innerHTML = '';
+    (lista || []).forEach((t) => {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'chip-sug'; b.textContent = t;
+      b.onclick = () => { input.value = t; form.requestSubmit(); };
+      sug.appendChild(b);
+    });
+    msgs.scrollTop = msgs.scrollHeight;
+  };
+  sugerir(['¿Cómo va mi web?', '¿Cómo pido un cambio?', '¿Qué significa la fase actual?']);
 
   async function pasarAlEquipo(texto, preguntaId, boton) {
     const pid = proyecto();
@@ -183,7 +188,7 @@ export function chatAsistente({ destino = null, proyecto = () => null, modo = ()
       btn.onclick = () => pasarAlEquipo(texto, data.pregunta_id, btn);
       b.appendChild(btn);
     }
-    msgs.scrollTop = msgs.scrollHeight;
+    sugerir(data.sugerencias);
     input.focus();
   });
 

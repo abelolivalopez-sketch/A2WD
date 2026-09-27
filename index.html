@@ -933,9 +933,14 @@
     fab.setAttribute('aria-label', x.abrir); $('rodX').setAttribute('aria-label', x.cerrar);
     if (!historial.length) {
       sug.innerHTML = '';
-      x.sug.forEach(function(q){ var b = document.createElement('button'); b.type = 'button'; b.textContent = q; b.onclick = function(){ input.value = q; enviar(); }; sug.appendChild(b); });
+      ponerSugerencias(x.sug);
       if (saludado) { msgs.innerHTML = ''; burbuja(x.hola, 'bot'); }
     }
+  }
+  function ponerSugerencias(lista){
+    sug.innerHTML = '';
+    (lista || []).forEach(function(q){ var b = document.createElement('button'); b.type = 'button'; b.textContent = q; b.onclick = function(){ input.value = q; enviar(); }; sug.appendChild(b); });
+    msgs.scrollTop = msgs.scrollHeight;
   }
   function acciones(el){
     var x = t(), c = document.createElement('div'); c.className = 'rod-acc';
@@ -966,6 +971,7 @@
         var b = burbuja(d.respuesta, 'bot');
         historial.push({ rol: 'persona', texto: texto }, { rol: 'asistente', texto: d.respuesta });
         if (!d.sabe) acciones(b);
+        ponerSugerencias(d.sugerencias);
       })
       .catch(function(){ pensando.remove(); acciones(burbuja(t().error, 'bot')); })
       .then(function(){ btn.disabled = false; input.focus(); });
