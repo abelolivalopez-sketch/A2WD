@@ -134,8 +134,10 @@ if (error) {
       const txt = document.getElementById('txt').value.trim();
       if (!txt) return;
       e.target.querySelector('button').disabled = true;
-      const { error } = await sb.from('comentarios').insert({ proyecto_id: id, mensaje: txt });
+      const { data: nuevo, error } = await sb.from('comentarios').insert({ proyecto_id: id, mensaje: txt }).select('id').single();
       if (error) { toast('No se pudo enviar el mensaje', 'bad'); e.target.querySelector('button').disabled = false; return; }
+      // El asistente de A2WD analiza el mensaje en segundo plano (el cliente no ve el resultado)
+      sb.functions.invoke('analizar-comentario', { body: { comentario_id: nuevo.id } }).catch(() => {});
       toast('Mensaje enviado');
       mostrar(id);
     });

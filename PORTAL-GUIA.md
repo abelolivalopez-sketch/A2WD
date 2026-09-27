@@ -64,3 +64,22 @@ En `portal/config.js` pega la **Project URL** y la **clave pública** (`anon` / 
 - Nadie puede cambiarse el rol a sí mismo; para añadir otro creador repite el paso 4.2 con su correo.
 - Nunca pongas la clave `service_role` / `secret` en la web ni en GitHub.
 - RGPD: añade a tu política de privacidad que guardas datos de contacto y facturación de clientes para la gestión de sus proyectos.
+
+## Agente 1 · Analizador de dudas
+
+Cada mensaje que escribe un cliente lo analiza Claude (modelo Haiku, el más económico) y en tu panel verás:
+- **Prioridad** (baja, media, alta, urgente) y **categoría** (duda, cambio de diseño, contenido, problema técnico, facturación, aprobación).
+- Un **resumen** de una línea.
+- Un **borrador de respuesta** en el idioma del cliente, y un aviso si hay que confirmar algo antes (precios, fechas…).
+
+Pulsa **Usar respuesta** para copiarla al cuadro, revísala y envíala. El agente nunca contesta solo, y el cliente no ve el análisis.
+Para mensajes antiguos o si algo falla, usa **✦ Analizar con IA** o **Volver a analizar**.
+
+### Activarlo (una sola vez)
+1. Crea una clave de API en https://console.anthropic.com → **API Keys** → *Create Key* (añade saldo en *Billing*; con 5 € tienes para miles de mensajes).
+2. En Supabase → **Edge Functions → Secrets** → *Add new secret*:
+   - Name: `ANTHROPIC_API_KEY`
+   - Value: la clave (empieza por `sk-ant-`)
+3. Guarda. No hace falta tocar nada más.
+
+La clave vive solo en Supabase: nunca la pongas en la web ni en GitHub.

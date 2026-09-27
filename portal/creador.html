@@ -38,6 +38,11 @@
   .item{padding:14px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;}
   .item:last-child{border-bottom:0;}
   .acciones{display:flex;gap:8px;flex-wrap:wrap;}
+  .ia{margin-top:10px;padding:10px 12px;border-left:2px solid var(--ink);background:var(--paper);font-size:13.5px;}
+  .ia .ia-cab{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:6px;}
+  .ia .sug{white-space:pre-wrap;color:var(--ink-soft);margin:8px 0;padding:8px 10px;background:var(--soft);}
+  .ia .aviso{color:var(--warn);margin-top:4px;}
+  .ia-tags{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;margin-right:6px;}
 </style>
 </head>
 <body>
@@ -82,6 +87,10 @@ const ESTADOS_CLIENTE = { potencial: 'Potencial', activo: 'Activo', pausado: 'Pa
 const ESTADOS_FACTURA = { borrador: 'Borrador', pendiente: 'Pendiente', pagada: 'Pagada', vencida: 'Vencida', anulada: 'Anulada' };
 const tagEstado = (e) => `<span class="tag ${e === 'entregado' ? 'ok' : e === 'revision' ? 'warn' : ''}">${ESTADOS[e] || e}</span>`;
 const tagFactura = (e) => `<span class="tag ${e === 'pagada' ? 'ok' : e === 'vencida' ? 'bad' : e === 'pendiente' ? 'warn' : ''}">${ESTADOS_FACTURA[e] || e}</span>`;
+const CATEGORIAS = { duda: 'Duda', cambio_diseno: 'Cambio de diseño', contenido: 'Contenido', problema_tecnico: 'Problema técnico', facturacion: 'Facturación', aprobacion: 'Aprobación', otro: 'Otro' };
+const PRIORIDADES = { baja: 'Baja', media: 'Media', alta: 'Alta', urgente: 'Urgente' };
+const iaDe = (c) => (Array.isArray(c?.comentarios_ia) ? c.comentarios_ia[0] : c?.comentarios_ia) || null;
+const tagsIA = (a) => !a ? '' : `<span class="ia-tags"><span class="tag ${a.prioridad === 'urgente' ? 'bad' : a.prioridad === 'alta' ? 'warn' : ''}">${PRIORIDADES[a.prioridad] || a.prioridad}</span><span class="tag">${CATEGORIAS[a.categoria] || a.categoria}</span></span>`;
 const opts = (obj) => Object.entries(obj).map(([v, l]) => ({ v, l }));
 const fallo = (error, texto = 'Algo salió mal') => { if (error) { console.error(error); toast(`${texto}: ${error.message}`, 'bad'); return true; } return false; };
 
@@ -199,7 +208,7 @@ async function vResumen() {
   const [c, p, m, f] = await Promise.all([
     sb.from('clientes').select('id', { count: 'exact', head: true }).eq('estado', 'activo'),
     sb.from('proyectos').select('*, clientes(nombre)').neq('estado', 'entregado').order('fecha_entrega', { nullsFirst: false }),
-    sb.from('comentarios').select('*, proyectos(nombre)').eq('leido', false).order('created_at', { ascending: false }).limit(8),
+    sb.from('comentarios').select('*, proyectos(nombre), comentarios_ia(*)').eq('leido', false).order('created_at', { ascending: false }).limit(8),
     sb.from('facturas').select('total').in('estado', ['pendiente', 'vencida']).eq('tipo', 'factura'),
   ]);
   const pendiente = (f.data || []).reduce((s, x) => s + Number(x.total), 0);
@@ -224,8 +233,8 @@ async function vResumen() {
       <div class="card"><h3>Últimos mensajes sin leer</h3>
         ${m.data?.length ? m.data.map((x) => `
           <div class="item" style="cursor:pointer;display:block" data-go="#proyecto/${x.proyecto_id}">
-            <p class="mono muted" style="font-size:11.5px">${esc(x.autor_nombre)} · ${esc(x.proyectos?.nombre)} · ${fecha(x.created_at, true)}</p>
-            <p style="margin-top:3px">${esc(x.mensaje.length > 140 ? x.mensaje.slice(0, 140) + '…' : x.mensaje)}</p>
+            <p class="mono muted" style="font-size:11.5px">${tagsIA(iaDe(x))}${esc(x.autor_nombre)} · ${esc(x.proyectos?.nombre)} · ${fecha(x.created_at, true)}</p>
+            <p style="margin-top:3px">${iaDe(x) ? '<strong>IA:</strong> ' + esc(iaDe(x).resumen) : esc(x.mensaje.length > 140 ? x.mensaje.slice(0, 140) + '…' : x.mensaje)}</p>
           </div>`).join('') : `<p class="muted" style="margin-top:10px">Estás al día.</p>`}
       </div>
     </div>`;
@@ -334,7 +343,7 @@ async function vProyecto(id) {
   const [{ data: p, error }, { data: avances }, { data: comentarios }] = await Promise.all([
     sb.from('proyectos').select('*, clientes(id,nombre,email,user_id)').eq('id', id).single(),
     sb.from('avances').select('*').eq('proyecto_id', id).order('created_at', { ascending: false }),
-    sb.from('comentarios').select('*').eq('proyecto_id', id).order('created_at'),
+    sb.from('comentarios').select('*, comentarios_ia(*)').eq('proyecto_id', id).order('created_at'),
   ]);
   if (fallo(error, 'Proyecto no encontrado')) return;
   const u = urlSegura(p.url_preview);
@@ -370,7 +379,7 @@ async function vProyecto(id) {
         <h3>Conversación con el cliente</h3>
         <p class="muted" style="font-size:13.5px;margin:4px 0 16px">Lo que escribas aquí lo verá ${esc(p.clientes.nombre)}.</p>
         <div class="hilo" id="hilo">${comentarios?.length ? comentarios.map((c) => `
-          <div class="msg ${c.autor_rol === 'creador' ? 'mio' : ''}"><p class="meta">${esc(c.autor_nombre)} · ${fecha(c.created_at, true)}</p><p>${esc(c.mensaje)}</p></div>`).join('')
+          <div class="msg ${c.autor_rol === 'creador' ? 'mio' : ''}"><p class="meta">${esc(c.autor_nombre)} · ${fecha(c.created_at, true)}</p><p>${esc(c.mensaje)}</p>${c.autor_rol === 'creador' ? '' : bloqueIA(c)}</div>`).join('')
           : `<p class="muted" style="font-size:13.5px">Sin mensajes todavía.</p>`}</div>
         <form id="fCom" style="margin-top:16px"><textarea id="txt" maxlength="4000" placeholder="Responder…" required></textarea>
           <button class="btn solid" style="margin-top:10px;width:100%">Enviar</button></form>
@@ -392,6 +401,13 @@ async function vProyecto(id) {
     guardar: async (d) => guardarEn('avances')({ ...d, proyecto_id: id }),
   });
   vista.querySelectorAll('[data-del-av]').forEach((b) => (b.onclick = () => borrar('avances', b.dataset.delAv, 'este avance')));
+  vista.querySelectorAll('[data-analizar]').forEach((b) => (b.onclick = () => analizar(b.dataset.analizar, !!b.dataset.forzar, b)));
+  vista.querySelectorAll('[data-usar]').forEach((b) => (b.onclick = () => {
+    const a = iaDe(comentarios.find((x) => x.id === b.dataset.usar));
+    const t = document.getElementById('txt');
+    t.value = a?.respuesta || ''; t.focus(); t.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    toast('Respuesta copiada al cuadro. Revísala y pulsa Enviar.');
+  }));
   document.getElementById('fCom').addEventListener('submit', async (e) => {
     e.preventDefault();
     const txt = document.getElementById('txt').value.trim(); if (!txt) return;
@@ -402,15 +418,41 @@ async function vProyecto(id) {
   });
 }
 
+function bloqueIA(c) {
+  const a = iaDe(c);
+  if (!a) return `<div class="ia"><button class="btn small ghost" data-analizar="${c.id}">✦ Analizar con IA</button></div>`;
+  return `<div class="ia">
+    <div class="ia-cab"><span class="mono muted" style="font-size:11px">✦ ASISTENTE</span>${tagsIA(a)}</div>
+    <p>${esc(a.resumen)}</p>
+    ${a.necesita_info ? `<p class="aviso">⚠ ${esc(a.necesita_info)}</p>` : ''}
+    ${a.respuesta ? `<p class="sug">${esc(a.respuesta)}</p>` : ''}
+    <div class="acciones">${a.respuesta ? `<button class="btn small solid" data-usar="${c.id}">Usar respuesta</button>` : ''}<button class="btn small ghost" data-analizar="${c.id}" data-forzar="1">Volver a analizar</button></div>
+  </div>`;
+}
+
+async function analizar(comentarioId, forzar, boton) {
+  if (boton) { boton.disabled = true; boton.textContent = 'Analizando…'; }
+  const { data, error } = await sb.functions.invoke('analizar-comentario', { body: { comentario_id: comentarioId, forzar } });
+  if (error || !data?.ok) {
+    let msg = error?.message || data?.error || 'error';
+    try { msg = (await error.context.json()).error || msg; } catch {}
+    toast('No se pudo analizar: ' + msg, 'bad');
+    if (boton) { boton.disabled = false; boton.textContent = '✦ Analizar con IA'; }
+    return;
+  }
+  router();
+}
+
 async function vMensajes() {
-  const { data, error } = await sb.from('comentarios').select('*, proyectos(nombre, clientes(nombre))').order('created_at', { ascending: false }).limit(100);
+  const { data, error } = await sb.from('comentarios').select('*, proyectos(nombre, clientes(nombre)), comentarios_ia(*)').order('created_at', { ascending: false }).limit(100);
   if (fallo(error)) return;
   vista.innerHTML = `
     <div class="cabecera"><div><p class="eyebrow">Bandeja</p><h1>Mensajes de clientes</h1></div></div>
     <div class="card">${data.filter((c) => c.autor_rol !== 'creador').map((c) => `
       <div class="item" style="cursor:pointer;display:block" data-go="#proyecto/${c.proyecto_id}">
-        <p class="mono muted" style="font-size:11.5px">${c.leido ? '' : '<span class="tag dark" style="margin-right:6px">Nuevo</span>'}${esc(c.proyectos?.clientes?.nombre)} · ${esc(c.proyectos?.nombre)} · ${fecha(c.created_at, true)}</p>
-        <p style="margin-top:4px;white-space:pre-wrap">${esc(c.mensaje)}</p></div>`).join('') || '<p class="muted">No hay mensajes de clientes.</p>'}
+        <p class="mono muted" style="font-size:11.5px">${c.leido ? '' : '<span class="tag dark" style="margin-right:6px">Nuevo</span>'}${tagsIA(iaDe(c))}${esc(c.proyectos?.clientes?.nombre)} · ${esc(c.proyectos?.nombre)} · ${fecha(c.created_at, true)}</p>
+        ${iaDe(c) ? `<p style="margin-top:4px"><strong>IA:</strong> ${esc(iaDe(c).resumen)}</p>` : ''}
+        <p style="margin-top:4px;white-space:pre-wrap" class="${iaDe(c) ? 'muted' : ''}">${esc(c.mensaje)}</p></div>`).join('') || '<p class="muted">No hay mensajes de clientes.</p>'}
     </div>`;
 }
 
