@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /portal/
+Sitemap: https://abelolivalopez-sketch.github.io/A2WD/sitemap.xml
