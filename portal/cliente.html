@@ -37,7 +37,7 @@
 <main class="layout" id="app"><p class="muted">Cargando…</p></main>
 
 <script type="module">
-import { sb, exigirSesion, salir, esc, urlSegura, fecha, toast, ESTADOS, ORDEN_ESTADOS, LOGO, activarCambioPassword } from './app.js';
+import { sb, exigirSesion, salir, esc, urlSegura, fecha, toast, ESTADOS, ORDEN_ESTADOS, LOGO, activarCambioPassword, chatAsistente } from './app.js';
 
 document.getElementById('logo').insertAdjacentHTML('afterbegin', LOGO);
 const ctx = await exigirSesion('cliente');
@@ -144,6 +144,8 @@ if (error) {
     });
   }
   mostrar(actual);
+  chatAsistente({ proyecto: () => actual });
+  document.addEventListener('asistente:enviado', () => mostrar(actual));
 }
 </script>
 </body>

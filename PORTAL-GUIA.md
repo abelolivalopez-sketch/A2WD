@@ -88,3 +88,20 @@ Notas:
 - En el plan gratuito Google puede usar el contenido para mejorar sus productos. No pidas a los clientes datos sensibles por el chat y menciónalo en tu política de privacidad.
 - Si algún día queréis más calidad o privacidad, se puede usar Claude (de pago) añadiendo el secreto `ANTHROPIC_API_KEY` y borrando el de Gemini.
 - Las claves viven solo en Supabase: nunca las pongas en la web ni en GitHub.
+
+## Agente 2 · Asistente de ayuda para clientes
+
+En el panel del cliente aparece el botón **✦ Asistente** (abajo a la derecha). Responde al momento, en el idioma del cliente,
+usando **solo** lo que le enseñáis y los datos del proyecto de ese cliente (fase, progreso, avances). Nunca inventa precios ni plazos:
+si no sabe algo, lo dice y ofrece el botón **«Pasar la pregunta al equipo»**, que la envía a vuestro chat del proyecto (y el Agente 1 la analiza).
+
+### Entrenarlo (solo creadores) → panel · **✦ Asistente IA**
+- **Conocimiento**: preguntas típicas y su respuesta. Escribidlas en español; el asistente las traduce solo. Podéis pausarlas sin borrarlas.
+- **Preguntas de clientes**: todo lo que le preguntan. Las que **no sabía** salen marcadas (y con contador en el menú): pulsa
+  **Enseñar respuesta**, escribe la respuesta y a partir de ese momento ya la sabe.
+- **Probar**: chatea con él como si fueras un cliente (elige un proyecto para que use sus datos). Las pruebas no se guardan.
+
+Ideas para enseñarle primero: plazos habituales de una web, qué necesitáis del cliente para empezar, formas de pago,
+qué incluye el mantenimiento, cómo funciona el dominio y el hosting, cuántas revisiones incluye cada fase.
+
+Límites: 30 preguntas por cliente y día. Usa Gemini gratis (primero `gemini-3.7-flash`; si está saturado, pasa solo a modelos ligeros).

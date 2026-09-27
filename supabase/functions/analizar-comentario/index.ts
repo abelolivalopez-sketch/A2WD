@@ -47,7 +47,7 @@ Debes:
    - baja: agradecimientos, confirmaciones o comentarios sin acción
 3. Resumir en UNA frase en español para el creador (máx. 20 palabras).
 4. Redactar un borrador de respuesta al cliente:
-   - En el MISMO idioma en que escribió el cliente.
+   - En el MISMO idioma en que escribió el cliente (detecta primero el idioma: fr → francés, it → italiano, en → inglés, es → español).
    - Tono cercano, profesional y breve (2–5 frases), tuteando o usando "vous" según el idioma y cómo escribió el cliente.
    - Firma en el idioma del cliente: "Abel y Ariel · A2WD" (es), "Abel et Ariel · A2WD" (fr), "Abel e Ariel · A2WD" (it), "Abel & Ariel · A2WD" (en).
    - No inventes fechas, precios, plazos ni compromisos que no estén en el contexto. Si hacen falta, indícalo en necesita_info y en la respuesta di que lo confirmaréis pronto.
@@ -80,9 +80,7 @@ Deno.serve(async (req) => {
   const ajuste = async (k: string) => Deno.env.get(k) || (await admin.rpc('ajuste_privado', { p_clave: k })).data || undefined;
   GEMINI_KEY = await ajuste('GEMINI_API_KEY');
   ANTHROPIC_KEY = GEMINI_KEY ? undefined : await ajuste('ANTHROPIC_API_KEY');
-  MODELO = GEMINI_KEY
-    ? (Deno.env.get('GEMINI_MODEL') || 'gemini-3.5-flash-lite')
-    : (Deno.env.get('ANTHROPIC_MODEL') || 'claude-haiku-4-5-20251001');
+  MODELO = GEMINI_KEY ? 'gemini' : (Deno.env.get('ANTHROPIC_MODEL') || 'claude-haiku-4-5-20251001');
   if (!GEMINI_KEY && !ANTHROPIC_KEY) return json({ error: 'Falta la clave GEMINI_API_KEY' }, 500);
 
   // 1. Quién llama
@@ -151,7 +149,7 @@ Deno.serve(async (req) => {
     respuesta: String(a.respuesta || '').slice(0, 4000),
     idioma: String(a.idioma || '').slice(0, 10),
     necesita_info: a.necesita_info ? String(a.necesita_info).slice(0, 500) : null,
-    modelo: MODELO,
+    modelo: a._modelo || MODELO,
   };
   const { error: gErr } = await admin.from('comentarios_ia').upsert(fila);
   if (gErr) return json({ error: gErr.message }, 500);
@@ -161,29 +159,44 @@ Deno.serve(async (req) => {
 
 // ---------- Proveedores ----------
 async function conGemini(contexto: string) {
-  const esquema = {
-    type: 'OBJECT',
-    properties: Object.fromEntries(Object.entries(HERRAMIENTA.input_schema.properties).map(([k, v]) =>
-      [k, { type: 'STRING', ...('enum' in v ? { enum: (v as { enum: string[] }).enum } : {}), description: (v as { description?: string }).description }])),
-    required: HERRAMIENTA.input_schema.required,
-  };
-  const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODELO}:generateContent`, {
-    method: 'POST',
-    headers: { 'x-goog-api-key': GEMINI_KEY!, 'content-type': 'application/json' },
-    body: JSON.stringify({
-      systemInstruction: { parts: [{ text: SISTEMA }] },
-      contents: [{ role: 'user', parts: [{ text: contexto }] }],
-      generationConfig: { temperature: 0.3, maxOutputTokens: 1024, responseMimeType: 'application/json', responseSchema: esquema },
-    }),
-  });
-  if (!r.ok) {
-    const t = await r.text();
-    console.error('Gemini', r.status, t);
-    throw new Error(r.status === 429 ? 'Límite gratuito de Gemini alcanzado por hoy; inténtalo más tarde' : `Error de Gemini (${r.status})`);
+  const props: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(HERRAMIENTA.input_schema.properties)) {
+    props[k] = { type: 'STRING', ...('enum' in v ? { enum: (v as { enum: string[] }).enum } : {}), ...((v as { description?: string }).description ? { description: (v as { description?: string }).description } : {}) };
   }
-  const data = await r.json();
-  const texto = data.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p.text || '').join('') || '';
-  return JSON.parse(texto);
+  return llamarGemini(GEMINI_KEY!, SISTEMA, contexto, {
+    type: 'OBJECT', properties: props, required: HERRAMIENTA.input_schema.required,
+    propertyOrdering: ['idioma', 'categoria', 'prioridad', 'resumen', 'respuesta', 'necesita_info'],
+  });
+}
+
+// Modelos gratuitos en orden de preferencia; si uno está saturado (503),
+// sin cuota (429) o retirado (404), se prueba el siguiente.
+const MODELOS_GEMINI = (Deno.env.get('GEMINI_MODELS') || 'gemini-3.7-flash,gemini-3.1-flash-lite,gemini-3.5-flash-lite').split(',').map((m: string) => m.trim()).filter(Boolean);
+
+async function llamarGemini(clave: string, sistema: string, entrada: string, esquema: Record<string, unknown>, temperatura = 0.3) {
+  let ultimo = '';
+  for (const modelo of MODELOS_GEMINI) {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent`, {
+      method: 'POST',
+      headers: { 'x-goog-api-key': clave, 'content-type': 'application/json' },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: sistema }] },
+        contents: [{ role: 'user', parts: [{ text: entrada }] }],
+        generationConfig: { temperature: temperatura, maxOutputTokens: 4096, responseMimeType: 'application/json', responseSchema: esquema },
+      }),
+    });
+    if (!res.ok) {
+      ultimo = `${modelo}: ${res.status}`;
+      console.error('Gemini', modelo, res.status, (await res.text()).slice(0, 300));
+      if ([429, 404, 500, 503].includes(res.status)) continue;
+      throw new Error(`Error de la IA (${res.status})`);
+    }
+    const data = await res.json();
+    const texto = data.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p.text || '').join('') || '';
+    try { return { ...JSON.parse(texto), _modelo: modelo }; }
+    catch { ultimo = `${modelo}: respuesta incompleta`; console.error('Gemini JSON', modelo, texto.slice(0, 200)); }
+  }
+  throw new Error(ultimo.includes('429') ? 'La IA ha llegado a su límite gratuito por hoy; inténtalo más tarde' : 'La IA no está disponible ahora mismo; inténtalo en un momento');
 }
 
 async function conClaude(contexto: string) {

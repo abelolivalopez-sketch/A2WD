@@ -38,6 +38,13 @@
   .item{padding:14px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;}
   .item:last-child{border-bottom:0;}
   .acciones{display:flex;gap:8px;flex-wrap:wrap;}
+  .subtabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:20px;overflow-x:auto;}
+  .subtabs a{font-family:'IBM Plex Mono';font-size:13px;padding:10px 14px;text-decoration:none;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap;}
+  .subtabs a.on{color:var(--ink);border-bottom-color:var(--ink);}
+  .kn{padding:14px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;}
+  .kn:last-child{border-bottom:0;}
+  .kn.inactivo{opacity:.5;}
+  .kn p.r{white-space:pre-wrap;color:var(--ink-soft);margin-top:4px;font-size:14px;}
   .ia{margin-top:10px;padding:10px 12px;border-left:2px solid var(--ink);background:var(--paper);font-size:13.5px;}
   .ia .ia-cab{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:6px;}
   .ia .sug{white-space:pre-wrap;color:var(--ink-soft);margin:8px 0;padding:8px 10px;background:var(--soft);}
@@ -60,6 +67,7 @@
     <a href="#proyectos" data-s="proyectos">Proyectos</a>
     <a href="#mensajes" data-s="mensajes">Mensajes <span class="num oculto" id="nSinLeer"></span></a>
     <a href="#facturas" data-s="facturas">Facturas</a>
+    <a href="#asistente" data-s="asistente">✦ Asistente IA <span class="num oculto" id="nAsis"></span></a>
   </nav>
   <main id="vista"><p class="muted">Cargando…</p></main>
 </div>
@@ -73,7 +81,7 @@
 </dialog>
 
 <script type="module">
-import { sb, exigirSesion, salir, esc, urlSegura, fecha, euros, toast, ESTADOS, ORDEN_ESTADOS, LOGO, activarCambioPassword } from './app.js';
+import { sb, exigirSesion, salir, esc, urlSegura, fecha, euros, toast, ESTADOS, ORDEN_ESTADOS, LOGO, activarCambioPassword, chatAsistente } from './app.js';
 
 document.getElementById('logo').insertAdjacentHTML('afterbegin', LOGO);
 const ctx = await exigirSesion('creador');
@@ -484,14 +492,120 @@ async function vFacturas() {
   }));
 }
 
+// =================== ASISTENTE IA (entrenamiento) ===================
+const CATS_KN = { general: 'General', estudio: 'Estudio', servicios: 'Servicios', portal: 'Portal', proceso: 'Proceso y plazos', precios: 'Precios y pagos', contenido: 'Contenido', contacto: 'Contacto', tecnico: 'Técnico' };
+const camposKn = [
+  { k: 'pregunta', label: 'Pregunta (como la haría un cliente)', req: true, attrs: 'maxlength="500" placeholder="¿Cuánto tarda en estar lista una web?"' },
+  { k: 'respuesta', label: 'Respuesta que debe dar el asistente', tipo: 'textarea', req: true },
+  { k: 'categoria', label: 'Categoría', tipo: 'select', opciones: opts(CATS_KN), def: 'general' },
+  { k: 'activo', label: 'Estado', tipo: 'select', opciones: [{ v: 'true', l: 'Activa (el asistente la usa)' }, { v: 'false', l: 'Pausada' }], def: 'true' },
+];
+const guardarKn = (id) => async (d) => guardarEn('conocimiento', id)({ ...d, activo: d.activo !== 'false' });
+
+async function actualizarAsis() {
+  const { count } = await sb.from('asistente_preguntas').select('id', { count: 'exact', head: true }).eq('sabia', false).eq('estado', 'nueva');
+  const el = document.getElementById('nAsis');
+  el.textContent = count || ''; el.classList.toggle('oculto', !count);
+}
+
+async function vAsistente(sub = 'conocimiento') {
+  const tabs = [['conocimiento', 'Conocimiento'], ['preguntas', 'Preguntas de clientes'], ['probar', 'Probar']];
+  vista.innerHTML = `
+    <div class="cabecera"><div><p class="eyebrow">Agente de ayuda</p><h1>Asistente IA</h1>
+      <p class="muted" style="margin-top:6px;max-width:70ch">Los clientes le preguntan desde su panel. Solo responde con lo que le enseñéis aquí y con los datos de su proyecto; si no sabe algo, ofrece pasar la pregunta al equipo.</p></div></div>
+    <nav class="subtabs">${tabs.map(([k, l]) => `<a href="#asistente/${k}" class="${k === sub ? 'on' : ''}">${l}</a>`).join('')}</nav>
+    <div id="asisCont"></div>`;
+  const cont = document.getElementById('asisCont');
+
+  if (sub === 'probar') {
+    const { data: proys } = await sb.from('proyectos').select('id, nombre, clientes(nombre)').order('created_at', { ascending: false });
+    cont.innerHTML = `
+      <div class="dos"><div>
+        <div class="herr"><select id="pruebaProy"><option value="">Sin proyecto (preguntas generales)</option>${(proys || []).map((p) => `<option value="${p.id}">${esc(p.nombre)} · ${esc(p.clientes?.nombre)}</option>`).join('')}</select></div>
+        <div id="chatPrueba"></div></div>
+        <div class="card"><h3>Cómo probarlo</h3><p class="muted" style="margin-top:8px">Escribe como si fueras un cliente, en cualquier idioma. Elige un proyecto para que responda con sus datos (fase, progreso, avances).</p>
+          <p class="muted" style="margin-top:8px">Las pruebas no se guardan en «Preguntas de clientes». Si ves «⚠ No lo sabía», añade esa pregunta en <a href="#asistente/conocimiento">Conocimiento</a>.</p></div></div>`;
+    chatAsistente({ destino: document.getElementById('chatPrueba'), proyecto: () => document.getElementById('pruebaProy').value || null, prueba: true });
+    return;
+  }
+
+  if (sub === 'preguntas') {
+    const { data, error } = await sb.from('asistente_preguntas').select('*, perfiles(nombre, email), proyectos(nombre)').order('created_at', { ascending: false }).limit(200);
+    if (fallo(error)) return;
+    const sinSaber = data.filter((q) => !q.sabia && q.estado === 'nueva').length;
+    const estadoTag = (q) => q.estado === 'ensenada' ? '<span class="tag ok">Enseñada</span>' : q.estado === 'enviada_equipo' ? '<span class="tag warn">Pasada al equipo</span>' : q.estado === 'revisada' ? '<span class="tag">Revisada</span>' : (q.sabia ? '<span class="tag">Respondida</span>' : '<span class="tag bad">No lo sabía</span>');
+    cont.innerHTML = `
+      <div class="herr"><select id="filtroQ"><option value="pend">Pendientes de enseñar (${sinSaber})</option><option value="todas">Todas</option></select></div>
+      <div class="card" id="listaQ"></div>`;
+    const pintar = () => {
+      const f = document.getElementById('filtroQ').value;
+      const lista = f === 'todas' ? data : data.filter((q) => !q.sabia && q.estado !== 'ensenada' && q.estado !== 'revisada');
+      document.getElementById('listaQ').innerHTML = lista.length ? lista.map((q) => `
+        <div class="kn"><div>
+          <p class="mono muted" style="font-size:11.5px">${estadoTag(q)} ${esc(q.perfiles?.nombre || q.perfiles?.email || '—')} · ${esc(q.proyectos?.nombre || 'sin proyecto')} · ${fecha(q.created_at, true)}${q.idioma ? ' · ' + esc(q.idioma) : ''}</p>
+          <p style="font-weight:600;margin-top:6px">${esc(q.pregunta)}</p>
+          <p class="r">↳ ${esc(q.respuesta || '—')}</p></div>
+          <div class="acciones" style="align-content:flex-start">
+            ${q.estado !== 'ensenada' ? `<button class="btn small solid" data-ensenar="${q.id}">Enseñar respuesta</button>` : ''}
+            ${q.estado === 'nueva' && !q.sabia ? `<button class="btn small ghost" data-revisar="${q.id}">Ignorar</button>` : ''}
+          </div></div>`).join('') : `<p class="muted">${f === 'todas' ? 'Aún no hay preguntas de clientes.' : 'Nada pendiente: el asistente supo responder a todo.'}</p>`;
+      cont.querySelectorAll('[data-ensenar]').forEach((b) => (b.onclick = () => {
+        const q = data.find((x) => x.id === b.dataset.ensenar);
+        abrirForm({ titulo: 'Enseñar al asistente', campos: camposKn, valores: { pregunta: q.pregunta.slice(0, 500), categoria: 'general', activo: 'true' },
+          guardar: async (d) => {
+            const r = await guardarKn()(d); if (r === false) return false;
+            await sb.from('asistente_preguntas').update({ estado: 'ensenada' }).eq('id', q.id);
+          } });
+      }));
+      cont.querySelectorAll('[data-revisar]').forEach((b) => (b.onclick = async () => {
+        await sb.from('asistente_preguntas').update({ estado: 'revisada' }).eq('id', b.dataset.revisar); router();
+      }));
+    };
+    document.getElementById('filtroQ').onchange = pintar;
+    pintar();
+    return;
+  }
+
+  // Conocimiento
+  const { data, error } = await sb.from('conocimiento').select('*').order('categoria').order('created_at');
+  if (fallo(error)) return;
+  cont.innerHTML = `
+    <div class="herr" style="justify-content:space-between">
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><input id="buscarKn" type="search" placeholder="Buscar…">
+        <select id="catKn"><option value="">Todas las categorías</option>${opts(CATS_KN).map((o) => `<option value="${o.v}">${o.l}</option>`).join('')}</select></div>
+      <button class="btn solid" id="nKn">+ Enseñar algo nuevo</button></div>
+    <p class="muted" style="margin-bottom:12px;font-size:13.5px">${data.filter((k) => k.activo).length} respuestas activas. Escribidlas en español: el asistente las traduce solo al idioma del cliente. Nunca pongáis aquí datos privados de un cliente.</p>
+    <div class="card" id="listaKn"></div>`;
+  const pintar = () => {
+    const t = document.getElementById('buscarKn').value.toLowerCase(), c = document.getElementById('catKn').value;
+    const lista = data.filter((k) => (!c || k.categoria === c) && (k.pregunta + ' ' + k.respuesta).toLowerCase().includes(t));
+    document.getElementById('listaKn').innerHTML = lista.length ? lista.map((k) => `
+      <div class="kn ${k.activo ? '' : 'inactivo'}"><div>
+        <p class="mono muted" style="font-size:11.5px"><span class="tag">${esc(CATS_KN[k.categoria] || k.categoria)}</span>${k.activo ? '' : ' <span class="tag warn">Pausada</span>'}</p>
+        <p style="font-weight:600;margin-top:6px">${esc(k.pregunta)}</p><p class="r">${esc(k.respuesta)}</p></div>
+        <div class="acciones" style="align-content:flex-start"><button class="btn small ghost" data-edit-kn="${k.id}">Editar</button><button class="btn small ghost" data-del-kn="${k.id}">Borrar</button></div></div>`).join('')
+      : '<p class="muted">Sin resultados.</p>';
+    cont.querySelectorAll('[data-edit-kn]').forEach((b) => (b.onclick = () => {
+      const k = data.find((x) => x.id === b.dataset.editKn);
+      abrirForm({ titulo: 'Editar respuesta', campos: camposKn, valores: { ...k, activo: String(k.activo) }, guardar: guardarKn(k.id) });
+    }));
+    cont.querySelectorAll('[data-del-kn]').forEach((b) => (b.onclick = () => borrar('conocimiento', b.dataset.delKn, 'esta respuesta')));
+  };
+  document.getElementById('buscarKn').oninput = pintar;
+  document.getElementById('catKn').onchange = pintar;
+  document.getElementById('nKn').onclick = () => abrirForm({ titulo: 'Enseñar algo nuevo', campos: camposKn, guardar: guardarKn() });
+  pintar();
+}
+
 // =================== ROUTER ===================
 async function router() {
   const [seccion, id] = (location.hash.slice(1) || 'resumen').split('/');
   const menu = { cliente: 'clientes', proyecto: 'proyectos' }[seccion] || seccion;
   document.querySelectorAll('#side a').forEach((a) => a.classList.toggle('on', a.dataset.s === menu));
-  const vistas = { resumen: vResumen, clientes: vClientes, cliente: vCliente, proyectos: vProyectos, proyecto: vProyecto, mensajes: vMensajes, facturas: vFacturas };
+  const vistas = { resumen: vResumen, clientes: vClientes, cliente: vCliente, proyectos: vProyectos, proyecto: vProyecto, mensajes: vMensajes, facturas: vFacturas, asistente: vAsistente };
   await (vistas[seccion] || vResumen)(id);
   actualizarSinLeer();
+  actualizarAsis();
 }
 // Clics en filas/tarjetas con data-go
 vista.addEventListener('click', (e) => {
