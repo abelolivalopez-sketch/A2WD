@@ -75,12 +75,13 @@ Cada mensaje que escribe un cliente lo analiza la IA (Google Gemini, plan gratui
 Pulsa **Usar respuesta** para copiarla al cuadro, revísala y envíala. El agente nunca contesta solo, y el cliente no ve el análisis.
 Para mensajes antiguos o si algo falla, usa **✦ Analizar con IA** o **Volver a analizar**.
 
-### Activarlo gratis (una sola vez)
-1. Entra en https://aistudio.google.com/apikey con una cuenta de Google → **Create API key**. No hace falta tarjeta.
-2. En Supabase → **Edge Functions → Secrets** → *Add new secret*:
-   - Name: `GEMINI_API_KEY`
-   - Value: la clave
-3. Guarda. No hace falta tocar nada más.
+### Estado: ✅ activado
+La clave de Gemini está guardada en la tabla privada `privado.ajustes` de Supabase (no en GitHub).
+Para cambiarla: en Supabase → **SQL Editor** ejecuta
+```sql
+update privado.ajustes set valor = 'NUEVA-CLAVE', updated_at = now() where clave = 'GEMINI_API_KEY';
+```
+(También funciona como secreto `GEMINI_API_KEY` en **Edge Functions → Secrets**, que tiene prioridad.)
 
 Notas:
 - El plan gratuito tiene un límite diario de uso; si se alcanza, el panel lo avisa y basta con volver a analizar más tarde.

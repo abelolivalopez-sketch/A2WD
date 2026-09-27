@@ -247,3 +247,45 @@ create policy comentarios_cli_esc  on public.comentarios for insert
 --
 --  Repite el paso 2 con cualquier compañero que deba ser creador.
 -- =====================================================================
+
+-- =====================================================================
+--  AGENTE 1 · Analizador de mensajes (añadido después)
+-- =====================================================================
+
+-- Análisis de IA de los mensajes de clientes. Solo lo ven los creadores.
+create table if not exists public.comentarios_ia (
+  comentario_id   uuid primary key references public.comentarios(id) on delete cascade,
+  categoria       text not null check (categoria in ('duda','cambio_diseno','contenido','problema_tecnico','facturacion','aprobacion','otro')),
+  prioridad       text not null check (prioridad in ('baja','media','alta','urgente')),
+  resumen         text not null,
+  respuesta       text,
+  idioma          text,
+  necesita_info   text,
+  modelo          text,
+  created_at      timestamptz not null default now()
+);
+alter table public.comentarios_ia enable row level security;
+drop policy if exists comentarios_ia_creador on public.comentarios_ia;
+create policy comentarios_ia_creador on public.comentarios_ia for all to authenticated
+  using (privado.es_creador()) with check (privado.es_creador());
+
+-- Ajustes privados (claves de servicios). Solo accesibles desde las funciones del servidor.
+-- Para poner la clave de Gemini (NO la subas a GitHub):
+--   insert into privado.ajustes (clave, valor) values ('GEMINI_API_KEY', 'tu-clave')
+--   on conflict (clave) do update set valor = excluded.valor, updated_at = now();
+create table if not exists privado.ajustes (
+  clave  text primary key,
+  valor  text not null,
+  updated_at timestamptz not null default now()
+);
+revoke all on privado.ajustes from public, anon, authenticated;
+
+create or replace function public.ajuste_privado(p_clave text)
+returns text language sql stable security definer set search_path = '' as $$
+  select valor from privado.ajustes where clave = p_clave;
+$$;
+revoke execute on function public.ajuste_privado(text) from public, anon, authenticated;
+grant execute on function public.ajuste_privado(text) to service_role;
+
+-- Necesaria para llamadas HTTP desde la base de datos
+create extension if not exists pg_net with schema extensions;

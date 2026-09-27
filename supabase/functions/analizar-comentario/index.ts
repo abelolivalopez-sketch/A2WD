@@ -7,14 +7,13 @@
 //  Proveedor de IA (Edge Functions → Secrets):
 //   · GEMINI_API_KEY    → Google Gemini, plan gratuito (recomendado)
 //   · ANTHROPIC_API_KEY → Claude (de pago), se usa si no hay clave de Gemini
+//  Si no están como secretos, se leen de la tabla privada privado.ajustes.
 // =====================================================================
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
-const GEMINI_KEY = Deno.env.get('GEMINI_API_KEY');
-const ANTHROPIC_KEY = Deno.env.get('ANTHROPIC_API_KEY');
-const MODELO = GEMINI_KEY
-  ? (Deno.env.get('GEMINI_MODEL') || 'gemini-3.5-flash-lite')
-  : (Deno.env.get('ANTHROPIC_MODEL') || 'claude-haiku-4-5-20251001');
+let GEMINI_KEY: string | undefined;
+let ANTHROPIC_KEY: string | undefined;
+let MODELO = '';
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -50,7 +49,7 @@ Debes:
 4. Redactar un borrador de respuesta al cliente:
    - En el MISMO idioma en que escribió el cliente.
    - Tono cercano, profesional y breve (2–5 frases), tuteando o usando "vous" según el idioma y cómo escribió el cliente.
-   - Firma como "Abel y Ariel · A2WD" (o su equivalente natural en el idioma del cliente).
+   - Firma en el idioma del cliente: "Abel y Ariel · A2WD" (es), "Abel et Ariel · A2WD" (fr), "Abel e Ariel · A2WD" (it), "Abel & Ariel · A2WD" (en).
    - No inventes fechas, precios, plazos ni compromisos que no estén en el contexto. Si hacen falta, indícalo en necesita_info y en la respuesta di que lo confirmaréis pronto.
 5. En necesita_info, indica en español qué debe decidir o comprobar el creador antes de enviar (o déjalo vacío si nada).`;
 
@@ -75,9 +74,16 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
   if (req.method !== 'POST') return json({ error: 'Método no permitido' }, 405);
 
-  if (!GEMINI_KEY && !ANTHROPIC_KEY) return json({ error: 'Falta el secreto GEMINI_API_KEY en Supabase' }, 500);
-
   const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { auth: { persistSession: false } });
+
+  // Claves: primero secretos de Supabase; si no, la tabla privada de ajustes
+  const ajuste = async (k: string) => Deno.env.get(k) || (await admin.rpc('ajuste_privado', { p_clave: k })).data || undefined;
+  GEMINI_KEY = await ajuste('GEMINI_API_KEY');
+  ANTHROPIC_KEY = GEMINI_KEY ? undefined : await ajuste('ANTHROPIC_API_KEY');
+  MODELO = GEMINI_KEY
+    ? (Deno.env.get('GEMINI_MODEL') || 'gemini-3.5-flash-lite')
+    : (Deno.env.get('ANTHROPIC_MODEL') || 'claude-haiku-4-5-20251001');
+  if (!GEMINI_KEY && !ANTHROPIC_KEY) return json({ error: 'Falta la clave GEMINI_API_KEY' }, 500);
 
   // 1. Quién llama
   const token = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
