@@ -4,11 +4,17 @@
 //  una respuesta en el idioma del cliente. Nunca responde al cliente: solo
 //  guarda el análisis para que un creador lo revise.
 //
-//  Necesita el secreto ANTHROPIC_API_KEY (Edge Functions → Secrets).
+//  Proveedor de IA (Edge Functions → Secrets):
+//   · GEMINI_API_KEY    → Google Gemini, plan gratuito (recomendado)
+//   · ANTHROPIC_API_KEY → Claude (de pago), se usa si no hay clave de Gemini
 // =====================================================================
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
-const MODELO = Deno.env.get('ANTHROPIC_MODEL') || 'claude-haiku-4-5-20251001';
+const GEMINI_KEY = Deno.env.get('GEMINI_API_KEY');
+const ANTHROPIC_KEY = Deno.env.get('ANTHROPIC_API_KEY');
+const MODELO = GEMINI_KEY
+  ? (Deno.env.get('GEMINI_MODEL') || 'gemini-3.5-flash-lite')
+  : (Deno.env.get('ANTHROPIC_MODEL') || 'claude-haiku-4-5-20251001');
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -69,8 +75,7 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
   if (req.method !== 'POST') return json({ error: 'Método no permitido' }, 405);
 
-  const apiKey = Deno.env.get('ANTHROPIC_API_KEY');
-  if (!apiKey) return json({ error: 'Falta el secreto ANTHROPIC_API_KEY en Supabase' }, 500);
+  if (!GEMINI_KEY && !ANTHROPIC_KEY) return json({ error: 'Falta el secreto GEMINI_API_KEY en Supabase' }, 500);
 
   const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { auth: { persistSession: false } });
 
@@ -121,27 +126,15 @@ Deno.serve(async (req) => {
     '</mensaje_nuevo_del_cliente>',
   ].join('\n');
 
-  // 4. Llamada a Claude
-  const r = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-    body: JSON.stringify({
-      model: MODELO,
-      max_tokens: 1024,
-      system: SISTEMA,
-      tools: [HERRAMIENTA],
-      tool_choice: { type: 'tool', name: 'registrar_analisis' },
-      messages: [{ role: 'user', content: contexto }],
-    }),
-  });
-  if (!r.ok) {
-    const t = await r.text();
-    console.error('Anthropic', r.status, t);
-    return json({ error: `Error de la IA (${r.status})` }, 502);
+  // 4. Llamada a la IA
+  let a: Record<string, string> | undefined;
+  try {
+    a = GEMINI_KEY ? await conGemini(contexto) : await conClaude(contexto);
+  } catch (e) {
+    console.error(e);
+    return json({ error: String((e as Error).message || e) }, 502);
   }
-  const data = await r.json();
-  const a = data.content?.find((c: { type: string }) => c.type === 'tool_use')?.input;
-  if (!a) return json({ error: 'La IA no devolvió análisis' }, 502);
+  if (!a?.categoria) return json({ error: 'La IA no devolvió análisis' }, 502);
 
   // 5. Guardar
   const fila = {
@@ -159,3 +152,51 @@ Deno.serve(async (req) => {
 
   return json(esCreador ? { ok: true, analisis: fila } : { ok: true });
 });
+
+// ---------- Proveedores ----------
+async function conGemini(contexto: string) {
+  const esquema = {
+    type: 'OBJECT',
+    properties: Object.fromEntries(Object.entries(HERRAMIENTA.input_schema.properties).map(([k, v]) =>
+      [k, { type: 'STRING', ...('enum' in v ? { enum: (v as { enum: string[] }).enum } : {}), description: (v as { description?: string }).description }])),
+    required: HERRAMIENTA.input_schema.required,
+  };
+  const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODELO}:generateContent`, {
+    method: 'POST',
+    headers: { 'x-goog-api-key': GEMINI_KEY!, 'content-type': 'application/json' },
+    body: JSON.stringify({
+      systemInstruction: { parts: [{ text: SISTEMA }] },
+      contents: [{ role: 'user', parts: [{ text: contexto }] }],
+      generationConfig: { temperature: 0.3, maxOutputTokens: 1024, responseMimeType: 'application/json', responseSchema: esquema },
+    }),
+  });
+  if (!r.ok) {
+    const t = await r.text();
+    console.error('Gemini', r.status, t);
+    throw new Error(r.status === 429 ? 'Límite gratuito de Gemini alcanzado por hoy; inténtalo más tarde' : `Error de Gemini (${r.status})`);
+  }
+  const data = await r.json();
+  const texto = data.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p.text || '').join('') || '';
+  return JSON.parse(texto);
+}
+
+async function conClaude(contexto: string) {
+  const r = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'x-api-key': ANTHROPIC_KEY!, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+    body: JSON.stringify({
+      model: MODELO,
+      max_tokens: 1024,
+      system: SISTEMA,
+      tools: [HERRAMIENTA],
+      tool_choice: { type: 'tool', name: 'registrar_analisis' },
+      messages: [{ role: 'user', content: contexto }],
+    }),
+  });
+  if (!r.ok) {
+    console.error('Anthropic', r.status, await r.text());
+    throw new Error(`Error de Claude (${r.status})`);
+  }
+  const data = await r.json();
+  return data.content?.find((c: { type: string }) => c.type === 'tool_use')?.input;
+}

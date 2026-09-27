@@ -67,7 +67,7 @@ En `portal/config.js` pega la **Project URL** y la **clave pública** (`anon` / 
 
 ## Agente 1 · Analizador de dudas
 
-Cada mensaje que escribe un cliente lo analiza Claude (modelo Haiku, el más económico) y en tu panel verás:
+Cada mensaje que escribe un cliente lo analiza la IA (Google Gemini, plan gratuito) y en tu panel verás:
 - **Prioridad** (baja, media, alta, urgente) y **categoría** (duda, cambio de diseño, contenido, problema técnico, facturación, aprobación).
 - Un **resumen** de una línea.
 - Un **borrador de respuesta** en el idioma del cliente, y un aviso si hay que confirmar algo antes (precios, fechas…).
@@ -75,11 +75,15 @@ Cada mensaje que escribe un cliente lo analiza Claude (modelo Haiku, el más eco
 Pulsa **Usar respuesta** para copiarla al cuadro, revísala y envíala. El agente nunca contesta solo, y el cliente no ve el análisis.
 Para mensajes antiguos o si algo falla, usa **✦ Analizar con IA** o **Volver a analizar**.
 
-### Activarlo (una sola vez)
-1. Crea una clave de API en https://console.anthropic.com → **API Keys** → *Create Key* (añade saldo en *Billing*; con 5 € tienes para miles de mensajes).
+### Activarlo gratis (una sola vez)
+1. Entra en https://aistudio.google.com/apikey con una cuenta de Google → **Create API key**. No hace falta tarjeta.
 2. En Supabase → **Edge Functions → Secrets** → *Add new secret*:
-   - Name: `ANTHROPIC_API_KEY`
-   - Value: la clave (empieza por `sk-ant-`)
+   - Name: `GEMINI_API_KEY`
+   - Value: la clave
 3. Guarda. No hace falta tocar nada más.
 
-La clave vive solo en Supabase: nunca la pongas en la web ni en GitHub.
+Notas:
+- El plan gratuito tiene un límite diario de uso; si se alcanza, el panel lo avisa y basta con volver a analizar más tarde.
+- En el plan gratuito Google puede usar el contenido para mejorar sus productos. No pidas a los clientes datos sensibles por el chat y menciónalo en tu política de privacidad.
+- Si algún día queréis más calidad o privacidad, se puede usar Claude (de pago) añadiendo el secreto `ANTHROPIC_API_KEY` y borrando el de Gemini.
+- Las claves viven solo en Supabase: nunca las pongas en la web ni en GitHub.
