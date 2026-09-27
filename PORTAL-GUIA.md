@@ -89,7 +89,7 @@ Notas:
 - Si algún día queréis más calidad o privacidad, se puede usar Claude (de pago) añadiendo el secreto `ANTHROPIC_API_KEY` y borrando el de Gemini.
 - Las claves viven solo en Supabase: nunca las pongas en la web ni en GitHub.
 
-## Agente 2 · Asistente de ayuda para clientes
+## Agente 2 · Rodolfo, asistente de ayuda (web y clientes)
 
 En el panel del cliente aparece el botón **✦ Asistente** (abajo a la derecha). Responde al momento, en el idioma del cliente,
 usando **solo** lo que le enseñáis y los datos del proyecto de ese cliente (fase, progreso, avances). Nunca inventa precios ni plazos:
@@ -105,3 +105,13 @@ Ideas para enseñarle primero: plazos habituales de una web, qué necesitáis de
 qué incluye el mantenimiento, cómo funciona el dominio y el hosting, cuántas revisiones incluye cada fase.
 
 Límites: 30 preguntas por cliente y día. Usa Gemini gratis (primero `gemini-3.7-flash`; si está saturado, pasa solo a modelos ligeros).
+
+### Rodolfo en la web principal
+Cualquier visitante puede hablar con **Rodolfo** desde el botón **✦ Rodolfo** de la página principal, en español, francés, italiano o inglés.
+- Solo usa las respuestas marcadas para **Todos** o **Solo visitantes** (lo del portal privado no se lo cuenta a visitantes).
+- Si no sabe algo, invita a escribir por **Contacto** o WhatsApp. Nunca inventa precios ni plazos.
+- Protección de la cuota gratuita: 15 preguntas por visitante y día, y 300 en total al día desde la web.
+- Las preguntas de visitantes aparecen en **✦ Rodolfo IA → Preguntas recibidas** con la etiqueta *Web* (sin guardar la IP real; solo una huella anónima para los límites).
+- En **Probar** podéis elegir «Como visitante de la web» para ver exactamente lo que responde en la página principal.
+
+Para cambiar los límites: `LIMITE_IP_DIA` y `LIMITE_WEB_DIA` en `supabase/functions/asistente-chat/index.ts`.

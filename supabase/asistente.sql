@@ -53,3 +53,20 @@ revoke execute on function public.tocar_updated_at() from public, anon, authenti
 drop trigger if exists conocimiento_updated on public.conocimiento;
 create trigger conocimiento_updated before update on public.conocimiento
   for each row execute function public.tocar_updated_at();
+
+-- =====================================================================
+--  RODOLFO en la web pública (añadido después)
+-- =====================================================================
+alter table public.conocimiento
+  add column if not exists audiencia text not null default 'todos'
+  check (audiencia in ('todos','clientes','visitantes'));
+alter table public.asistente_preguntas
+  add column if not exists origen text not null default 'portal' check (origen in ('portal','web')),
+  add column if not exists ip_hash text;
+create index if not exists asistente_preg_ip_idx on public.asistente_preguntas(ip_hash, created_at) where ip_hash is not null;
+create index if not exists asistente_preg_origen_idx on public.asistente_preguntas(origen, created_at);
+-- Sal aleatoria para anonimizar IPs
+insert into privado.ajustes (clave, valor)
+values ('IP_SALT', encode(extensions.gen_random_bytes(24), 'hex'))
+on conflict (clave) do nothing;
+-- La función asistente-chat se despliega con verify_jwt = false (atiende a visitantes sin sesión).

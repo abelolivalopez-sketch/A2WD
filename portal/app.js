@@ -109,14 +109,14 @@ export function activarCambioPassword() {
 //  Asistente IA (chat). Flotante en el panel del cliente o incrustado
 //  en el panel del creador para probarlo.
 // =====================================================================
-export function chatAsistente({ destino = null, proyecto = () => null, prueba = false } = {}) {
+export function chatAsistente({ destino = null, proyecto = () => null, modo = () => null, prueba = false } = {}) {
   const historial = [];
   const flotante = !destino;
   const caja = document.createElement('div');
   caja.className = 'asis-panel' + (flotante ? ' flotante oculto' : '');
   caja.innerHTML = `
     <div class="asis-cab">
-      <div><strong>✦ Asistente A2WD</strong><p class="muted">Responde al momento · Écris dans ta langue · Write in your language</p></div>
+      <div><strong>✦ Rodolfo</strong><p class="muted">Asistente virtual de A2WD · Écris dans ta langue · Write in your language</p></div>
       ${flotante ? '<button class="x" data-cerrar aria-label="Cerrar">×</button>' : ''}
     </div>
     <div class="asis-msgs" aria-live="polite"></div>
@@ -134,7 +134,7 @@ export function chatAsistente({ destino = null, proyecto = () => null, prueba = 
     msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight;
     return d;
   };
-  burbuja('¡Hola! Soy el asistente de A2WD. Pregúntame sobre tu proyecto o sobre cómo funciona el portal.', 'bot');
+  burbuja('¡Hola! Soy Rodolfo, el asistente virtual de A2WD. Pregúntame sobre tu proyecto o sobre cómo funciona el portal.', 'bot');
   ['¿Cómo va mi web?', '¿Cómo pido un cambio?', '¿Qué significa la fase actual?'].forEach((t) => {
     const b = document.createElement('button'); b.type = 'button'; b.className = 'chip-sug'; b.textContent = t;
     b.onclick = () => { input.value = t; form.requestSubmit(); };
@@ -161,7 +161,7 @@ export function chatAsistente({ destino = null, proyecto = () => null, prueba = 
     const pensando = burbuja('…', 'bot pensando');
     form.querySelector('button').disabled = true;
     const { data, error } = await sb.functions.invoke('asistente-chat', {
-      body: { pregunta: texto, historial: historial.slice(-6), proyecto_id: proyecto(), prueba },
+      body: { pregunta: texto, historial: historial.slice(-6), proyecto_id: proyecto(), modo: modo(), prueba },
     });
     form.querySelector('button').disabled = false;
     pensando.remove();
@@ -189,8 +189,8 @@ export function chatAsistente({ destino = null, proyecto = () => null, prueba = 
 
   if (flotante) {
     const fab = document.createElement('button');
-    fab.className = 'asis-fab'; fab.type = 'button'; fab.innerHTML = '✦ <span>Asistente</span>';
-    fab.setAttribute('aria-label', 'Abrir asistente');
+    fab.className = 'asis-fab'; fab.type = 'button'; fab.innerHTML = '✦ <span>Rodolfo</span>';
+    fab.setAttribute('aria-label', 'Abrir el asistente Rodolfo');
     fab.onclick = () => { caja.classList.toggle('oculto'); if (!caja.classList.contains('oculto')) input.focus(); };
     caja.querySelector('[data-cerrar]').onclick = () => caja.classList.add('oculto');
     document.body.append(caja, fab);
