@@ -87,19 +87,25 @@ create index if not exists proyectos_cliente_idx  on public.proyectos(cliente_id
 create index if not exists avances_proyecto_idx   on public.avances(proyecto_id);
 create index if not exists comentarios_proy_idx   on public.comentarios(proyecto_id);
 create index if not exists facturas_cliente_idx   on public.facturas(cliente_id);
+create index if not exists comentarios_autor_idx  on public.comentarios(autor_id);
+create index if not exists facturas_proyecto_idx  on public.facturas(proyecto_id);
 
 -- ---------- 2. FUNCIONES DE APOYO ---------------------------------------
 -- "security definer" = se ejecutan con permisos de sistema, para que las
 -- reglas de acceso puedan consultar el rol sin quedar bloqueadas.
 
-create or replace function public.es_creador()
+-- Van en un esquema "privado" que no se expone en la API.
+create schema if not exists privado;
+grant usage on schema privado to authenticated;
+
+create or replace function privado.es_creador()
 returns boolean language sql stable security definer set search_path = public as $$
-  select exists (select 1 from perfiles where id = auth.uid() and rol = 'creador');
+  select exists (select 1 from public.perfiles where id = auth.uid() and rol = 'creador');
 $$;
 
-create or replace function public.mi_cliente_id()
+create or replace function privado.mi_cliente_id()
 returns uuid language sql stable security definer set search_path = public as $$
-  select id from clientes where user_id = auth.uid();
+  select id from public.clientes where user_id = auth.uid();
 $$;
 
 -- Al crearse una cuenta (por invitación) se crea su perfil de cliente
@@ -161,6 +167,15 @@ create trigger comentarios_firmar
   before insert on public.comentarios
   for each row execute function public.firmar_comentario();
 
+-- Las funciones de sistema no se pueden llamar desde fuera
+revoke execute on function public.al_crear_usuario()  from public, anon, authenticated;
+revoke execute on function public.enlazar_cliente()   from public, anon, authenticated;
+revoke execute on function public.firmar_comentario() from public, anon, authenticated;
+revoke execute on function privado.es_creador()        from public, anon;
+revoke execute on function privado.mi_cliente_id()     from public, anon;
+grant  execute on function privado.es_creador()        to authenticated;
+grant  execute on function privado.mi_cliente_id()     to authenticated;
+
 -- ---------- 3. REGLAS DE ACCESO (Row Level Security) --------------------
 
 alter table public.perfiles    enable row level security;
@@ -174,38 +189,38 @@ alter table public.facturas    enable row level security;
 -- (Nadie puede cambiarse el rol a sí mismo.)
 drop policy if exists perfiles_leer   on public.perfiles;
 drop policy if exists perfiles_editar on public.perfiles;
-create policy perfiles_leer   on public.perfiles for select using (id = auth.uid() or public.es_creador());
-create policy perfiles_editar on public.perfiles for update using (public.es_creador()) with check (public.es_creador());
+create policy perfiles_leer   on public.perfiles for select to authenticated using (id = (select auth.uid()) or privado.es_creador());
+create policy perfiles_editar on public.perfiles for update using (privado.es_creador()) with check (privado.es_creador());
 
 -- Clientes y facturas: solo creadores
 drop policy if exists clientes_creador on public.clientes;
-create policy clientes_creador on public.clientes for all using (public.es_creador()) with check (public.es_creador());
+create policy clientes_creador on public.clientes for all using (privado.es_creador()) with check (privado.es_creador());
 
 drop policy if exists facturas_creador on public.facturas;
-create policy facturas_creador on public.facturas for all using (public.es_creador()) with check (public.es_creador());
+create policy facturas_creador on public.facturas for all using (privado.es_creador()) with check (privado.es_creador());
 
 -- Proyectos: creador todo; cliente solo lee los suyos
 drop policy if exists proyectos_creador on public.proyectos;
 drop policy if exists proyectos_cliente on public.proyectos;
-create policy proyectos_creador on public.proyectos for all using (public.es_creador()) with check (public.es_creador());
-create policy proyectos_cliente on public.proyectos for select using (cliente_id = public.mi_cliente_id());
+create policy proyectos_creador on public.proyectos for all using (privado.es_creador()) with check (privado.es_creador());
+create policy proyectos_cliente on public.proyectos for select using (cliente_id = privado.mi_cliente_id());
 
 -- Avances: creador todo; cliente lee los de sus proyectos
 drop policy if exists avances_creador on public.avances;
 drop policy if exists avances_cliente on public.avances;
-create policy avances_creador on public.avances for all using (public.es_creador()) with check (public.es_creador());
+create policy avances_creador on public.avances for all using (privado.es_creador()) with check (privado.es_creador());
 create policy avances_cliente on public.avances for select
-  using (proyecto_id in (select id from public.proyectos where cliente_id = public.mi_cliente_id()));
+  using (proyecto_id in (select id from public.proyectos where cliente_id = privado.mi_cliente_id()));
 
 -- Comentarios: creador todo; cliente lee y escribe en sus proyectos
 drop policy if exists comentarios_creador  on public.comentarios;
 drop policy if exists comentarios_cli_leer on public.comentarios;
 drop policy if exists comentarios_cli_esc  on public.comentarios;
-create policy comentarios_creador  on public.comentarios for all using (public.es_creador()) with check (public.es_creador());
+create policy comentarios_creador  on public.comentarios for all using (privado.es_creador()) with check (privado.es_creador());
 create policy comentarios_cli_leer on public.comentarios for select
-  using (proyecto_id in (select id from public.proyectos where cliente_id = public.mi_cliente_id()));
+  using (proyecto_id in (select id from public.proyectos where cliente_id = privado.mi_cliente_id()));
 create policy comentarios_cli_esc  on public.comentarios for insert
-  with check (proyecto_id in (select id from public.proyectos where cliente_id = public.mi_cliente_id()));
+  with check (proyecto_id in (select id from public.proyectos where cliente_id = privado.mi_cliente_id()));
 
 -- =====================================================================
 --  DESPUÉS DE EJECUTAR ESTO:

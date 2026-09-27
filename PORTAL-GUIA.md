@@ -1,6 +1,8 @@
 # Portal de clientes A2WD · Guía de puesta en marcha
 
-Tiempo estimado: 20–30 minutos. Todo se hace desde el panel web de Supabase, sin instalar nada.
+Tiempo estimado: 10 minutos. Todo se hace desde el panel web de Supabase, sin instalar nada.
+
+> **Ya hecho por Claude en tu proyecto «A2WD Project»:** pasos 1, 5 y 6 (base de datos, función de invitaciones y conexión de la web). Te quedan los pasos 2, 3, 4 y 7.
 
 ## Qué incluye
 
@@ -15,7 +17,7 @@ Tiempo estimado: 20–30 minutos. Todo se hace desde el panel web de Supabase, s
 
 ## Pasos
 
-### 1. Crear la base de datos
+### 1. Crear la base de datos ✅ hecho
 Supabase → **SQL Editor** → *New query* → pega todo `supabase/schema.sql` → **Run**.
 
 ### 2. Cerrar el registro público
@@ -35,14 +37,14 @@ Así solo entra quien tú invites. Las invitaciones siguen funcionando.
    where email = 'abelolivalopez@gmail.com';
    ```
 
-### 5. Función de invitaciones
+### 5. Función de invitaciones ✅ hecho
 **Edge Functions → Deploy a new function → Via Editor**
 - Nombre: `invitar-cliente`
 - Pega el contenido de `supabase/functions/invitar-cliente/index.ts` → **Deploy**.
 
 La clave secreta la pone Supabase automáticamente dentro de la función; no tienes que copiarla en ningún sitio.
 
-### 6. Conectar la web
+### 6. Conectar la web ✅ hecho
 En `portal/config.js` pega la **Project URL** y la **clave pública** (`anon` / `publishable`). Sube los cambios a GitHub.
 
 ### 7. Correos (recomendado antes de invitar a clientes reales)
