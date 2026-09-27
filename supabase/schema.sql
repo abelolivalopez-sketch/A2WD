@@ -91,12 +91,12 @@ create index if not exists comentarios_autor_idx  on public.comentarios(autor_id
 create index if not exists facturas_proyecto_idx  on public.facturas(proyecto_id);
 
 -- ---------- 2. FUNCIONES DE APOYO ---------------------------------------
--- "security definer" = se ejecutan con permisos de sistema, para que las
--- reglas de acceso puedan consultar el rol sin quedar bloqueadas.
-
 -- Van en un esquema "privado" que no se expone en la API.
 create schema if not exists privado;
 grant usage on schema privado to authenticated;
+
+-- "security definer" = se ejecutan con permisos de sistema, para que las
+-- reglas de acceso puedan consultar el rol sin quedar bloqueadas.
 
 create or replace function privado.es_creador()
 returns boolean language sql stable security definer set search_path = public as $$
@@ -108,19 +108,33 @@ returns uuid language sql stable security definer set search_path = public as $$
   select id from public.clientes where user_id = auth.uid();
 $$;
 
--- Al crearse una cuenta (por invitación) se crea su perfil de cliente
--- y se enlaza automáticamente con la ficha que tenga el mismo correo.
+-- Correos que al crear su cuenta reciben automáticamente el rol de creador.
+-- Para añadir un compañero: insert into privado.creadores_autorizados values ('correo', 'Nombre');
+create table if not exists privado.creadores_autorizados (
+  email  text primary key,
+  nombre text
+);
+revoke all on privado.creadores_autorizados from public, anon, authenticated;
+
+-- Al crearse una cuenta (por invitación) se crea su perfil: creador si su
+-- correo está autorizado; si no, cliente enlazado con la ficha del mismo correo.
 create or replace function public.al_crear_usuario()
 returns trigger language plpgsql security definer set search_path = public as $$
+declare
+  v_creador privado.creadores_autorizados%rowtype;
 begin
+  select * into v_creador from privado.creadores_autorizados where email = lower(new.email);
+
   insert into perfiles (id, email, nombre, rol)
   values (new.id, lower(new.email),
-          (select nombre from clientes where lower(email) = lower(new.email) limit 1),
-          'cliente')
+          coalesce(v_creador.nombre, (select nombre from clientes where lower(email) = lower(new.email) limit 1)),
+          case when v_creador.email is not null then 'creador' else 'cliente' end)
   on conflict (id) do nothing;
 
-  update clientes set user_id = new.id
-  where lower(email) = lower(new.email) and user_id is null;
+  if v_creador.email is null then
+    update clientes set user_id = new.id
+    where lower(email) = lower(new.email) and user_id is null;
+  end if;
   return new;
 end;
 $$;
