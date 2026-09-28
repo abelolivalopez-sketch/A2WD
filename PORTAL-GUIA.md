@@ -124,3 +124,13 @@ La web y el portal se instalan como app (PWA): icono propio en la pantalla de in
 - **Archivos:** `manifest.webmanifest` (nombre, icono, colores), `sw.js` (arranque rápido y sin conexión; nunca guarda datos de clientes), `instalar.js` (botón y ventana de instrucciones), `img/icono-192.png`, `img/icono-512.png`, `img/icono-maskable-512.png`.
 - **Al cambiar el portal:** sube `VERSION` en `sw.js` (`a2wd-v1` → `a2wd-v2`) para que las apps instaladas cojan la versión nueva.
 - **Al cambiar de dominio:** no hay que tocar nada de la app (las rutas son relativas); los clientes con la app antigua deberán instalarla de nuevo desde el dominio nuevo. Actualiza también las URL del paso 3.
+
+### Sin conexión
+Cada vez que el cliente abre su panel con internet, la app guarda en su móvil una copia de su proyecto (fase, progreso, avances y mensajes). Si luego la abre sin conexión, ve esa copia con una franja «Sin conexión · copia del …» y todo se actualiza solo al volver internet. Enviar mensajes necesita conexión. Al cerrar sesión la copia se borra del móvil. (`portal/movil.js`)
+
+### Notificaciones en el móvil ✅ activado
+- **Clientes** reciben un aviso cuando les respondes, publicas un avance o cambias la fase/progreso de su proyecto (en su idioma).
+- **Creadores** reciben un aviso cuando un cliente escribe.
+- Cada uno las activa con el botón **🔔 Activar avisos** (en el panel del cliente bajo el nombre del proyecto; en tu panel, arriba). En iPhone hace falta tener la app instalada en la pantalla de inicio (iOS 16.4 o superior).
+- Cómo funciona: la base de datos (`supabase/notificaciones.sql`) llama a la función `enviar-notificacion`, que manda el aviso a los móviles guardados en `push_suscripciones`. Los móviles que ya no aceptan avisos se borran solos.
+- Las claves (`VAPID_PRIVATE_KEY`, `NOTIF_SECRET`…) están en `privado.ajustes` de Supabase, no en GitHub. En `portal/config.js` solo va la clave pública.

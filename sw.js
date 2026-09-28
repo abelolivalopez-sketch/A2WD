@@ -1,11 +1,13 @@
 // =====================================================================
 //  Service worker de la app A2WD
 //  - Hace que la web se pueda instalar como app en el móvil.
-//  - Guarda la "carcasa" del portal para que abra rápido y sin conexión.
-//  - Nunca guarda datos de Supabase (proyectos, mensajes…): siempre en vivo.
+//  - Guarda la "carcasa" del portal (y la librería de Supabase y las
+//    fuentes) para que la app abra rápido y también SIN CONEXIÓN.
+//  - Los datos del cliente no pasan por aquí: los guarda portal/movil.js.
+//  - Recibe las notificaciones push y abre la app al tocarlas.
 //  Al cambiar archivos del portal, sube el número de VERSION.
 // =====================================================================
-const VERSION = 'a2wd-v1';
+const VERSION = 'a2wd-v2';
 const CARCASA = [
   './',
   './index.html',
@@ -21,10 +23,17 @@ const CARCASA = [
   './portal/app.js',
   './portal/i18n.js',
   './portal/config.js',
+  './portal/movil.js',
 ];
 
+// Librería de Supabase (sus piezas internas se guardan en la siguiente visita)
+const LIBRERIAS = ['https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'];
+
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(VERSION).then((c) => c.addAll(CARCASA)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(VERSION).then(async (c) => {
+    await c.addAll(CARCASA);
+    await Promise.all(LIBRERIAS.map((u) => c.add(new Request(u, { mode: 'cors' })).catch(() => {})));
+  }).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', (e) => {
@@ -39,8 +48,10 @@ self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
-  // Solo archivos de esta web; Supabase, fuentes y CDN van directos a la red
-  if (url.origin !== self.location.origin) return;
+  // Librerías (jsDelivr) y fuentes de Google: se guardan para usarlas sin conexión
+  const externo = /^(cdn\.jsdelivr\.net|fonts\.googleapis\.com|fonts\.gstatic\.com)$/.test(url.hostname);
+  // Supabase (datos, sesión) y cualquier otro sitio van siempre directos a la red
+  if (url.origin !== self.location.origin && !externo) return;
 
   // Páginas: primero la red (siempre lo último), si no hay conexión la copia guardada
   if (req.mode === 'navigate') {
@@ -64,5 +75,35 @@ self.addEventListener('fetch', (e) => {
 });
 
 function guardar(req, res) {
-  if (res && res.ok && res.type === 'basic') caches.open(VERSION).then((c) => c.put(req, res));
+  if (res && (res.ok || res.type === 'opaque')) caches.open(VERSION).then((c) => c.put(req, res));
 }
+
+// ---------- Notificaciones push ----------
+self.addEventListener('push', (e) => {
+  let d = {};
+  try { d = e.data ? e.data.json() : {}; } catch { d = { body: e.data && e.data.text() }; }
+  const url = new URL(d.url || 'portal/cliente.html', self.registration.scope).href;
+  e.waitUntil(self.registration.showNotification(d.title || 'A2WD', {
+    body: d.body || '',
+    icon: new URL('img/icono-192.png', self.registration.scope).href,
+    badge: new URL('img/icono-192.png', self.registration.scope).href,
+    tag: d.tag || undefined,
+    renotify: !!d.tag,
+    data: { url },
+  }));
+});
+
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close();
+  const destino = e.notification.data?.url || self.registration.scope;
+  e.waitUntil((async () => {
+    const abiertas = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    for (const c of abiertas) {
+      if (c.url.startsWith(self.registration.scope) && 'focus' in c) {
+        await c.navigate(destino).catch(() => {});
+        return c.focus();
+      }
+    }
+    return self.clients.openWindow(destino);
+  })());
+});

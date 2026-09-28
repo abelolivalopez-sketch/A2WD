@@ -77,6 +77,8 @@
 
 <script type="module">
 import { sb, configurado, avisoSinConfigurar, toast, LOGO, t, selectorIdioma } from './app.js';
+import { sesionGuardada, leerCopia } from './movil.js';
+import { SUPABASE_URL } from './config.js';
 
 document.querySelectorAll('[data-t]').forEach((el) => (el.textContent = t(el.dataset.t)));
 selectorIdioma(document.getElementById('idioma'));
@@ -88,7 +90,8 @@ const $ = (id) => document.getElementById(id);
 const ver = (id) => ['vLogin', 'vRecuperar', 'vPassword'].forEach((v) => $(v).classList.toggle('oculto', v !== id));
 
 async function entrarSegunRol(userId) {
-  const { data: perfil } = await sb.from('perfiles').select('rol').eq('id', userId).single();
+  let { data: perfil } = await sb.from('perfiles').select('rol').eq('id', userId).single();
+  if (!perfil) perfil = leerCopia(userId, 'perfil')?.datos;  // sin conexión
   location.replace(perfil?.rol === 'creador' ? 'creador.html' : 'cliente.html');
 }
 
@@ -101,7 +104,8 @@ if (window.__errorEnlace) {
   if (window.__tipoEnlace === 'recovery') { $('pwEyebrow').textContent = t('rec_eyebrow'); $('pwTitulo').textContent = t('nueva_pw_titulo'); }
   ver('vPassword');
 } else {
-  const { data: { session } } = await sb.auth.getSession();
+  let { data: { session } } = await sb.auth.getSession();
+  if (!session && !navigator.onLine) session = sesionGuardada(SUPABASE_URL);  // app abierta sin internet
   if (session && new URLSearchParams(location.search).get('e') !== 'perfil') entrarSegunRol(session.user.id);
 }
 if (new URLSearchParams(location.search).get('e') === 'perfil') {

@@ -48,6 +48,7 @@
 
 <script type="module">
 import { sb, exigirSesion, salir, esc, urlSegura, fecha, toast, ORDEN_ESTADOS, LOGO, activarCambioPassword, chatAsistente, t, selectorIdioma } from './app.js';
+import { esFalloRed, guardarCopia, leerCopia, franjaSinConexion, textoSinRedEnviar, botonAvisos } from './movil.js';
 
 // Textos fijos de la cabecera en el idioma del cliente
 document.getElementById('cargando').textContent = t('cargando');
@@ -67,7 +68,23 @@ document.getElementById('salir').onclick = salir;
 activarCambioPassword();
 
 const app = document.getElementById('app');
-const { data: proyectos, error } = await sb.from('proyectos').select('*').order('created_at', { ascending: false });
+const uid = ctx.session.user.id;
+let cargadoEn = new Date().toISOString();
+
+// Con internet se guarda una copia en el móvil; sin internet se enseña esa copia
+let { data: proyectos, error } = await sb.from('proyectos').select('*').order('created_at', { ascending: false });
+if (error && esFalloRed(error)) {
+  const copia = leerCopia(uid, 'proyectos');
+  proyectos = copia?.datos ?? [];
+  cargadoEn = copia?.fecha ?? null;
+  error = null;
+  franjaSinConexion(cargadoEn);
+} else if (!error) {
+  guardarCopia(uid, 'proyectos', proyectos);
+}
+// Al volver internet se recarga todo; si se va, se avisa
+addEventListener('online', () => location.reload());
+addEventListener('offline', () => franjaSinConexion(cargadoEn));
 
 if (error) {
   app.innerHTML = `<div class="vacio">${t('err_proyectos')}</div>`;
@@ -84,16 +101,27 @@ if (error) {
   async function mostrar(id) {
     actual = id;
     const p = proyectos.find((x) => x.id === id);
-    const [{ data: avances }, { data: comentarios }] = await Promise.all([
+    let [{ data: avances, error: e1 }, { data: comentarios, error: e2 }] = await Promise.all([
       sb.from('avances').select('*').eq('proyecto_id', id).order('created_at', { ascending: false }),
       sb.from('comentarios').select('*').eq('proyecto_id', id).order('created_at'),
     ]);
+    const sinRed = esFalloRed(e1) || esFalloRed(e2) || !navigator.onLine;
+    if (sinRed) {
+      const copia = leerCopia(uid, 'proyecto_' + id);
+      avances = copia?.datos.avances ?? [];
+      comentarios = copia?.datos.comentarios ?? [];
+      if (copia?.fecha) cargadoEn = copia.fecha;
+      franjaSinConexion(cargadoEn);
+    } else {
+      guardarCopia(uid, 'proyecto_' + id, { avances, comentarios });
+    }
     const url = urlSegura(p.url_preview);
     const idx = ORDEN_ESTADOS.indexOf(p.estado);
 
     app.innerHTML = `
       <p class="eyebrow">${esc(t('hola', { n: perfil.nombre || '' }))}</p>
       <h1>${esc(p.nombre)}</h1>
+      <div id="avisos" style="margin-top:12px"></div>
       ${p.descripcion ? `<p class="muted" style="margin-top:8px;max-width:70ch">${esc(p.descripcion)}</p>` : ''}
       ${pintarSelector()}
       <div class="grid" style="${proyectos.length < 2 ? 'margin-top:28px' : ''}">
@@ -113,7 +141,7 @@ if (error) {
               <span class="url">${esc(url)}</span>
               <a class="btn small" href="${esc(url)}" target="_blank" rel="noopener">${t('abrir_web')}</a>
             </div>
-            <iframe src="${esc(url)}" title="${esc(t('vista_previa_de', { n: p.nombre }))}" loading="lazy"></iframe>
+            ${sinRed ? '' : `<iframe src="${esc(url)}" title="${esc(t('vista_previa_de', { n: p.nombre }))}" loading="lazy"></iframe>`}
           </div>` : `<div class="vacio">${t('vista_pronto')}</div>`}
           <div class="card">
             <h3 style="margin-bottom:4px">${t('avances')}</h3>
@@ -141,11 +169,13 @@ if (error) {
           </div>
           <form id="fComentario" style="margin-top:16px">
             <textarea id="txt" maxlength="4000" placeholder="${t('escribe_msg')}" required></textarea>
-            <button class="btn solid" style="margin-top:10px;width:100%" type="submit">${t('enviar')}</button>
+            <button class="btn solid" style="margin-top:10px;width:100%" type="submit" ${sinRed ? 'disabled' : ''}>${t('enviar')}</button>
+            ${sinRed ? `<p class="muted" style="font-size:13px;margin-top:8px">${textoSinRedEnviar()}</p>` : ''}
           </form>
         </div>
       </div>`;
 
+    botonAvisos(document.getElementById('avisos'), sb);
     const hilo = document.getElementById('hilo');
     hilo.scrollTop = hilo.scrollHeight;
     app.querySelectorAll('.selector button').forEach((b) => (b.onclick = () => mostrar(b.dataset.id)));
@@ -155,7 +185,7 @@ if (error) {
       if (!txt) return;
       e.target.querySelector('button').disabled = true;
       const { data: nuevo, error } = await sb.from('comentarios').insert({ proyecto_id: id, mensaje: txt }).select('id').single();
-      if (error) { toast(t('msg_error'), 'bad'); e.target.querySelector('button').disabled = false; return; }
+      if (error) { toast(esFalloRed(error) ? textoSinRedEnviar() : t('msg_error'), 'bad'); e.target.querySelector('button').disabled = false; return; }
       // El asistente de A2WD analiza el mensaje en segundo plano (el cliente no ve el resultado)
       sb.functions.invoke('analizar-comentario', { body: { comentario_id: nuevo.id } }).catch(() => {});
       toast(t('msg_enviado'));

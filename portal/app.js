@@ -2,6 +2,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { SUPABASE_URL, SUPABASE_KEY } from './config.js';
 import { t, LOCALE } from './i18n.js';
+import { esFalloRed, guardarCopia, leerCopia, borrarCopias, quitarAvisosDispositivo, sesionGuardada } from './movil.js';
 export { t, LANG, selectorIdioma } from './i18n.js';
 
 export const configurado = !SUPABASE_URL.includes('TU-PROYECTO') && !SUPABASE_KEY.startsWith('TU-');
@@ -56,9 +57,14 @@ export function avisoSinConfigurar() {
 // Comprueba sesión y rol. Redirige si no corresponde.
 export async function exigirSesion(rolRequerido) {
   if (!configurado) { avisoSinConfigurar(); return null; }
-  const { data: { session } } = await sb.auth.getSession();
+  let { data: { session } } = await sb.auth.getSession();
+  if (!session && !navigator.onLine) session = sesionGuardada(SUPABASE_URL);
   if (!session) { location.replace('login.html'); return null; }
-  const { data: perfil, error } = await sb.from('perfiles').select('*').eq('id', session.user.id).single();
+  let { data: perfil, error } = await sb.from('perfiles').select('*').eq('id', session.user.id).single();
+  // Sin internet: se usa el perfil guardado la última vez (modo app sin conexión)
+  if (error && esFalloRed(error)) { perfil = leerCopia(session.user.id, 'perfil')?.datos; error = null; }
+  else if (perfil) guardarCopia(session.user.id, 'perfil', perfil);
+  if (!perfil && !navigator.onLine) { location.replace('login.html'); return null; }
   if (error || !perfil) { await sb.auth.signOut(); location.replace('login.html?e=perfil'); return null; }
   if (rolRequerido && perfil.rol !== rolRequerido) {
     location.replace(perfil.rol === 'creador' ? 'creador.html' : 'cliente.html');
@@ -68,6 +74,8 @@ export async function exigirSesion(rolRequerido) {
 }
 
 export async function salir() {
+  await quitarAvisosDispositivo(sb);
+  borrarCopias();
   try { await sb.auth.signOut(); } catch { try { await sb.auth.signOut({ scope: 'local' }); } catch {} }
   location.replace('../index.html');
 }

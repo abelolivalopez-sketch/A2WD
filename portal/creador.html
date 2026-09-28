@@ -65,7 +65,7 @@
 <header class="top">
   <div class="top-inner">
     <a class="brand" href="#resumen" id="logo">A²WD <small>/ creador</small></a>
-    <div class="user"><a class="btn small ghost" href="../index.html" title="Volver a la web de A2WD">← Web</a><span id="quien"></span><button class="btn small ghost" id="cambiarPw">Contraseña</button><button class="btn small ghost" id="salir">Salir</button></div>
+    <div class="user"><span id="avisos"></span><a class="btn small ghost" href="../index.html" title="Volver a la web de A2WD">← Web</a><span id="quien"></span><button class="btn small ghost" id="cambiarPw">Contraseña</button><button class="btn small ghost" id="salir">Salir</button></div>
   </div>
 </header>
 
@@ -91,6 +91,7 @@
 
 <script type="module">
 import { sb, exigirSesion, salir, esc, urlSegura, fecha, euros, toast, ESTADOS, ORDEN_ESTADOS, LOGO, activarCambioPassword, chatAsistente } from './app.js';
+import { botonAvisos, idiomaMovil } from './movil.js';
 
 document.getElementById('logo').insertAdjacentHTML('afterbegin', LOGO);
 const ctx = await exigirSesion('creador');
@@ -98,6 +99,8 @@ if (!ctx) throw new Error('Sin sesión');
 const { perfil } = ctx;
 document.getElementById('quien').textContent = perfil.nombre || perfil.email;
 document.getElementById('salir').onclick = salir;
+idiomaMovil('es');
+botonAvisos(document.getElementById('avisos'), sb);  // avisos de mensajes de clientes en tu móvil
 activarCambioPassword();
 
 const vista = document.getElementById('vista');
