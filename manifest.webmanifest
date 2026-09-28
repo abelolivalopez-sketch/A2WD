@@ -1,0 +1,23 @@
+{
+  "id": "./portal/",
+  "name": "A2WD · Portal de clientes",
+  "short_name": "A2WD",
+  "description": "Sigue tu proyecto web, habla con el equipo de A2WD y resuelve tus dudas desde el móvil.",
+  "lang": "es",
+  "start_url": "./portal/login.html?app=1",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFFFFF",
+  "theme_color": "#0B0B0A",
+  "categories": ["business", "productivity"],
+  "icons": [
+    { "src": "img/icono-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "img/icono-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "img/icono-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Mi proyecto", "url": "./portal/cliente.html", "icons": [{ "src": "img/icono-192.png", "sizes": "192x192" }] },
+    { "name": "Web de A2WD", "url": "./index.html", "icons": [{ "src": "img/icono-192.png", "sizes": "192x192" }] }
+  ]
+}

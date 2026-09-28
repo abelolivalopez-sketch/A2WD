@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
 <title>Mi proyecto · A2WD</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,6 +25,15 @@
   .avance:last-child{border-bottom:0;}
   .avance .meta{font-family:'IBM Plex Mono';font-size:11.5px;color:var(--muted);}
 </style>
+<link rel="manifest" href="../manifest.webmanifest">
+<meta name="theme-color" content="#0B0B0A">
+<link rel="icon" href="../img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../img/icono-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="A2WD">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<script src="../instalar.js" defer></script>
 </head>
 <body>
 <header class="top">
@@ -35,6 +44,7 @@
 </header>
 
 <main class="layout" id="app"><p class="muted" id="cargando"></p></main>
+<div class="layout" style="padding-top:0" data-instalar-banner></div>
 
 <script type="module">
 import { sb, exigirSesion, salir, esc, urlSegura, fecha, toast, ORDEN_ESTADOS, LOGO, activarCambioPassword, chatAsistente, t, selectorIdioma } from './app.js';

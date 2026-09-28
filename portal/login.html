@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
 <title>Acceso · A2WD</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,6 +17,15 @@
     window.__errorEnlace = h.get('error_description');
   })();
 </script>
+<link rel="manifest" href="../manifest.webmanifest">
+<meta name="theme-color" content="#0B0B0A">
+<link rel="icon" href="../img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../img/icono-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="A2WD">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<script src="../instalar.js" defer></script>
 </head>
 <body>
 <main class="centro">
@@ -35,6 +44,7 @@
         <p class="error" id="errLogin"></p>
       </form>
       <p style="margin-top:18px;font-size:13.5px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><a href="#" id="irRecuperar" class="muted" data-t="olvidaste"></a><a href="../index.html" class="muted" data-t="volver_web"></a></p>
+      <div data-instalar-banner></div>
     </section>
 
     <!-- Recuperar contraseña -->
