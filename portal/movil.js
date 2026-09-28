@@ -10,6 +10,7 @@ import { VAPID_PUBLIC_KEY } from './config.js';
 
 const T = {
   es: {
+    aa_titulo: 'Activa los avisos', aa_cli: 'Te avisaremos en el móvil cuando te respondamos, publiquemos un avance o tu web cambie de fase.', aa_cre: 'Recibe en el móvil los mensajes de clientes y de tu socio al momento.', aa_si: 'Activar avisos', aa_no: 'Ahora no',
     sin_red: 'Sin conexión', sin_red_sub: 'Estás viendo la copia guardada del {f}. Se actualizará sola al volver internet.',
     sin_red_nunca: 'Sin conexión y todavía no hay una copia guardada en este móvil. Ábrela una vez con internet.',
     sin_red_enviar: 'Sin conexión: podrás enviar mensajes al volver internet.',
@@ -21,6 +22,7 @@ const T = {
     avisos_title: 'Recibe un aviso cuando haya mensajes o avances',
   },
   fr: {
+    aa_titulo: 'Activez les notifications', aa_cli: 'Nous vous préviendrons sur votre téléphone quand nous vous répondons, publions une avancée ou que votre site change d’étape.', aa_cre: 'Recevez sur votre téléphone les messages des clients et de votre associé en temps réel.', aa_si: 'Activer les notifications', aa_no: 'Plus tard',
     sin_red: 'Hors connexion', sin_red_sub: 'Vous consultez la copie enregistrée du {f}. Elle se mettra à jour dès le retour d’internet.',
     sin_red_nunca: 'Hors connexion et aucune copie n’est encore enregistrée sur ce téléphone. Ouvrez-la une fois avec internet.',
     sin_red_enviar: 'Hors connexion : vous pourrez envoyer des messages au retour d’internet.',
@@ -32,6 +34,7 @@ const T = {
     avisos_title: 'Soyez prévenu des nouveaux messages et avancées',
   },
   it: {
+    aa_titulo: 'Attiva le notifiche', aa_cli: 'Ti avviseremo sul telefono quando ti rispondiamo, pubblichiamo un avanzamento o il tuo sito cambia fase.', aa_cre: 'Ricevi sul telefono i messaggi dei clienti e del tuo socio in tempo reale.', aa_si: 'Attiva le notifiche', aa_no: 'Non ora',
     sin_red: 'Offline', sin_red_sub: 'Stai vedendo la copia salvata del {f}. Si aggiornerà da sola quando torna internet.',
     sin_red_nunca: 'Sei offline e su questo telefono non c’è ancora una copia salvata. Aprila una volta con internet.',
     sin_red_enviar: 'Offline: potrai inviare messaggi quando torna internet.',
@@ -43,6 +46,7 @@ const T = {
     avisos_title: 'Ricevi un avviso per nuovi messaggi e avanzamenti',
   },
   en: {
+    aa_titulo: 'Turn on notifications', aa_cli: 'We’ll let you know on your phone when we reply, post an update or your website moves to a new stage.', aa_cre: 'Get client and partner messages on your phone as they arrive.', aa_si: 'Turn on notifications', aa_no: 'Not now',
     sin_red: 'Offline', sin_red_sub: 'You’re viewing the copy saved on {f}. It will refresh by itself when you’re back online.',
     sin_red_nunca: 'You’re offline and there’s no saved copy on this phone yet. Open it once with internet.',
     sin_red_enviar: 'Offline: you can send messages once you’re back online.',
@@ -166,21 +170,7 @@ export async function botonAvisos(destino, sb) {
     }
   };
 
-  async function activar() {
-    try {
-      const permiso = await Notification.requestPermission();
-      if (permiso !== 'granted') return refrescar();
-      const reg = await registro();
-      await navigator.serviceWorker.ready;
-      const sub = (await reg.pushManager.getSubscription()) ||
-        await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: claveBytes(VAPID_PUBLIC_KEY) });
-      await guardarEnServidor(sb, sub);
-      aviso(tx('avisos_ok'));
-    } catch (e) {
-      console.error(e); aviso(tx('avisos_err'), true);
-    }
-    refrescar();
-  }
+  async function activar() { await activarAvisos(sb); refrescar(); }
 
   function pintar(texto, accion, titulo, activo = false) {
     destino.innerHTML = '';
@@ -193,6 +183,62 @@ export async function botonAvisos(destino, sb) {
     destino.appendChild(b);
   }
   refrescar();
+  document.addEventListener('a2wd:avisos', refrescar);
+}
+
+/** Pide permiso (necesita un toque del usuario), suscribe este dispositivo y lo guarda */
+async function activarAvisos(sb, silencioso = false) {
+  try {
+    const permiso = Notification.permission === 'granted' ? 'granted' : await Notification.requestPermission();
+    if (permiso !== 'granted') return false;
+    const reg = await registro();
+    await navigator.serviceWorker.ready;
+    const sub = (await reg.pushManager.getSubscription()) ||
+      await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: claveBytes(VAPID_PUBLIC_KEY) });
+    await guardarEnServidor(sb, sub);
+    if (!silencioso) aviso(tx('avisos_ok'));
+    return true;
+  } catch (e) {
+    console.error(e); if (!silencioso) aviso(tx('avisos_err'), true);
+    return false;
+  }
+}
+
+/**
+ * Al abrir la app: deja los avisos activados sin que haya que buscar el botón.
+ * - Permiso ya concedido → suscribe/actualiza este dispositivo en silencio.
+ * - Permiso sin decidir → ventana con un solo botón «Activar avisos»
+ *   (el navegador exige un toque del usuario; no se puede activar sin él).
+ *   Clientes: solo en la app instalada. Creadores: siempre.
+ * - «Ahora no» → se vuelve a preguntar a los 3 días.
+ */
+export async function avisosAlAbrir(sb, { creador = false } = {}) {
+  if (!soportado()) return;
+  if (esIOS() && !instalada()) return;                       // en iPhone solo se puede con la app instalada
+  if (Notification.permission === 'denied') return;
+  if (Notification.permission === 'granted') { activarAvisos(sb, true); return; }
+  if (!creador && !instalada()) return;
+  let pospuesto = 0; try { pospuesto = Number(localStorage.getItem('a2wd_avisos_pospuesto') || 0); } catch {}
+  if (Date.now() - pospuesto < 3 * 864e5) return;
+
+  const velo = document.createElement('div');
+  velo.style.cssText = 'position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))';
+  velo.innerHTML = `<div role="dialog" aria-modal="true" style="background:var(--bg);color:var(--ink);border:1px solid var(--line);width:100%;max-width:420px;padding:24px 22px 18px">
+    <p style="font-size:30px;line-height:1;margin-bottom:10px">🔔</p>
+    <h3 style="font-family:'IBM Plex Mono',monospace;font-size:17px;margin-bottom:8px">${tx('aa_titulo')}</h3>
+    <p class="muted" style="font-size:14px;line-height:1.5;margin-bottom:18px">${tx(creador ? 'aa_cre' : 'aa_cli')}</p>
+    <button type="button" class="btn solid" data-si style="width:100%;padding:13px">${tx('aa_si')}</button>
+    <button type="button" class="btn ghost" data-no style="width:100%;margin-top:8px;border:0">${tx('aa_no')}</button></div>`;
+  document.body.appendChild(velo);
+  velo.querySelector('[data-si]').onclick = async () => {
+    velo.remove();
+    await activarAvisos(sb);
+    document.dispatchEvent(new CustomEvent('a2wd:avisos'));   // refresca el botón de la cabecera
+  };
+  velo.querySelector('[data-no]').onclick = () => {
+    try { localStorage.setItem('a2wd_avisos_pospuesto', String(Date.now())); } catch {}
+    velo.remove();
+  };
 }
 
 async function guardarEnServidor(sb, sub) {

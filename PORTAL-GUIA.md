@@ -131,7 +131,8 @@ Cada vez que el cliente abre su panel con internet, la app guarda en su móvil u
 ### Notificaciones en el móvil ✅ activado
 - **Clientes** reciben un aviso cuando les respondes, publicas un avance o cambias la fase/progreso de su proyecto (en su idioma).
 - **Creadores** reciben un aviso cuando un cliente escribe.
-- Cada uno las activa con el botón **🔔 Activar avisos** (en el panel del cliente bajo el nombre del proyecto; en tu panel, arriba). En iPhone hace falta tener la app instalada en la pantalla de inicio (iOS 16.4 o superior).
+- Al abrir la app (creadores siempre; clientes cuando la tienen instalada) aparece una ventana **«Activa los avisos»** con un solo botón. Si ya dieron permiso, el móvil se registra solo, sin preguntar. Si pulsan «Ahora no», se vuelve a preguntar a los 3 días.
+- También se pueden activar con el botón **🔔 Activar avisos** (en el panel del cliente bajo el nombre del proyecto; en tu panel, arriba). En iPhone hace falta tener la app instalada en la pantalla de inicio (iOS 16.4 o superior).
 - Cómo funciona: la base de datos (`supabase/notificaciones.sql`) llama a la función `enviar-notificacion`, que manda el aviso a los móviles guardados en `push_suscripciones`. Los móviles que ya no aceptan avisos se borran solos.
 - Las claves (`VAPID_PRIVATE_KEY`, `NOTIF_SECRET`…) están en `privado.ajustes` de Supabase, no en GitHub. En `portal/config.js` solo va la clave pública.
 
