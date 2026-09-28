@@ -7,7 +7,7 @@
 //  - Recibe las notificaciones push y abre la app al tocarlas.
 //  Al cambiar archivos del portal, sube el número de VERSION.
 // =====================================================================
-const VERSION = 'a2wd-v10';
+const VERSION = 'a2wd-v11';
 const CARCASA = [
   './',
   './index.html',
@@ -56,8 +56,9 @@ self.addEventListener('fetch', (e) => {
 
   // Páginas: primero la red (siempre lo último), si no hay conexión la copia guardada
   if (req.mode === 'navigate') {
+    // (una petición de navegación no se puede copiar con opciones: se pide por su URL)
     e.respondWith(
-      fetch(req, { cache: 'no-cache' })
+      fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' })
         .then((res) => { guardar(req, res.clone()); return res; })
         .catch(async () =>
           (await caches.match(req, { ignoreSearch: true })) ||
