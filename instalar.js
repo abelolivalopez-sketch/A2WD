@@ -2,7 +2,7 @@
    App A2WD · instalación en el móvil
    - Registra el service worker (necesario para que sea instalable).
    - Cualquier elemento con  data-instalar  pasa a ser un botón
-     "Descargar app": en Android/Chrome abre el instalador nativo,
+     "Añadir a mi móvil": en Android/Chrome abre el instalador nativo,
      en iPhone/iPad muestra los 2 pasos de Safari.
    - Un contenedor con  data-instalar-banner  muestra una tarjeta
      de invitación a instalar (solo si aún no está instalada).
@@ -28,14 +28,14 @@
       iosApp: 'Has abierto el enlace dentro de otra app (Instagram, Facebook, Gmail…). Para instalar A2WD, ábrelo en <b>Safari</b>: copia el enlace y pégalo en Safari.',
       copiar: 'Copiar enlace', copiado: 'Enlace copiado. Pégalo en Safari.',
       nota: '¿No aparece la opción? Comprueba que estás en <b>Safari</b> y no dentro de WhatsApp, Instagram o Gmail.',
-      boton: 'Descargar app', titulo: 'Instala la app de A2WD',
-      sub: 'Tu proyecto y el chat con nosotros, a un toque desde la pantalla de inicio. Sin tiendas ni búsquedas.',
+      boton: 'Añadir a mi móvil', titulo: 'Ten A2WD en tu móvil',
+      sub: 'Un icono en tu pantalla de inicio para abrir tu proyecto y el chat con nosotros de un toque. No se descarga nada ni ocupa espacio.',
       ios1: 'Pulsa el botón <b>Compartir</b> <span class="a2-ico">⬆︎</span> en la barra de Safari.',
       ios2: 'Elige <b>Añadir a pantalla de inicio</b> y confirma con <b>Añadir</b>.',
       iosSafari: 'En iPhone hay que abrir esta página en <b>Safari</b> para instalarla.',
       otro1: 'Abre el menú del navegador <span class="a2-ico">⋮</span>.',
       otro2: 'Elige <b>Instalar app</b> o <b>Añadir a pantalla de inicio</b>.',
-      pc: 'Abre esta página en tu móvil (Chrome en Android o Safari en iPhone) y pulsa «Descargar app».',
+      pc: 'Abre esta página en tu móvil (Chrome en Android o Safari en iPhone) y pulsa «Añadir a mi móvil».',
       listo: 'Entendido', ok: '¡Listo! Ya tienes A2WD en tu pantalla de inicio.'
     },
     fr: {
@@ -45,14 +45,14 @@
       iosApp: 'Vous avez ouvert le lien dans une autre app (Instagram, Facebook, Gmail…). Pour installer A2WD, ouvrez-le dans <b>Safari</b> : copiez le lien et collez-le dans Safari.',
       copiar: 'Copier le lien', copiado: 'Lien copié. Collez-le dans Safari.',
       nota: 'L’option n’apparaît pas ? Vérifiez que vous êtes dans <b>Safari</b> et non dans WhatsApp, Instagram ou Gmail.',
-      boton: "Télécharger l'app", titulo: "Installez l'app A2WD",
-      sub: "Votre projet et la discussion avec nous, en un geste depuis l'écran d'accueil. Sans store ni recherche.",
+      boton: 'Ajouter à mon téléphone', titulo: 'A2WD sur votre téléphone',
+      sub: "Une icône sur votre écran d'accueil pour ouvrir votre projet et la discussion avec nous d'un geste. Rien à télécharger, aucun espace occupé.",
       ios1: 'Touchez le bouton <b>Partager</b> <span class="a2-ico">⬆︎</span> dans la barre de Safari.',
       ios2: "Choisissez <b>Sur l'écran d'accueil</b> puis <b>Ajouter</b>.",
       iosSafari: "Sur iPhone, ouvrez cette page dans <b>Safari</b> pour l'installer.",
       otro1: 'Ouvrez le menu du navigateur <span class="a2-ico">⋮</span>.',
       otro2: "Choisissez <b>Installer l'application</b> ou <b>Ajouter à l'écran d'accueil</b>.",
-      pc: "Ouvrez cette page sur votre mobile (Chrome sur Android ou Safari sur iPhone) et touchez « Télécharger l'app ».",
+      pc: "Ouvrez cette page sur votre mobile (Chrome sur Android ou Safari sur iPhone) et touchez « Ajouter à mon téléphone ».",
       listo: "C'est compris", ok: "C'est fait ! A2WD est sur votre écran d'accueil."
     },
     it: {
@@ -62,14 +62,14 @@
       iosApp: 'Hai aperto il link dentro un’altra app (Instagram, Facebook, Gmail…). Per installare A2WD, aprilo in <b>Safari</b>: copia il link e incollalo in Safari.',
       copiar: 'Copia il link', copiado: 'Link copiato. Incollalo in Safari.',
       nota: 'L’opzione non compare? Controlla di essere in <b>Safari</b> e non dentro WhatsApp, Instagram o Gmail.',
-      boton: "Scarica l'app", titulo: "Installa l'app di A2WD",
-      sub: 'Il tuo progetto e la chat con noi, a un tocco dalla schermata Home. Senza store né ricerche.',
+      boton: 'Aggiungi al telefono', titulo: 'A2WD sul tuo telefono',
+      sub: 'Un’icona nella schermata Home per aprire il tuo progetto e la chat con noi con un tocco. Nessun download, non occupa spazio.',
       ios1: 'Tocca il pulsante <b>Condividi</b> <span class="a2-ico">⬆︎</span> nella barra di Safari.',
       ios2: 'Scegli <b>Aggiungi alla schermata Home</b> e conferma con <b>Aggiungi</b>.',
       iosSafari: "Su iPhone apri questa pagina in <b>Safari</b> per installarla.",
       otro1: 'Apri il menu del browser <span class="a2-ico">⋮</span>.',
       otro2: "Scegli <b>Installa app</b> o <b>Aggiungi a schermata Home</b>.",
-      pc: "Apri questa pagina sul telefono (Chrome su Android o Safari su iPhone) e tocca «Scarica l'app».",
+      pc: "Apri questa pagina sul telefono (Chrome su Android o Safari su iPhone) e tocca «Aggiungi al telefono».",
       listo: 'Ho capito', ok: 'Fatto! A2WD è nella tua schermata Home.'
     },
     en: {
@@ -79,14 +79,14 @@
       iosApp: 'You opened the link inside another app (Instagram, Facebook, Gmail…). To install A2WD, open it in <b>Safari</b>: copy the link and paste it into Safari.',
       copiar: 'Copy link', copiado: 'Link copied. Paste it into Safari.',
       nota: 'Can’t see the option? Make sure you’re in <b>Safari</b>, not inside WhatsApp, Instagram or Gmail.',
-      boton: 'Get the app', titulo: 'Install the A2WD app',
-      sub: 'Your project and your chat with us, one tap away on your home screen. No app store, no searching.',
+      boton: 'Add to my phone', titulo: 'A2WD on your phone',
+      sub: 'An icon on your home screen to open your project and your chat with us in one tap. Nothing to download, takes no space.',
       ios1: 'Tap the <b>Share</b> button <span class="a2-ico">⬆︎</span> in Safari’s toolbar.',
       ios2: 'Choose <b>Add to Home Screen</b> and confirm with <b>Add</b>.',
       iosSafari: 'On iPhone, open this page in <b>Safari</b> to install it.',
       otro1: 'Open your browser menu <span class="a2-ico">⋮</span>.',
       otro2: 'Choose <b>Install app</b> or <b>Add to Home screen</b>.',
-      pc: 'Open this page on your phone (Chrome on Android or Safari on iPhone) and tap “Get the app”.',
+      pc: 'Open this page on your phone (Chrome on Android or Safari on iPhone) and tap “Add to my phone”.',
       listo: 'Got it', ok: 'Done! A2WD is now on your home screen.'
     }
   };

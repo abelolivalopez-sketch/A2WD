@@ -120,7 +120,7 @@ Para cambiar los límites: `LIMITE_IP_DIA` y `LIMITE_WEB_DIA` en `supabase/funct
 
 La web y el portal se instalan como app (PWA): icono propio en la pantalla de inicio, se abre a pantalla completa directamente en el portal y no hace falta buscar nada en Google.
 
-- **Cómo la instalan tus clientes:** botón «Descargar app» en el menú móvil y el pie de la web, y tarjeta en el acceso al portal y en su panel. En Android sale el instalador directamente; en iPhone se muestran los 2 pasos de Safari (Compartir → Añadir a pantalla de inicio). Todo en ES/FR/IT/EN.
+- **Cómo la instalan tus clientes:** botón «Añadir a mi móvil» en el menú móvil y el pie de la web, y tarjeta en el acceso al portal y en su panel. En Android sale el instalador directamente; en iPhone se muestran los 2 pasos de Safari (Compartir → Añadir a pantalla de inicio). Todo en ES/FR/IT/EN.
 - **Archivos:** `manifest.webmanifest` (nombre, icono, colores), `sw.js` (arranque rápido y sin conexión; nunca guarda datos de clientes), `instalar.js` (botón y ventana de instrucciones), `img/icono-192.png`, `img/icono-512.png`, `img/icono-maskable-512.png`.
 - **Al cambiar el portal:** sube `VERSION` en `sw.js` (`a2wd-v1` → `a2wd-v2`) para que las apps instaladas cojan la versión nueva.
 - **Al cambiar de dominio:** no hay que tocar nada de la app (las rutas son relativas); los clientes con la app antigua deberán instalarla de nuevo desde el dominio nuevo. Actualiza también las URL del paso 3.
