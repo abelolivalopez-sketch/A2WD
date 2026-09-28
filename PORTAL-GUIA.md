@@ -139,3 +139,9 @@ Cada vez que el cliente abre su panel con internet, la app guarda en su móvil u
 - **Cambiar un precio:** edita `tarifas.js` (raíz de la web). Cambia a la vez el bloque «Nuestros precios» del panel de cada cliente (4 idiomas) y la pestaña **€ Tarifas** del panel de creadores. Los precios **no** aparecen en la web pública. Recuerda subir `VERSION` en `sw.js`.
 - **Pestaña € Tarifas (solo creadores):** chuleta con paquetes, extras y mantenimiento; calculadora rápida (IVA España/Francia, descuento, cliente portafolio) que guarda el resultado como presupuesto; y notas internas editables (argumentos, reglas de descuento, objeciones), guardadas en la tabla privada `chuleta` de Supabase, no en GitHub.
 - Rodolfo (el asistente) da los precios solo a clientes conectados; a los visitantes de la web les invita a pedir presupuesto. Si los cambias, actualiza también su respuesta en **✦ Rodolfo IA** (categoría Precios).
+
+## Comunicación de equipo (solo creadores)
+- Pestaña **👥 Equipo** del panel de creador: chat entre socios con un canal **General** y un canal por cada proyecto.
+- Mensajes en tiempo real, contador de no leídos (sincronizado entre móvil y ordenador) y aviso en el móvil al otro socio si tiene los avisos activados.
+- Cada uno puede borrar sus propios mensajes. Los clientes no pueden verlo nunca (reglas de seguridad de la base de datos, `supabase/equipo.sql`).
+- Ojo: cualquier cuenta de creador lo ve, incluida una cuenta temporal como la de la abogada mientras exista.

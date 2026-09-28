@@ -84,6 +84,17 @@ Deno.serve(async (req) => {
     destinatarios = uid ? [uid] : [];
     etiqueta = 'estado-' + id;
     crear = (l) => ({ title: `${TXT[l].fase} · ${p.nombre}`, body: TXT[l].ahora.replace('{f}', FASES[l][p.estado] ?? p.estado).replace('{p}', String(p.progreso)) });
+  } else if (tabla === 'equipo_mensajes') {
+    // Chat interno del equipo: avisa al resto de creadores
+    const { data: m } = await admin.from('equipo_mensajes').select('autor_id, autor_nombre, proyecto_id, mensaje, proyectos(nombre)').eq('id', id).single();
+    if (!m) return json({ ok: true, enviados: 0 });
+    const { data: creadores } = await admin.from('perfiles').select('id').eq('rol', 'creador');
+    destinatarios = (creadores ?? []).map((p) => p.id).filter((x) => x !== m.autor_id);
+    // deno-lint-ignore no-explicit-any
+    const canal = (m as any).proyectos?.nombre as string | undefined;
+    url = 'portal/creador.html#equipo' + (m.proyecto_id ? '/' + m.proyecto_id : '');
+    etiqueta = 'equipo-' + (m.proyecto_id || 'general');
+    crear = () => ({ title: `👥 ${m.autor_nombre || 'Equipo'} · ${canal || 'General'}`, body: recorta(m.mensaje) });
   } else {
     return json({ error: 'Tabla no admitida' }, 400);
   }
