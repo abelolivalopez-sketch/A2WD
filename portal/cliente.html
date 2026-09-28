@@ -24,6 +24,26 @@
   .avance{padding:16px 0;border-bottom:1px solid var(--line);}
   .avance:last-child{border-bottom:0;}
   .avance .meta{font-family:'IBM Plex Mono';font-size:11.5px;color:var(--muted);}
+  .precios-c{border:1px solid var(--line);background:var(--paper);}
+  .precios-c>summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 22px;}
+  .precios-c>summary::-webkit-details-marker{display:none;}
+  .precios-c>summary h3{font-size:16px;}
+  .precios-c>summary .flecha{font-family:'IBM Plex Mono';color:var(--muted);transition:transform .2s;}
+  .precios-c[open]>summary .flecha{transform:rotate(180deg);}
+  .precios-c .cuerpo{padding:0 22px 22px;}
+  .planes-c{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px;}
+  .plan-c{border:1px solid var(--line);padding:18px;display:flex;flex-direction:column;gap:8px;background:var(--bg);}
+  .plan-c.dest{border-color:var(--ink);}
+  .plan-c .cifra{font-family:'IBM Plex Mono';font-size:26px;font-weight:600;line-height:1.1;}
+  .plan-c .cifra small{display:block;font-size:10.5px;font-weight:400;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
+  .plan-c ul{margin:2px 0 4px 18px;font-size:13.5px;color:var(--ink-soft);display:flex;flex-direction:column;gap:3px;flex-grow:1;}
+  .listas-c{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;}
+  .listas-c>div{border:1px solid var(--line);padding:14px 18px;background:var(--bg);}
+  .fila-c{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:8px 0;border-top:1px solid var(--line);font-size:13.5px;}
+  .fila-c:first-of-type{border-top:none;}
+  .fila-c small{display:block;font-size:12px;color:var(--muted);}
+  .fila-c b{font-family:'IBM Plex Mono';white-space:nowrap;}
+  @media (max-width:860px){.planes-c,.listas-c{grid-template-columns:1fr;}}
 </style>
 <link rel="manifest" href="../manifest.webmanifest">
 <meta name="theme-color" content="#0B0B0A">
@@ -34,6 +54,7 @@
 <meta name="apple-mobile-web-app-title" content="A2WD">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="../instalar.js" defer></script>
+<script src="../tarifas.js"></script>
 </head>
 <body>
 <header class="top">
@@ -44,10 +65,11 @@
 </header>
 
 <main class="layout" id="app"><p class="muted" id="cargando"></p></main>
+<section class="layout" style="padding-top:0;padding-bottom:0" id="preciosCliente"></section>
 <div class="layout" style="padding-top:0" data-instalar-banner></div>
 
 <script type="module">
-import { sb, exigirSesion, salir, esc, urlSegura, fecha, toast, ORDEN_ESTADOS, LOGO, activarCambioPassword, chatAsistente, t, selectorIdioma } from './app.js';
+import { sb, exigirSesion, salir, esc, urlSegura, fecha, toast, ORDEN_ESTADOS, LOGO, activarCambioPassword, chatAsistente, t, LANG, selectorIdioma } from './app.js';
 import { esFalloRed, guardarCopia, leerCopia, franjaSinConexion, textoSinRedEnviar, botonAvisos } from './movil.js';
 
 // Textos fijos de la cabecera en el idioma del cliente
@@ -66,6 +88,40 @@ const { perfil } = ctx;
 document.getElementById('quien').textContent = perfil.nombre || perfil.email;
 document.getElementById('salir').onclick = salir;
 activarCambioPassword();
+
+
+// ---------- Nuestros precios (solo en el portal; datos en ../tarifas.js) ----------
+(function preciosCliente() {
+  const T = window.A2WD_TARIFAS, cont = document.getElementById('preciosCliente');
+  if (!T || !cont) return;
+  const L = T.textos[LANG] ? LANG : 'es', x = T.textos[L], P = (n) => window.A2WD_precio(n, L);
+  cont.innerHTML = `<details class="precios-c" style="margin-top:28px">
+    <summary><div><p class="eyebrow" style="margin-bottom:4px">A2WD</p><h3>${esc(x.titulo)}</h3></div><span class="flecha">▾</span></summary>
+    <div class="cuerpo">
+      <p class="muted" style="font-size:13.5px">${esc(x.sub)}</p>
+      <div class="planes-c">${T.paquetes.map((p) => `
+        <div class="plan-c ${p.destacado ? 'dest' : ''}">
+          <div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline"><h3 style="font-size:15px">${esc(p.nombre[L])}</h3>${p.destacado ? `<span class="tag dark">${esc(x.popular)}</span>` : ''}</div>
+          <p class="cifra">${p.desde ? `<small>${esc(x.desde)}</small>` : ''}${esc(P(p.precio))}</p>
+          <p class="muted" style="font-size:13px">${esc(p.para[L])}</p>
+          <ul>${p.incluye[L].map((i) => `<li>${esc(i)}</li>`).join('')}</ul>
+          <p class="mono muted" style="font-size:12px">${esc(x.plazo)} · ${esc(p.plazo[L])}</p>
+        </div>`).join('')}</div>
+      <div class="listas-c">
+        <div><p class="eyebrow">${esc(x.mant)}</p>${T.mantenimiento.map((m) => `<div class="fila-c"><span>${esc(m.nombre[L])}<small>${esc(m.incluye[L].join(' · '))}</small></span><b>${esc(P(m.precio))}${esc(x.mes)}</b></div>`).join('')}</div>
+        <div><p class="eyebrow">${esc(x.extras)}</p>${T.extras.map((m) => `<div class="fila-c"><span>${esc(m.nombre[L])}</span><b>+${esc(P(m.precio))} <small style="display:inline">${esc(m.unidad[L])}</small></b></div>`).join('')}</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px">
+        <p class="mono muted" style="font-size:12px">${esc(x.iva)}</p>
+        <button class="btn small" type="button" id="preguntarPrecio">${esc(x.preguntar)}</button>
+      </div>
+    </div></details>`;
+  document.getElementById('preguntarPrecio').onclick = () => {
+    const txt = document.getElementById('txt');
+    if (txt) { txt.scrollIntoView({ behavior: 'smooth', block: 'center' }); txt.focus(); }
+    else document.querySelector('.asis-fab, [class*="asis"] button')?.click();
+  };
+})();
 
 const app = document.getElementById('app');
 const uid = ctx.session.user.id;

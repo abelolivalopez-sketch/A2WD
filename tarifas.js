@@ -2,7 +2,8 @@
    TARIFAS DE A2WD  ·  el único sitio donde se cambian los precios
    ---------------------------------------------------------------------
    Lo usan:
-     · la web (sección «Precios», en ES/FR/IT/EN)
+     · el panel de cada cliente (bloque «Nuestros precios», en ES/FR/IT/EN)
+       — NO se muestran en la web pública
      · el panel de creadores (pestaña «Tarifas», la chuleta)
    Para cambiar un precio: cambia el número de «precio» y guarda.
    Precios SIN IVA. «desde: true» muestra «desde 490 €».
@@ -97,10 +98,10 @@ window.A2WD_TARIFAS = {
 
   // Textos fijos de la sección
   textos: {
-    es: { desde: 'desde', mes: '/mes', iva: 'Precios sin IVA. Te damos presupuesto cerrado antes de empezar.', plazo: 'Plazo', extras: 'Extras', mant: 'Después de publicar', pedir: 'Pedir presupuesto', popular: 'El más elegido' },
-    fr: { desde: 'à partir de', mes: '/mois', iva: 'Prix HT. Devis ferme avant de commencer.', plazo: 'Délai', extras: 'Options', mant: 'Après la mise en ligne', pedir: 'Demander un devis', popular: 'Le plus choisi' },
-    it: { desde: 'da', mes: '/mese', iva: 'Prezzi IVA esclusa. Preventivo chiuso prima di iniziare.', plazo: 'Tempi', extras: 'Extra', mant: 'Dopo la pubblicazione', pedir: 'Chiedi un preventivo', popular: 'Il più scelto' },
-    en: { desde: 'from', mes: '/month', iva: 'Prices exclude VAT. Fixed quote before we start.', plazo: 'Timeline', extras: 'Add-ons', mant: 'After launch', pedir: 'Get a quote', popular: 'Most popular' }
+    es: { desde: 'desde', mes: '/mes', iva: 'Precios sin IVA. Te damos presupuesto cerrado antes de empezar.', plazo: 'Plazo', extras: 'Extras', mant: 'Después de publicar', pedir: 'Pedir presupuesto', popular: 'El más elegido', titulo: 'Nuestros precios', sub: 'Para que te hagas una idea. Si necesitas algo más, escríbenos y te preparamos un presupuesto cerrado.', preguntar: 'Preguntar por el chat' },
+    fr: { desde: 'à partir de', mes: '/mois', iva: 'Prix HT. Devis ferme avant de commencer.', plazo: 'Délai', extras: 'Options', mant: 'Après la mise en ligne', pedir: 'Demander un devis', popular: 'Le plus choisi', titulo: 'Nos tarifs', sub: 'Pour vous donner une idée. Pour tout besoin supplémentaire, écrivez-nous : nous vous préparons un devis ferme.', preguntar: 'Poser la question par le chat' },
+    it: { desde: 'da', mes: '/mese', iva: 'Prezzi IVA esclusa. Preventivo chiuso prima di iniziare.', plazo: 'Tempi', extras: 'Extra', mant: 'Dopo la pubblicazione', pedir: 'Chiedi un preventivo', popular: 'Il più scelto', titulo: 'I nostri prezzi', sub: 'Per farti un’idea. Se ti serve altro, scrivici e ti prepariamo un preventivo chiuso.', preguntar: 'Chiedi in chat' },
+    en: { desde: 'from', mes: '/month', iva: 'Prices exclude VAT. Fixed quote before we start.', plazo: 'Timeline', extras: 'Add-ons', mant: 'After launch', pedir: 'Get a quote', popular: 'Most popular', titulo: 'Our prices', sub: 'To give you an idea. If you need anything else, message us and we’ll send you a fixed quote.', preguntar: 'Ask in the chat' }
   }
 };
 

@@ -136,6 +136,6 @@ Cada vez que el cliente abre su panel con internet, la app guarda en su móvil u
 - Las claves (`VAPID_PRIVATE_KEY`, `NOTIF_SECRET`…) están en `privado.ajustes` de Supabase, no en GitHub. En `portal/config.js` solo va la clave pública.
 
 ## Tarifas
-- **Cambiar un precio:** edita `tarifas.js` (raíz de la web). Cambia a la vez la sección «Precios» de la web (4 idiomas) y la pestaña **€ Tarifas** del panel de creadores. Recuerda subir `VERSION` en `sw.js`.
+- **Cambiar un precio:** edita `tarifas.js` (raíz de la web). Cambia a la vez el bloque «Nuestros precios» del panel de cada cliente (4 idiomas) y la pestaña **€ Tarifas** del panel de creadores. Los precios **no** aparecen en la web pública. Recuerda subir `VERSION` en `sw.js`.
 - **Pestaña € Tarifas (solo creadores):** chuleta con paquetes, extras y mantenimiento; calculadora rápida (IVA España/Francia, descuento, cliente portafolio) que guarda el resultado como presupuesto; y notas internas editables (argumentos, reglas de descuento, objeciones), guardadas en la tabla privada `chuleta` de Supabase, no en GitHub.
-- Rodolfo (el asistente) ya conoce los precios. Si los cambias, actualiza también su respuesta en **✦ Rodolfo IA** (categoría Precios).
+- Rodolfo (el asistente) da los precios solo a clientes conectados; a los visitantes de la web les invita a pedir presupuesto. Si los cambias, actualiza también su respuesta en **✦ Rodolfo IA** (categoría Precios).
