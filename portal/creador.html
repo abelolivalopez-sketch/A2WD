@@ -350,8 +350,8 @@ async function vResumen() {
       </div>
       <div class="card"><h3>Últimos mensajes sin leer</h3>
         ${m.data?.length ? m.data.map((x) => `
-          <div class="item" style="cursor:pointer;display:block" data-go="#proyecto/${x.proyecto_id}">
-            <p class="mono muted" style="font-size:11.5px">${tagsIA(iaDe(x))}${esc(x.autor_nombre)} · ${esc(x.proyectos?.nombre)} · ${fecha(x.created_at, true)}</p>
+          <div class="item" style="cursor:pointer;display:block" data-go="#mensajes/${x.cliente_id}">
+            <p class="mono muted" style="font-size:11.5px">${tagsIA(iaDe(x))}${esc(x.autor_nombre)}${x.proyectos?.nombre ? ' · ' + esc(x.proyectos.nombre) : ''} · ${fecha(x.created_at, true)}</p>
             <p style="margin-top:3px">${iaDe(x) ? '<strong>IA:</strong> ' + esc(iaDe(x).resumen) : esc(x.mensaje.length > 140 ? x.mensaje.slice(0, 140) + '…' : x.mensaje)}</p>
           </div>`).join('') : `<p class="muted" style="margin-top:10px">Estás al día.</p>`}
       </div>
