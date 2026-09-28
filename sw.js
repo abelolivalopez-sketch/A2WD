@@ -7,7 +7,7 @@
 //  - Recibe las notificaciones push y abre la app al tocarlas.
 //  Al cambiar archivos del portal, sube el número de VERSION.
 // =====================================================================
-const VERSION = 'a2wd-v9';
+const VERSION = 'a2wd-v10';
 const CARCASA = [
   './',
   './index.html',
@@ -57,7 +57,7 @@ self.addEventListener('fetch', (e) => {
   // Páginas: primero la red (siempre lo último), si no hay conexión la copia guardada
   if (req.mode === 'navigate') {
     e.respondWith(
-      fetch(req)
+      fetch(req, { cache: 'no-cache' })
         .then((res) => { guardar(req, res.clone()); return res; })
         .catch(async () =>
           (await caches.match(req, { ignoreSearch: true })) ||
@@ -66,7 +66,18 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // Resto (css, js, imágenes): copia guardada al instante y se actualiza por detrás
+  // Archivos de la web (js, css, imágenes): primero la red para que página y código
+  // sean siempre de la misma versión; sin conexión, la copia guardada
+  if (url.origin === self.location.origin) {
+    e.respondWith(
+      fetch(req, { cache: 'no-cache' })
+        .then((res) => { guardar(req, res.clone()); return res; })
+        .catch(() => caches.match(req))
+    );
+    return;
+  }
+
+  // Librerías y fuentes externas: copia guardada al instante y se actualiza por detrás
   e.respondWith(
     caches.match(req).then((guardada) => {
       const red = fetch(req).then((res) => { guardar(req, res.clone()); return res; }).catch(() => guardada);
