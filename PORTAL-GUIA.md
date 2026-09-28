@@ -134,3 +134,8 @@ Cada vez que el cliente abre su panel con internet, la app guarda en su móvil u
 - Cada uno las activa con el botón **🔔 Activar avisos** (en el panel del cliente bajo el nombre del proyecto; en tu panel, arriba). En iPhone hace falta tener la app instalada en la pantalla de inicio (iOS 16.4 o superior).
 - Cómo funciona: la base de datos (`supabase/notificaciones.sql`) llama a la función `enviar-notificacion`, que manda el aviso a los móviles guardados en `push_suscripciones`. Los móviles que ya no aceptan avisos se borran solos.
 - Las claves (`VAPID_PRIVATE_KEY`, `NOTIF_SECRET`…) están en `privado.ajustes` de Supabase, no en GitHub. En `portal/config.js` solo va la clave pública.
+
+## Tarifas
+- **Cambiar un precio:** edita `tarifas.js` (raíz de la web). Cambia a la vez la sección «Precios» de la web (4 idiomas) y la pestaña **€ Tarifas** del panel de creadores. Recuerda subir `VERSION` en `sw.js`.
+- **Pestaña € Tarifas (solo creadores):** chuleta con paquetes, extras y mantenimiento; calculadora rápida (IVA España/Francia, descuento, cliente portafolio) que guarda el resultado como presupuesto; y notas internas editables (argumentos, reglas de descuento, objeciones), guardadas en la tabla privada `chuleta` de Supabase, no en GitHub.
+- Rodolfo (el asistente) ya conoce los precios. Si los cambias, actualiza también su respuesta en **✦ Rodolfo IA** (categoría Precios).

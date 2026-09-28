@@ -7,12 +7,13 @@
 //  - Recibe las notificaciones push y abre la app al tocarlas.
 //  Al cambiar archivos del portal, sube el número de VERSION.
 // =====================================================================
-const VERSION = 'a2wd-v3';
+const VERSION = 'a2wd-v4';
 const CARCASA = [
   './',
   './index.html',
   './manifest.webmanifest',
   './instalar.js',
+  './tarifas.js',
   './img/favicon.svg',
   './img/icono-192.png',
   './img/icono-512.png',
