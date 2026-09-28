@@ -22,6 +22,12 @@
   }
   var T = {
     es: {
+      ios26: ['Toca el botón {dots} que está a la derecha de la barra de direcciones (abajo).', 'Toca <b>Compartir</b> {share}.', 'Desliza hacia abajo y toca <b>Añadir a pantalla de inicio</b> {plus}. Si no lo ves, toca antes <b>Ver más</b>.', 'Deja activado <b>Abrir como app web</b> y toca <b>Añadir</b>.'],
+      iosAnt: ['Toca el botón <b>Compartir</b> {share} de la barra de Safari (abajo en iPhone, arriba en iPad).', 'Desliza hacia abajo y toca <b>Añadir a pantalla de inicio</b> {plus}.', 'Toca <b>Añadir</b>, arriba a la derecha.'],
+      iosChrome: ['Toca el botón <b>Compartir</b> {share} de la barra de direcciones.', 'Toca <b>Añadir a pantalla de inicio</b> {plus} (puede estar en <b>Ver más</b>).', 'Toca <b>Añadir</b>.'],
+      iosApp: 'Has abierto el enlace dentro de otra app (Instagram, Facebook, Gmail…). Para instalar A2WD, ábrelo en <b>Safari</b>: copia el enlace y pégalo en Safari.',
+      copiar: 'Copiar enlace', copiado: 'Enlace copiado. Pégalo en Safari.',
+      nota: '¿No aparece la opción? Comprueba que estás en <b>Safari</b> y no dentro de WhatsApp, Instagram o Gmail.',
       boton: 'Descargar app', titulo: 'Instala la app de A2WD',
       sub: 'Tu proyecto y el chat con nosotros, a un toque desde la pantalla de inicio. Sin tiendas ni búsquedas.',
       ios1: 'Pulsa el botón <b>Compartir</b> <span class="a2-ico">⬆︎</span> en la barra de Safari.',
@@ -33,6 +39,12 @@
       listo: 'Entendido', ok: '¡Listo! Ya tienes A2WD en tu pantalla de inicio.'
     },
     fr: {
+      ios26: ['Touchez le bouton {dots} à droite de la barre d’adresse (en bas).', 'Touchez <b>Partager</b> {share}.', 'Faites défiler et touchez <b>Sur l’écran d’accueil</b> {plus}. Si vous ne le voyez pas, touchez d’abord <b>Afficher plus</b>.', 'Laissez <b>Ouvrir en tant qu’app web</b> activé et touchez <b>Ajouter</b>.'],
+      iosAnt: ['Touchez le bouton <b>Partager</b> {share} dans la barre de Safari (en bas sur iPhone, en haut sur iPad).', 'Faites défiler et touchez <b>Sur l’écran d’accueil</b> {plus}.', 'Touchez <b>Ajouter</b>, en haut à droite.'],
+      iosChrome: ['Touchez le bouton <b>Partager</b> {share} dans la barre d’adresse.', 'Touchez <b>Sur l’écran d’accueil</b> {plus} (parfois dans <b>Afficher plus</b>).', 'Touchez <b>Ajouter</b>.'],
+      iosApp: 'Vous avez ouvert le lien dans une autre app (Instagram, Facebook, Gmail…). Pour installer A2WD, ouvrez-le dans <b>Safari</b> : copiez le lien et collez-le dans Safari.',
+      copiar: 'Copier le lien', copiado: 'Lien copié. Collez-le dans Safari.',
+      nota: 'L’option n’apparaît pas ? Vérifiez que vous êtes dans <b>Safari</b> et non dans WhatsApp, Instagram ou Gmail.',
       boton: "Télécharger l'app", titulo: "Installez l'app A2WD",
       sub: "Votre projet et la discussion avec nous, en un geste depuis l'écran d'accueil. Sans store ni recherche.",
       ios1: 'Touchez le bouton <b>Partager</b> <span class="a2-ico">⬆︎</span> dans la barre de Safari.',
@@ -44,6 +56,12 @@
       listo: "C'est compris", ok: "C'est fait ! A2WD est sur votre écran d'accueil."
     },
     it: {
+      ios26: ['Tocca il pulsante {dots} a destra della barra degli indirizzi (in basso).', 'Tocca <b>Condividi</b> {share}.', 'Scorri e tocca <b>Aggiungi alla schermata Home</b> {plus}. Se non lo vedi, tocca prima <b>Mostra altro</b>.', 'Lascia attivo <b>Apri come app web</b> e tocca <b>Aggiungi</b>.'],
+      iosAnt: ['Tocca il pulsante <b>Condividi</b> {share} nella barra di Safari (in basso su iPhone, in alto su iPad).', 'Scorri e tocca <b>Aggiungi alla schermata Home</b> {plus}.', 'Tocca <b>Aggiungi</b>, in alto a destra.'],
+      iosChrome: ['Tocca il pulsante <b>Condividi</b> {share} nella barra degli indirizzi.', 'Tocca <b>Aggiungi alla schermata Home</b> {plus} (a volte in <b>Mostra altro</b>).', 'Tocca <b>Aggiungi</b>.'],
+      iosApp: 'Hai aperto il link dentro un’altra app (Instagram, Facebook, Gmail…). Per installare A2WD, aprilo in <b>Safari</b>: copia il link e incollalo in Safari.',
+      copiar: 'Copia il link', copiado: 'Link copiato. Incollalo in Safari.',
+      nota: 'L’opzione non compare? Controlla di essere in <b>Safari</b> e non dentro WhatsApp, Instagram o Gmail.',
       boton: "Scarica l'app", titulo: "Installa l'app di A2WD",
       sub: 'Il tuo progetto e la chat con noi, a un tocco dalla schermata Home. Senza store né ricerche.',
       ios1: 'Tocca il pulsante <b>Condividi</b> <span class="a2-ico">⬆︎</span> nella barra di Safari.',
@@ -55,6 +73,12 @@
       listo: 'Ho capito', ok: 'Fatto! A2WD è nella tua schermata Home.'
     },
     en: {
+      ios26: ['Tap the {dots} button to the right of the address bar (at the bottom).', 'Tap <b>Share</b> {share}.', 'Scroll down and tap <b>Add to Home Screen</b> {plus}. If you don’t see it, tap <b>View More</b> first.', 'Keep <b>Open as Web App</b> on and tap <b>Add</b>.'],
+      iosAnt: ['Tap the <b>Share</b> button {share} in Safari’s toolbar (bottom on iPhone, top on iPad).', 'Scroll down and tap <b>Add to Home Screen</b> {plus}.', 'Tap <b>Add</b> in the top-right corner.'],
+      iosChrome: ['Tap the <b>Share</b> button {share} in the address bar.', 'Tap <b>Add to Home Screen</b> {plus} (it may be under <b>View More</b>).', 'Tap <b>Add</b>.'],
+      iosApp: 'You opened the link inside another app (Instagram, Facebook, Gmail…). To install A2WD, open it in <b>Safari</b>: copy the link and paste it into Safari.',
+      copiar: 'Copy link', copiado: 'Link copied. Paste it into Safari.',
+      nota: 'Can’t see the option? Make sure you’re in <b>Safari</b>, not inside WhatsApp, Instagram or Gmail.',
       boton: 'Get the app', titulo: 'Install the A2WD app',
       sub: 'Your project and your chat with us, one tap away on your home screen. No app store, no searching.',
       ios1: 'Tap the <b>Share</b> button <span class="a2-ico">⬆︎</span> in Safari’s toolbar.',
@@ -72,7 +96,11 @@
   var instalada = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   var ua = navigator.userAgent;
   var esIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  var esSafariIOS = esIOS && !/CriOS|FxiOS|EdgiOS|GSA|Instagram|FBAN|FBAV/.test(ua);
+  var enOtraApp = esIOS && /Instagram|FBAN|FBAV|FB_IAB|GSA\/|Line\/|MicroMessenger|Twitter|LinkedInApp|Snapchat|TikTok|musical_ly|GmailApp/.test(ua);
+  var esChromeIOS = esIOS && /CriOS|EdgiOS|FxiOS|OPiOS/.test(ua);
+  var esSafariIOS = esIOS && !esChromeIOS && !enOtraApp;
+  var versionSafari = parseInt((ua.match(/Version\/(\d+)/) || [])[1] || '0', 10);
+  var esIPad = /iPad/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   var esMovil = esIOS || /Android|Mobi/i.test(ua);
   var avisoNativo = null;
 
@@ -108,10 +136,23 @@
     '.a2-hoja p{font-size:14.5px;line-height:1.5;margin:0 0 20px;color:var(--ink-soft,#3A3A37)}' +
     '.a2-hoja button{width:100%;font-family:"IBM Plex Mono",monospace;font-size:13.5px;background:var(--ink,#0B0B0A);color:var(--bg,#fff);border:none;padding:13px;cursor:pointer;border-radius:2px}' +
     '.a2-ico{display:inline-block;font-weight:600}' +
+    '.a2-i{width:21px;height:21px;display:inline-block;vertical-align:-5px;margin:0 2px;color:#0A84FF}' +
+    '.a2-velo.arriba{align-items:flex-start;padding-top:calc(16px + env(safe-area-inset-top,0px))}' +
+    '.a2-hoja .a2-nota{font-size:12.5px;color:var(--muted,#83837B);margin:-8px 0 16px;line-height:1.45}' +
+    '.a2-hoja .a2-copiar{background:transparent;color:var(--ink,#0B0B0A);border:1px solid var(--ink,#0B0B0A);margin-bottom:10px}' +
+    '.a2-flecha{position:fixed;z-index:1001;bottom:calc(6px + env(safe-area-inset-bottom,0px));font-size:34px;line-height:1;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.6);animation:a2bota 1s ease-in-out infinite;pointer-events:none}' +
+    '@keyframes a2bota{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}' +
     '.a2-toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink,#0B0B0A);color:var(--bg,#fff);font-size:13.5px;padding:12px 18px;z-index:1001;max-width:90vw}';
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
   var icono = new URL('img/icono-192.png', base).href;
+  // Iconos de Safari dibujados igual que en el iPhone, para reconocerlos
+  var ICO = {
+    share: '<svg class="a2-i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 10H6a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1h-2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+    dots: '<svg class="a2-i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="7.5" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="16.5" cy="12" r="1.4" fill="currentColor"/></svg>',
+    plus: '<svg class="a2-i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 8.5v7M8.5 12h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>'
+  };
+  function conIconos(txt) { return txt.replace(/\{(share|dots|plus)\}/g, function (_, k) { return ICO[k]; }); }
 
   // ---------- Acciones ----------
   function instalar(e) {
@@ -121,20 +162,38 @@
       avisoNativo.userChoice.finally(function () { avisoNativo = null; });
       return;
     }
-    if (esIOS && esSafariIOS) return hoja(paso('ios1', 'ios2'));
-    if (esIOS) return hoja('<p>' + t('iosSafari') + '</p>');
+    if (enOtraApp) return hoja('<p>' + t('iosApp') + '</p><button type="button" class="a2-copiar">' + t('copiar') + '</button>', { copiar: true });
+    if (esChromeIOS) return hoja(pasos(t('iosChrome')) + '<p class="a2-nota">' + t('nota') + '</p>', { arriba: true });
+    if (esSafariIOS && versionSafari >= 26) return hoja(pasos(t('ios26')) + '<p class="a2-nota">' + t('nota') + '</p>', { arriba: !esIPad, flecha: esIPad ? null : 'derecha' });
+    if (esSafariIOS) return hoja(pasos(t('iosAnt')) + '<p class="a2-nota">' + t('nota') + '</p>', { arriba: !esIPad, flecha: esIPad ? null : 'centro' });
     if (esMovil) return hoja(paso('otro1', 'otro2'));
     hoja('<p>' + t('pc') + '</p>');
   }
 
+  function pasos(lista) { return '<ol>' + lista.map(function (x) { return '<li><span>' + conIconos(x) + '</span></li>'; }).join('') + '</ol>'; }
   function paso(a, b) { return '<ol><li><span>' + t(a) + '</span></li><li><span>' + t(b) + '</span></li></ol>'; }
 
-  function hoja(cuerpo) {
+  function hoja(cuerpo, op) {
+    op = op || {};
     var velo = document.createElement('div');
-    velo.className = 'a2-velo';
+    velo.className = 'a2-velo' + (op.arriba ? ' arriba' : '');
     velo.innerHTML = '<div class="a2-hoja" role="dialog" aria-modal="true"><div class="a2-cab"><img src="' + icono + '" alt=""><h3>' +
       t('titulo') + '</h3></div>' + cuerpo + '<button type="button">' + t('listo') + '</button></div>';
-    velo.addEventListener('click', function (e) { if (e.target === velo || e.target.tagName === 'BUTTON') velo.remove(); });
+    var flecha = null;
+    if (op.flecha) {                                   // flecha que señala el botón de Safari en la barra de abajo
+      flecha = document.createElement('div'); flecha.className = 'a2-flecha'; flecha.textContent = '↓';
+      if (op.flecha === 'derecha') flecha.style.right = '22px'; else { flecha.style.left = '50%'; flecha.style.marginLeft = '-10px'; }
+      document.body.appendChild(flecha);
+    }
+    function cerrar() { velo.remove(); if (flecha) flecha.remove(); }
+    velo.addEventListener('click', function (e) {
+      if (e.target.classList && e.target.classList.contains('a2-copiar')) {
+        var url = location.href.split('#')[0];
+        (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(function () { aviso(t('copiado')); }, function () { prompt(t('copiar'), url); });
+        return;
+      }
+      if (e.target === velo || e.target.tagName === 'BUTTON') cerrar();
+    });
     document.body.appendChild(velo);
     velo.querySelector('button').focus();
   }
