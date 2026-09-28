@@ -157,8 +157,7 @@ export function chatAsistente({ destino = null, proyecto = () => null, modo = ()
   sugerir(t('rod_sug'));
 
   async function pasarAlEquipo(texto, preguntaId, boton) {
-    const pid = proyecto();
-    if (!pid) { toast(t('rod_sin_proy'), 'bad'); return; }
+    const pid = proyecto() || null;          // sin proyecto también llega al chat del cliente
     boton.disabled = true;
     const { data: nuevo, error } = await sb.from('comentarios').insert({ proyecto_id: pid, mensaje: t('rod_prefijo') + texto }).select('id').single();
     if (error) { boton.disabled = false; toast(t('rod_err_envio'), 'bad'); return; }

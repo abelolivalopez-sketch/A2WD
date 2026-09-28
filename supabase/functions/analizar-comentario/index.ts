@@ -104,18 +104,22 @@ Deno.serve(async (req) => {
     if (ya) return json({ ok: true, omitido: 'ya analizado' });
   }
 
-  // 3. Contexto del proyecto
-  const { data: proy } = await admin.from('proyectos').select('*, clientes(nombre, empresa, servicios)').eq('id', com.proyecto_id).single();
+  // 3. Contexto: el cliente, su proyecto (si ya tiene) y su conversación con A2WD
+  const { data: cli } = await admin.from('clientes').select('nombre, empresa, servicios').eq('id', com.cliente_id).single();
+  const proy = com.proyecto_id
+    ? (await admin.from('proyectos').select('*').eq('id', com.proyecto_id).single()).data
+    : (await admin.from('proyectos').select('*').eq('cliente_id', com.cliente_id).order('created_at', { ascending: false }).limit(1).maybeSingle()).data;
   const [{ data: hilo }, { data: avances }] = await Promise.all([
-    admin.from('comentarios').select('autor_rol, autor_nombre, mensaje, created_at').eq('proyecto_id', com.proyecto_id)
+    admin.from('comentarios').select('autor_rol, autor_nombre, mensaje, created_at').eq('cliente_id', com.cliente_id)
       .lt('created_at', com.created_at).order('created_at', { ascending: false }).limit(10),
-    admin.from('avances').select('titulo, created_at').eq('proyecto_id', com.proyecto_id).order('created_at', { ascending: false }).limit(5),
+    proy ? admin.from('avances').select('titulo, created_at').eq('proyecto_id', proy.id).order('created_at', { ascending: false }).limit(5)
+         : Promise.resolve({ data: [] as { titulo: string }[] }),
   ]);
 
   const contexto = [
-    `PROYECTO: ${proy?.nombre}`,
-    `Cliente: ${proy?.clientes?.nombre}${proy?.clientes?.empresa ? ' (' + proy.clientes.empresa + ')' : ''}`,
-    `Servicios: ${proy?.clientes?.servicios || '—'}`,
+    `PROYECTO: ${proy?.nombre || '(el cliente todavía no tiene proyecto)'}`,
+    `Cliente: ${cli?.nombre}${cli?.empresa ? ' (' + cli.empresa + ')' : ''}`,
+    `Servicios: ${cli?.servicios || '—'}`,
     `Fase: ${ESTADOS[proy?.estado] || proy?.estado} · Progreso: ${proy?.progreso}% · Entrega prevista: ${proy?.fecha_entrega || 'sin fecha'}`,
     `Vista previa: ${proy?.url_preview || '—'}`,
     `Descripción: ${proy?.descripcion || '—'}`,

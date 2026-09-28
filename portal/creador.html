@@ -126,6 +126,33 @@
   .port-dlg .dlg-body{max-height:70vh;overflow-y:auto;}
   @media (max-width:760px){.port-item{grid-template-columns:1fr;}.port-acc{justify-content:flex-start;max-width:none;}}
 </style>
+<style>
+  .cc{display:grid;grid-template-columns:280px minmax(0,1fr);gap:16px;align-items:start;}
+  .cc-lista{display:flex;flex-direction:column;gap:2px;max-height:calc(100vh - 220px);overflow-y:auto;position:sticky;top:80px;}
+  .cc-lista a{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-left:2px solid transparent;text-decoration:none;color:var(--ink-soft);}
+  .cc-lista a.on{border-left-color:var(--ink);background:var(--soft);color:var(--ink);}
+  .cc-lista .cc-fila{display:flex;justify-content:space-between;gap:8px;align-items:center;}
+  .cc-lista b{font-family:'IBM Plex Mono';font-size:13px;font-weight:500;}
+  .cc-lista small{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .cc-lista .num{font-size:11px;background:var(--ink);color:var(--bg);padding:1px 6px;}
+  .cc-chat{display:flex;flex-direction:column;padding:0;height:calc(100vh - 230px);min-height:420px;}
+  .cc-cab{padding:14px 18px;border-bottom:1px solid var(--line);}
+  .cc-volver{display:none;font-size:12.5px;margin-bottom:6px;}
+  .cc-hilo{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:16px 18px;}
+  .cc-ia{margin:0 12px;padding:10px 12px;border:1px dashed var(--line);background:var(--soft);}
+  .cc-form{padding:10px 12px 12px;border-top:1px solid var(--line);margin-top:10px;display:flex;flex-direction:column;gap:6px;}
+  .cc-form select{max-width:260px;font-size:12.5px;padding:6px 8px;}
+  .cc-escribir{display:flex;gap:8px;align-items:flex-end;}
+  .cc-escribir textarea{flex:1;min-height:44px;max-height:160px;resize:vertical;}
+  @media (max-width:900px){
+    .cc{grid-template-columns:1fr;}
+    .cc-lista{position:static;max-height:none;}
+    .cc.con-chat .cc-lista{display:none;}
+    .cc:not(.con-chat) .cc-chat{display:none;}
+    .cc-volver{display:inline-block;}
+    .cc-chat{height:calc(100dvh - 150px);}
+  }
+</style>
 </head>
 <body>
 <header class="top">
@@ -534,18 +561,124 @@ async function analizar(comentarioId, forzar, boton) {
   router();
 }
 
-async function vMensajes() {
-  const { data, error } = await sb.from('comentarios').select('*, proyectos(nombre, clientes(nombre)), comentarios_ia(*)').order('created_at', { ascending: false }).limit(100);
+// =================== MENSAJES · chat con cada cliente, en tiempo real ===================
+let chatCliAbierto = null;     // cliente cuya conversación está abierta
+async function vMensajes(clienteId) {
+  // Si se recarga la conversación mientras escribes, no se pierde lo escrito
+  const borrador = (clienteId && clienteId === chatCliAbierto) ? document.getElementById('ccTxt')?.value : '';
+  chatCliAbierto = clienteId || null;
+  const [{ data: msgs, error }, { data: clientes }, { data: proys }] = await Promise.all([
+    sb.from('comentarios').select('*, proyectos(nombre), comentarios_ia(*)').order('created_at', { ascending: true }).limit(1000),
+    sb.from('clientes').select('id, nombre, empresa, user_id').order('nombre'),
+    sb.from('proyectos').select('id, nombre, cliente_id').order('created_at', { ascending: false }),
+  ]);
   if (fallo(error)) return;
+  // Conversaciones: clientes con mensajes (más recientes arriba) y luego el resto con cuenta
+  const conv = (clientes || []).map((c) => {
+    const m = msgs.filter((x) => x.cliente_id === c.id);
+    const ult = m[m.length - 1];
+    return { ...c, mensajes: m, ultimo: ult, sinLeer: m.filter((x) => !x.leido && x.autor_rol !== 'creador').length };
+  }).filter((c) => c.mensajes.length || c.user_id)
+    .sort((x, y) => (y.ultimo?.created_at || '').localeCompare(x.ultimo?.created_at || ''));
+  const actual = conv.find((c) => c.id === chatCliAbierto) || null;
+
   vista.innerHTML = `
     <div class="cabecera"><div><p class="eyebrow">Bandeja</p><h1>Mensajes de clientes</h1></div></div>
-    <div class="card">${data.filter((c) => c.autor_rol !== 'creador').map((c) => `
-      <div class="item" style="cursor:pointer;display:block" data-go="#proyecto/${c.proyecto_id}">
-        <p class="mono muted" style="font-size:11.5px">${c.leido ? '' : '<span class="tag dark" style="margin-right:6px">Nuevo</span>'}${tagsIA(iaDe(c))}${esc(c.proyectos?.clientes?.nombre)} · ${esc(c.proyectos?.nombre)} · ${fecha(c.created_at, true)}</p>
-        ${iaDe(c) ? `<p style="margin-top:4px"><strong>IA:</strong> ${esc(iaDe(c).resumen)}</p>` : ''}
-        <p style="margin-top:4px;white-space:pre-wrap" class="${iaDe(c) ? 'muted' : ''}">${esc(c.mensaje)}</p></div>`).join('') || '<p class="muted">No hay mensajes de clientes.</p>'}
+    <div class="cc ${actual ? 'con-chat' : ''}">
+      <nav class="cc-lista" aria-label="Conversaciones">${conv.length ? conv.map((c) => `
+        <a href="#mensajes/${c.id}" class="${c.id === actual?.id ? 'on' : ''}">
+          <span class="cc-fila"><b>${esc(c.nombre)}</b>${c.sinLeer ? `<span class="num">${c.sinLeer}</span>` : ''}</span>
+          <small>${c.ultimo ? esc((c.ultimo.autor_rol === 'creador' ? 'Tú: ' : '') + c.ultimo.mensaje.slice(0, 60)) : 'Sin mensajes todavía'}</small>
+          ${c.ultimo ? `<small class="mono" style="font-size:10.5px">${fecha(c.ultimo.created_at, true)}</small>` : ''}
+        </a>`).join('') : '<p class="muted" style="padding:12px">Aún no hay clientes con cuenta.</p>'}</nav>
+      <section class="card cc-chat">${actual ? `
+        <div class="cc-cab">
+          <a href="#mensajes" class="cc-volver mono">← Conversaciones</a>
+          <div><h3>${esc(actual.nombre)}</h3><p class="muted" style="font-size:12.5px">${esc(actual.empresa || '')}${actual.empresa ? ' · ' : ''}<a href="#cliente/${actual.id}">Ficha del cliente →</a></p></div>
+        </div>
+        <div class="cc-hilo" id="ccHilo">${actual.mensajes.length ? actual.mensajes.map(burbujaCC).join('') : '<p class="muted" style="margin:auto;text-align:center;font-size:13.5px">Todavía no os habéis escrito.<br>Puedes empezar tú la conversación.</p>'}</div>
+        ${sugerenciaIA(actual.mensajes)}
+        <form id="ccForm" class="cc-form">
+          <select id="ccProy" aria-label="Proyecto">${(proys || []).filter((p) => p.cliente_id === actual.id).map((p) => `<option value="${p.id}">Sobre: ${esc(p.nombre)}</option>`).join('')}<option value="">Sobre: general</option></select>
+          <div class="cc-escribir"><textarea id="ccTxt" rows="2" maxlength="4000" placeholder="Responde a ${esc(actual.nombre.split(' ')[0])}…" title="Intro para enviar · Mayús+Intro para nueva línea" required></textarea>
+          <button class="btn solid" type="submit">Enviar</button></div>
+        </form>` : '<div class="vacio" style="border:0;margin:auto">Elige una conversación para leerla y responder.</div>'}</section>
     </div>`;
+
+  if (!actual) return;
+  const hilo = document.getElementById('ccHilo'); hilo.scrollTop = hilo.scrollHeight;
+  if (matchMedia('(max-width:900px)').matches) { const alto = document.querySelector('header.top')?.offsetHeight || 0; window.scrollTo(0, document.querySelector('.cc-chat').getBoundingClientRect().top + scrollY - alto - 8); }
+  // Proyecto por defecto: el del último mensaje del cliente
+  const ultCli = [...actual.mensajes].reverse().find((m) => m.autor_rol !== 'creador');
+  const selP = document.getElementById('ccProy');
+  if (ultCli && [...selP.options].some((o) => o.value === (ultCli.proyecto_id || ''))) selP.value = ultCli.proyecto_id || '';
+  const txt = document.getElementById('ccTxt');
+  if (borrador) txt.value = borrador;
+  txt.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey && !('ontouchstart' in window)) { e.preventDefault(); document.getElementById('ccForm').requestSubmit(); } });
+  document.getElementById('ccForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const mensaje = txt.value.trim(); if (!mensaje) return;
+    const b = e.target.querySelector('button'); b.disabled = true;
+    const proyecto_id = document.getElementById('ccProy').value || null;
+    const { data, error } = await sb.from('comentarios').insert({ mensaje, proyecto_id, cliente_id: actual.id }).select('*, proyectos(nombre), comentarios_ia(*)').single();
+    b.disabled = false;
+    if (fallo(error, 'No se ha enviado')) return;
+    txt.value = ''; txt.focus();
+    document.querySelector('.cc-ia')?.remove();
+    anadirCC(data);
+  });
+  vista.querySelectorAll('[data-usar-cc]').forEach((b) => (b.onclick = () => {
+    const m = actual.mensajes.find((x) => x.id === b.dataset.usarCc);
+    txt.value = iaDe(m)?.respuesta || ''; txt.focus();
+    toast('Respuesta copiada al cuadro. Revísala y pulsa Enviar.');
+  }));
+  vista.querySelectorAll('[data-analizar]').forEach((b) => (b.onclick = () => analizar(b.dataset.analizar, !!b.dataset.forzar, b)));
+  if (actual.sinLeer) { await sb.from('comentarios').update({ leido: true }).eq('cliente_id', actual.id).eq('leido', false); actualizarSinLeer(); }
 }
+
+const burbujaCC = (m) => `<div class="eq-msg ${m.autor_rol === 'creador' ? 'mio' : ''}" data-id="${m.id}">
+  <p class="meta">${esc(m.autor_rol === 'creador' ? (m.autor_id === perfil.id ? 'Tú' : (m.autor_nombre || 'A2WD')) : (m.autor_nombre || 'Cliente'))} · ${fecha(m.created_at, true)}${m.proyectos?.nombre ? ` · <span class="tag" style="font-size:10px">${esc(m.proyectos.nombre)}</span>` : ''}${m.autor_rol !== 'creador' ? tagsIA(iaDe(m)) : ''}</p>
+  <p>${esc(m.mensaje)}</p></div>`;
+
+// Sugerencia del asistente para el último mensaje del cliente que aún no tiene respuesta
+function sugerenciaIA(lista) {
+  const ult = lista[lista.length - 1];
+  if (!ult || ult.autor_rol === 'creador') return '';
+  const a = iaDe(ult);
+  if (!a) return `<div class="cc-ia"><button class="btn small ghost" data-analizar="${ult.id}">✦ Pedir borrador de respuesta a la IA</button></div>`;
+  return `<div class="cc-ia">
+    <p class="mono muted" style="font-size:11px;margin-bottom:4px">✦ ASISTENTE · ${esc(a.resumen)}</p>
+    ${a.necesita_info ? `<p class="aviso" style="font-size:12.5px">⚠ ${esc(a.necesita_info)}</p>` : ''}
+    ${a.respuesta ? `<p class="sug" style="font-size:13px">${esc(a.respuesta)}</p><button class="btn small solid" data-usar-cc="${ult.id}" style="margin-top:6px">Usar respuesta</button>` : ''}
+  </div>`;
+}
+
+function anadirCC(m) {
+  const hilo = document.getElementById('ccHilo');
+  if (!hilo || hilo.querySelector(`[data-id="${m.id}"]`)) return;
+  if (!hilo.querySelector('.eq-msg')) hilo.innerHTML = '';
+  hilo.insertAdjacentHTML('beforeend', burbujaCC(m));
+  hilo.scrollTop = hilo.scrollHeight;
+}
+
+// Tiempo real: mensajes nuevos de clientes
+sb.channel('chat-creador')
+  .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'comentarios' }, async ({ new: m }) => {
+    const abierta = location.hash.startsWith('#mensajes') && chatCliAbierto === m.cliente_id;
+    if (m.autor_rol !== 'creador') {
+      if (abierta) { vMensajes(chatCliAbierto); }                      // recarga la conversación (con análisis IA)
+      else if (location.hash.startsWith('#mensajes')) vMensajes(chatCliAbierto);
+      else toast(`💬 ${m.autor_nombre || 'Cliente'}: ${m.mensaje.slice(0, 60)}`);
+      actualizarSinLeer();
+    } else if (abierta && m.autor_id !== perfil.id) {
+      const { data } = await sb.from('comentarios').select('*, proyectos(nombre), comentarios_ia(*)').eq('id', m.id).single();
+      if (data) anadirCC(data);
+    }
+  })
+  .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'comentarios_ia' }, () => {
+    if (location.hash.startsWith('#mensajes/') && chatCliAbierto) vMensajes(chatCliAbierto);   // llega el borrador de la IA
+  })
+  .subscribe();
 
 async function vFacturas() {
   const { data, error } = await sb.from('facturas').select('*, clientes(nombre,empresa)').order('fecha_emision', { ascending: false });

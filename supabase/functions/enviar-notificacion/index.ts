@@ -56,18 +56,19 @@ Deno.serve(async (req) => {
   };
 
   if (tabla === 'comentarios') {
-    const { data: c } = await admin.from('comentarios').select('proyecto_id, autor_id, autor_nombre, autor_rol, mensaje').eq('id', id).single();
+    const { data: c } = await admin.from('comentarios').select('proyecto_id, cliente_id, autor_id, autor_nombre, autor_rol, mensaje').eq('id', id).single();
     if (!c) return json({ ok: true, enviados: 0 });
-    const { nombre, uid } = await usuarioCliente(c.proyecto_id);
-    etiqueta = 'chat-' + c.proyecto_id;
+    const { data: cl } = await admin.from('clientes').select('nombre, empresa, user_id').eq('id', c.cliente_id).single();
+    const nombreProy = c.proyecto_id ? (await admin.from('proyectos').select('nombre').eq('id', c.proyecto_id).single()).data?.nombre : null;
+    etiqueta = 'chat-' + c.cliente_id;
     if (c.autor_rol === 'creador') {
-      destinatarios = uid ? [uid] : [];
-      crear = (l) => ({ title: TXT[l].msg, body: recorta(`${nombre}: ${c.mensaje}`) });
+      destinatarios = cl?.user_id ? [cl.user_id] : [];
+      crear = (l) => ({ title: TXT[l].msg, body: recorta(`${c.autor_nombre ? c.autor_nombre + ': ' : ''}${c.mensaje}`) });
     } else {
       const { data: creadores } = await admin.from('perfiles').select('id').eq('rol', 'creador');
       destinatarios = (creadores ?? []).map((p) => p.id).filter((x) => x !== c.autor_id);
-      url = 'portal/creador.html';
-      crear = () => ({ title: `💬 ${c.autor_nombre || 'Cliente'} · ${nombre}`, body: recorta(c.mensaje) });
+      url = 'portal/creador.html#mensajes/' + c.cliente_id;
+      crear = () => ({ title: `💬 ${c.autor_nombre || cl?.nombre || 'Cliente'}${nombreProy ? ' · ' + nombreProy : ''}`, body: recorta(c.mensaje) });
     }
   } else if (tabla === 'avances') {
     const { data: a } = await admin.from('avances').select('proyecto_id, titulo').eq('id', id).single();

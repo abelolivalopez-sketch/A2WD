@@ -124,6 +124,59 @@ avisosAlAbrir(sb, { creador: false });   // pide activar avisos al abrir la app 
   };
 })();
 
+// ---------- Chat con A2WD: una conversación por cliente, en tiempo real ----------
+let chatMensajes = [];
+let proyectoChat = () => null;          // proyecto al que se asocian los mensajes nuevos (si hay)
+const burbujaCli = (c) => `<div class="msg ${c.autor_id === perfil.id ? 'mio' : ''}" data-id="${c.id}">
+  <p class="meta">${esc(c.autor_rol === 'creador' ? 'A2WD · ' + (c.autor_nombre || '') : t('tu'))} · ${fecha(c.created_at, true)}</p>
+  <p>${esc(c.mensaje)}</p></div>`;
+async function cargarChat() {
+  const { data, error } = await sb.from('comentarios').select('*').order('created_at').limit(300);
+  if (error && esFalloRed(error)) { chatMensajes = leerCopia(uid, 'chat')?.datos ?? []; return true; }
+  chatMensajes = data || []; guardarCopia(uid, 'chat', chatMensajes); return false;
+}
+function montarChat(caja, sinRed) {
+  caja.innerHTML = `
+    <h3>${t('dudas')}</h3>
+    <p class="muted" style="font-size:13.5px;margin:4px 0 16px">${t('dudas_sub')}</p>
+    <div class="hilo" id="hilo">${chatMensajes.length ? chatMensajes.map(burbujaCli).join('') : `<p class="muted" id="chatVacio" style="font-size:13.5px">${t('sin_mensajes')}</p>`}</div>
+    <form id="fComentario" style="margin-top:16px">
+      <textarea id="txt" maxlength="4000" placeholder="${t('escribe_msg')}" required></textarea>
+      <button class="btn solid" style="margin-top:10px;width:100%" type="submit" ${sinRed ? 'disabled' : ''}>${t('enviar')}</button>
+      ${sinRed ? `<p class="muted" style="font-size:13px;margin-top:8px">${textoSinRedEnviar()}</p>` : ''}
+    </form>`;
+  const hilo = caja.querySelector('#hilo');
+  hilo.scrollTop = hilo.scrollHeight;
+  const txt = caja.querySelector('#txt');
+  txt.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey && !('ontouchstart' in window)) { e.preventDefault(); caja.querySelector('#fComentario').requestSubmit(); }
+  });
+  caja.querySelector('#fComentario').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const mensaje = txt.value.trim(); if (!mensaje) return;
+    const b = e.target.querySelector('button'); b.disabled = true;
+    const { data: nuevo, error } = await sb.from('comentarios').insert({ proyecto_id: proyectoChat(), mensaje }).select('*').single();
+    b.disabled = false;
+    if (error) { toast(esFalloRed(error) ? textoSinRedEnviar() : t('msg_error'), 'bad'); return; }
+    txt.value = ''; txt.focus();
+    anadirAlChat(nuevo);
+    // El asistente de A2WD analiza el mensaje en segundo plano (el cliente no ve el resultado)
+    sb.functions.invoke('analizar-comentario', { body: { comentario_id: nuevo.id } }).catch(() => {});
+  });
+}
+function anadirAlChat(c) {
+  if (chatMensajes.some((x) => x.id === c.id)) return;
+  chatMensajes.push(c); guardarCopia(uid, 'chat', chatMensajes);
+  const hilo = document.getElementById('hilo'); if (!hilo) return;
+  document.getElementById('chatVacio')?.remove();
+  hilo.insertAdjacentHTML('beforeend', burbujaCli(c));
+  hilo.scrollTop = hilo.scrollHeight;
+}
+// Las respuestas de A2WD aparecen solas, sin recargar
+sb.channel('chat-cliente')
+  .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'comentarios' }, ({ new: c }) => anadirAlChat(c))
+  .subscribe();
+
 const app = document.getElementById('app');
 const uid = ctx.session.user.id;
 let cargadoEn = new Date().toISOString();
@@ -146,10 +199,16 @@ addEventListener('offline', () => franjaSinConexion(cargadoEn));
 if (error) {
   app.innerHTML = `<div class="vacio">${t('err_proyectos')}</div>`;
 } else if (!proyectos.length) {
+  const sinRed = await cargarChat();
   app.innerHTML = `
     <p class="eyebrow">${esc(t('hola', { n: perfil.nombre || '' }))}</p>
     <h1>${t('preparando')}</h1>
-    <p class="muted" style="margin-top:10px">${t('preparando_sub')}</p>`;
+    <p class="muted" style="margin-top:10px">${t('preparando_sub')}</p>
+    <div id="avisos" style="margin-top:12px"></div>
+    <div class="card" id="chatCaja" style="margin-top:24px;max-width:640px"></div>`;
+  botonAvisos(document.getElementById('avisos'), sb);
+  montarChat(document.getElementById('chatCaja'), sinRed || !navigator.onLine);
+  chatAsistente({ proyecto: () => null });
 } else {
   let actual = proyectos[0].id;
   const pintarSelector = () => proyectos.length < 2 ? '' :
@@ -158,19 +217,18 @@ if (error) {
   async function mostrar(id) {
     actual = id;
     const p = proyectos.find((x) => x.id === id);
-    let [{ data: avances, error: e1 }, { data: comentarios, error: e2 }] = await Promise.all([
+    let [{ data: avances, error: e1 }, chatSinRed] = await Promise.all([
       sb.from('avances').select('*').eq('proyecto_id', id).order('created_at', { ascending: false }),
-      sb.from('comentarios').select('*').eq('proyecto_id', id).order('created_at'),
+      cargarChat(),
     ]);
-    const sinRed = esFalloRed(e1) || esFalloRed(e2) || !navigator.onLine;
+    const sinRed = esFalloRed(e1) || chatSinRed || !navigator.onLine;
     if (sinRed) {
       const copia = leerCopia(uid, 'proyecto_' + id);
       avances = copia?.datos.avances ?? [];
-      comentarios = copia?.datos.comentarios ?? [];
       if (copia?.fecha) cargadoEn = copia.fecha;
       franjaSinConexion(cargadoEn);
     } else {
-      guardarCopia(uid, 'proyecto_' + id, { avances, comentarios });
+      guardarCopia(uid, 'proyecto_' + id, { avances });
     }
     const url = urlSegura(p.url_preview);
     const idx = ORDEN_ESTADOS.indexOf(p.estado);
@@ -214,44 +272,16 @@ if (error) {
           </div>
         </div>
 
-        <div class="card">
-          <h3>${t('dudas')}</h3>
-          <p class="muted" style="font-size:13.5px;margin:4px 0 16px">${t('dudas_sub')}</p>
-          <div class="hilo" id="hilo">
-            ${comentarios?.length ? comentarios.map((c) => `
-              <div class="msg ${c.autor_id === perfil.id ? 'mio' : ''}">
-                <p class="meta">${esc(c.autor_rol === 'creador' ? 'A2WD · ' + (c.autor_nombre || '') : t('tu'))} · ${fecha(c.created_at, true)}</p>
-                <p>${esc(c.mensaje)}</p>
-              </div>`).join('') : `<p class="muted" style="font-size:13.5px">${t('sin_mensajes')}</p>`}
-          </div>
-          <form id="fComentario" style="margin-top:16px">
-            <textarea id="txt" maxlength="4000" placeholder="${t('escribe_msg')}" required></textarea>
-            <button class="btn solid" style="margin-top:10px;width:100%" type="submit" ${sinRed ? 'disabled' : ''}>${t('enviar')}</button>
-            ${sinRed ? `<p class="muted" style="font-size:13px;margin-top:8px">${textoSinRedEnviar()}</p>` : ''}
-          </form>
-        </div>
+        <div class="card" id="chatCaja"></div>
       </div>`;
 
     botonAvisos(document.getElementById('avisos'), sb);
-    const hilo = document.getElementById('hilo');
-    hilo.scrollTop = hilo.scrollHeight;
+    montarChat(document.getElementById('chatCaja'), sinRed);
     app.querySelectorAll('.selector button').forEach((b) => (b.onclick = () => mostrar(b.dataset.id)));
-    document.getElementById('fComentario').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const txt = document.getElementById('txt').value.trim();
-      if (!txt) return;
-      e.target.querySelector('button').disabled = true;
-      const { data: nuevo, error } = await sb.from('comentarios').insert({ proyecto_id: id, mensaje: txt }).select('id').single();
-      if (error) { toast(esFalloRed(error) ? textoSinRedEnviar() : t('msg_error'), 'bad'); e.target.querySelector('button').disabled = false; return; }
-      // El asistente de A2WD analiza el mensaje en segundo plano (el cliente no ve el resultado)
-      sb.functions.invoke('analizar-comentario', { body: { comentario_id: nuevo.id } }).catch(() => {});
-      toast(t('msg_enviado'));
-      mostrar(id);
-    });
   }
+  proyectoChat = () => actual;
   mostrar(actual);
   chatAsistente({ proyecto: () => actual });
-  document.addEventListener('asistente:enviado', () => mostrar(actual));
 }
 </script>
 </body>

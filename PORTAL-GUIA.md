@@ -152,3 +152,10 @@ Cada vez que el cliente abre su panel con internet, la app guarda en su móvil u
 - Cada proyecto: título, descripción en español (y opcionalmente francés, italiano e inglés; si faltan se muestra el español), enlace, etiquetas y una captura. La foto se reduce y se convierte a WebP sola antes de subirla.
 - «Partir de un proyecto de cliente» rellena título, enlace y descripción desde un proyecto del portal.
 - Los cambios se ven en la web al momento, sin tocar código. Datos en la tabla `portfolio` y fotos en el bucket `portfolio` de Supabase (`supabase/portfolio.sql`). Si la base de datos no respondiera, la web muestra los dos proyectos escritos en la página.
+
+## Chat con clientes (en tiempo real)
+- **Cada cliente tiene una conversación con A2WD**, aunque todavía no tenga proyecto. Los mensajes aparecen al momento en los dos lados, sin recargar.
+- **Pestaña Mensajes (creadores):** lista de conversaciones (las más recientes arriba, con contador de no leídos) y el chat al lado para responder. Al elegir «Sobre: …» se indica de qué proyecto habla la respuesta.
+- **Asistente IA:** en el último mensaje del cliente aparece su resumen y un borrador de respuesta en el idioma del cliente; «Usar respuesta» lo copia al cuadro para revisarlo y enviarlo.
+- Avisos en el móvil: a los creadores cuando escribe un cliente (al tocar el aviso se abre esa conversación) y al cliente cuando le respondéis.
+- Base de datos: `supabase/chat-clientes.sql` (los mensajes llevan `cliente_id`; el proyecto es opcional).
