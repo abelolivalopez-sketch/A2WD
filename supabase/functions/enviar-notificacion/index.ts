@@ -37,7 +37,7 @@ Deno.serve(async (req) => {
 
   const [pub, priv, subject] = await Promise.all([ajuste('VAPID_PUBLIC_KEY'), ajuste('VAPID_PRIVATE_KEY'), ajuste('VAPID_SUBJECT')]);
   if (!pub || !priv) return json({ error: 'Faltan claves VAPID' }, 500);
-  webpush.setVapidDetails(subject || 'mailto:hola@a2wd.com', pub, priv);
+  webpush.setVapidDetails(subject || 'mailto:a2wd.web@gmail.com', pub, priv);
 
   const { tabla, id } = await req.json().catch(() => ({}));
   if (!tabla || !id) return json({ error: 'Falta tabla o id' }, 400);
