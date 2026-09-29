@@ -159,3 +159,10 @@ Cada vez que el cliente abre su panel con internet, la app guarda en su móvil u
 - **Asistente IA:** en el último mensaje del cliente aparece su resumen y un borrador de respuesta en el idioma del cliente; «Usar respuesta» lo copia al cuadro para revisarlo y enviarlo.
 - Avisos en el móvil: a los creadores cuando escribe un cliente (al tocar el aviso se abre esa conversación) y al cliente cuando le respondéis.
 - Base de datos: `supabase/chat-clientes.sql` (los mensajes llevan `cliente_id`; el proyecto es opcional).
+
+## Política de seguridad (CSP) del portal
+Las páginas `portal/login.html`, `portal/cliente.html` y `portal/creador.html` llevan una CSP que solo deja ejecutar sus propios scripts: si alguien consiguiera colar código en un mensaje, el navegador no lo ejecutaría.
+
+**Si cambias un `<script>` escrito dentro de una de esas páginas**, ejecuta `node herramientas/actualizar-csp.mjs` (o pídeselo a Claude) antes de subirlo. Si no, esa página se quedará en blanco.
+
+La librería de Supabase va fijada a una versión exacta (`portal/app.js` y `sw.js`). Para actualizarla, cambia el número en los dos archivos y sube `VERSION` en `sw.js`.

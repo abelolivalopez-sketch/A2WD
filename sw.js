@@ -7,7 +7,7 @@
 //  - Recibe las notificaciones push y abre la app al tocarlas.
 //  Al cambiar archivos del portal, sube el número de VERSION.
 // =====================================================================
-const VERSION = 'a2wd-v15';
+const VERSION = 'a2wd-v16';
 const CARCASA = [
   './',
   './index.html',
@@ -29,7 +29,7 @@ const CARCASA = [
 ];
 
 // Librería de Supabase (sus piezas internas se guardan en la siguiente visita)
-const LIBRERIAS = ['https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'];
+const LIBRERIAS = ['https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/+esm'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(VERSION).then(async (c) => {

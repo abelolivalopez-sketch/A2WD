@@ -1,5 +1,5 @@
 // Utilidades compartidas del portal A2WD
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/+esm';
 import { SUPABASE_URL, SUPABASE_KEY } from './config.js';
 import { t, LOCALE } from './i18n.js';
 import { esFalloRed, guardarCopia, leerCopia, borrarCopias, quitarAvisosDispositivo, sesionGuardada } from './movil.js';
