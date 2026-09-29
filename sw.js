@@ -7,7 +7,7 @@
 //  - Recibe las notificaciones push y abre la app al tocarlas.
 //  Al cambiar archivos del portal, sube el número de VERSION.
 // =====================================================================
-const VERSION = 'a2wd-v13';
+const VERSION = 'a2wd-v14';
 const CARCASA = [
   './',
   './index.html',
@@ -25,6 +25,7 @@ const CARCASA = [
   './portal/i18n.js',
   './portal/config.js',
   './portal/movil.js',
+  './fonts/fonts.css',
 ];
 
 // Librería de Supabase (sus piezas internas se guardan en la siguiente visita)
@@ -49,8 +50,8 @@ self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
-  // Librerías (jsDelivr) y fuentes de Google: se guardan para usarlas sin conexión
-  const externo = /^(cdn\.jsdelivr\.net|fonts\.googleapis\.com|fonts\.gstatic\.com)$/.test(url.hostname);
+  // Librería de Supabase (jsDelivr): se guarda para usarla sin conexión. Las fuentes ya son locales.
+  const externo = url.hostname === 'cdn.jsdelivr.net';
   // Supabase (datos, sesión) y cualquier otro sitio van siempre directos a la red
   if (url.origin !== self.location.origin && !externo) return;
 

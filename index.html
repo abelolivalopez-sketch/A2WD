@@ -60,9 +60,7 @@
 }
 </script>
 <title data-i18n="meta.title">A2WD — Diseño web para comercios</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="fonts/fonts.css" rel="stylesheet">
 <style>
   :root{
     /* Paleta oscura fija · negros y grises */
@@ -434,7 +432,7 @@
     </div>
       <a href="#contacto" class="nav-cta" data-i18n="nav.cta">Hablemos</a>
     </div>
-    <button class="burger" id="burgerBtn" aria-label="Abrir menú" data-i18n-aria="nav.menu">
+    <button class="burger" id="burgerBtn" type="button" aria-label="Abrir menú" data-i18n-aria="nav.menu" aria-controls="mobileMenu" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
   </div>
@@ -726,7 +724,7 @@
   var conexion = navigator.connection || {};
   if (conexion.saveData) return;
   var s3 = document.createElement('script');
-  s3.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+  s3.src = 'vendor/three-r128.min.js';
   s3.async = true;
   s3.onload = function(){ window.A2WD_mobius && window.A2WD_mobius(); };
   (window.requestIdleCallback || function(f){ setTimeout(f, 300); })(function(){ document.head.appendChild(s3); });
@@ -860,10 +858,11 @@ window.A2WD_mobius = function(){
   const burger = document.getElementById('burgerBtn');
   const mobileMenu = document.getElementById('mobileMenu');
   burger.addEventListener('click', function(){
-    mobileMenu.classList.toggle('open');
+    var abierto = mobileMenu.classList.toggle('open');
+    burger.setAttribute('aria-expanded', abierto ? 'true' : 'false');
   });
   mobileMenu.querySelectorAll('a').forEach(function(a){
-    a.addEventListener('click', function(){ mobileMenu.classList.remove('open'); });
+    a.addEventListener('click', function(){ mobileMenu.classList.remove('open'); burger.setAttribute('aria-expanded', 'false'); });
   });
 
   // Scrollspy simple para resaltar el enlace activo
@@ -931,7 +930,7 @@ window.A2WD_mobius = function(){
 </style>
 <button class="rod-fab" id="rodFab" type="button" aria-controls="rodPanel" aria-expanded="false">✦ <span>Rodolfo</span></button>
 <div class="rod-panel" id="rodPanel" role="dialog" aria-label="Rodolfo" hidden>
-  <div class="rod-cab"><div><strong>✦ Rodolfo</strong><p id="rodSub"></p></div><button class="rod-x" id="rodX" type="button" aria-label="×">×</button></div>
+  <div class="rod-cab"><div><strong>✦ Rodolfo</strong><p id="rodSub"></p></div><button class="rod-x" id="rodX" type="button" aria-label="Cerrar">×</button></div>
   <div class="rod-msgs" id="rodMsgs" aria-live="polite"></div>
   <div class="rod-sug" id="rodSug"></div>
   <form class="rod-form" id="rodForm"><input id="rodInput" type="text" maxlength="500" autocomplete="off" required><button type="submit" id="rodEnviar"></button></form>
