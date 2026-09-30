@@ -1,0 +1,1004 @@
+import { sb, exigirSesion, salir, esc, urlSegura, fecha, euros, toast, ESTADOS, ORDEN_ESTADOS, LOGO, activarCambioPassword, chatAsistente } from '../app.js';
+import { botonAvisos, idiomaMovil, avisosAlAbrir } from '../movil.js';
+
+document.getElementById('logo').insertAdjacentHTML('afterbegin', LOGO);
+const ctx = await exigirSesion('creador');
+if (!ctx) throw new Error('Sin sesión');
+const { perfil } = ctx;
+document.getElementById('quien').textContent = perfil.nombre || perfil.email;
+document.getElementById('salir').onclick = salir;
+idiomaMovil('es');
+botonAvisos(document.getElementById('avisos'), sb);  // avisos de mensajes de clientes en tu móvil
+avisosAlAbrir(sb, { creador: true });
+activarCambioPassword();
+
+const vista = document.getElementById('vista');
+const ESTADOS_CLIENTE = { potencial: 'Potencial', activo: 'Activo', pausado: 'Pausado', antiguo: 'Antiguo' };
+const ESTADOS_FACTURA = { borrador: 'Borrador', pendiente: 'Pendiente', pagada: 'Pagada', vencida: 'Vencida', anulada: 'Anulada' };
+const tagEstado = (e) => `<span class="tag ${e === 'entregado' ? 'ok' : e === 'revision' ? 'warn' : ''}">${ESTADOS[e] || e}</span>`;
+const tagFactura = (e) => `<span class="tag ${e === 'pagada' ? 'ok' : e === 'vencida' ? 'bad' : e === 'pendiente' ? 'warn' : ''}">${ESTADOS_FACTURA[e] || e}</span>`;
+const CATEGORIAS = { duda: 'Duda', cambio_diseno: 'Cambio de diseño', contenido: 'Contenido', problema_tecnico: 'Problema técnico', facturacion: 'Facturación', aprobacion: 'Aprobación', otro: 'Otro' };
+const PRIORIDADES = { baja: 'Baja', media: 'Media', alta: 'Alta', urgente: 'Urgente' };
+const iaDe = (c) => (Array.isArray(c?.comentarios_ia) ? c.comentarios_ia[0] : c?.comentarios_ia) || null;
+const tagsIA = (a) => !a ? '' : `<span class="ia-tags"><span class="tag ${a.prioridad === 'urgente' ? 'bad' : a.prioridad === 'alta' ? 'warn' : ''}">${PRIORIDADES[a.prioridad] || a.prioridad}</span><span class="tag">${CATEGORIAS[a.categoria] || a.categoria}</span></span>`;
+const opts = (obj) => Object.entries(obj).map(([v, l]) => ({ v, l }));
+const fallo = (error, texto = 'Algo salió mal') => { if (error) { console.error(error); toast(`${texto}: ${error.message}`, 'bad'); return true; } return false; };
+
+// ---------- Formulario genérico en diálogo ----------
+const dlg = document.getElementById('dlg');
+let onGuardar = null;
+function abrirForm({ titulo, campos, valores = {}, guardar }) {
+  document.getElementById('dlgTitulo').textContent = titulo;
+  document.getElementById('dlgCampos').innerHTML = campos.map((c) => {
+    const v = valores[c.k] ?? c.def ?? '';
+    const req = c.req ? 'required' : '';
+    let input;
+    if (c.tipo === 'textarea') input = `<textarea name="${c.k}" ${req}>${esc(v)}</textarea>`;
+    else if (c.tipo === 'select') input = `<select name="${c.k}" ${req}>${c.opciones.map((o) => `<option value="${esc(o.v)}" ${String(o.v) === String(v) ? 'selected' : ''}>${esc(o.l)}</option>`).join('')}</select>`;
+    else input = `<input name="${c.k}" type="${c.tipo || 'text'}" value="${esc(v)}" ${c.attrs || ''} ${req}>`;
+    return `<div class="campo"><label>${esc(c.label)}${c.req ? ' *' : ''}</label>${input}</div>`;
+  }).join('');
+  onGuardar = async (datos) => guardar(datos);
+  dlg.showModal();
+}
+const cerrar = () => dlg.close();
+document.getElementById('dlgX').onclick = cerrar;
+document.getElementById('dlgCancelar').onclick = cerrar;
+document.getElementById('dlgForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const datos = Object.fromEntries(new FormData(e.target));
+  for (const k in datos) if (datos[k] === '') datos[k] = null;
+  const btn = e.target.querySelector('[type=submit]');
+  btn.disabled = true;
+  const ok = await onGuardar(datos);
+  btn.disabled = false;
+  if (ok !== false) { cerrar(); router(); }
+});
+
+// ---------- Definición de formularios ----------
+const camposCliente = [
+  { k: 'nombre', label: 'Nombre de contacto', req: true },
+  { k: 'email', label: 'Correo (con el que entrará al portal)', tipo: 'email', req: true },
+  { k: 'empresa', label: 'Empresa / negocio' },
+  { k: 'telefono', label: 'Teléfono', tipo: 'tel' },
+  { k: 'nif', label: 'NIF / CIF' },
+  { k: 'direccion', label: 'Dirección fiscal' },
+  { k: 'servicios', label: 'Servicios contratados', attrs: 'placeholder="Web, mantenimiento, hosting…"' },
+  { k: 'estado', label: 'Estado', tipo: 'select', opciones: opts(ESTADOS_CLIENTE), def: 'activo' },
+  { k: 'notas_privadas', label: 'Notas privadas (el cliente no las ve)', tipo: 'textarea' },
+];
+async function camposProyecto() {
+  const { data: clientes } = await sb.from('clientes').select('id,nombre,empresa').order('nombre');
+  return [
+    { k: 'cliente_id', label: 'Cliente', tipo: 'select', req: true, opciones: (clientes || []).map((c) => ({ v: c.id, l: c.empresa ? `${c.nombre} · ${c.empresa}` : c.nombre })) },
+    { k: 'nombre', label: 'Nombre del proyecto', req: true },
+    { k: 'descripcion', label: 'Descripción (la ve el cliente)', tipo: 'textarea' },
+    { k: 'url_preview', label: 'Enlace de vista previa', tipo: 'url', attrs: 'placeholder="https://…"' },
+    { k: 'estado', label: 'Fase', tipo: 'select', opciones: opts(ESTADOS), def: 'diseno' },
+    { k: 'progreso', label: 'Progreso (%)', tipo: 'number', attrs: 'min="0" max="100"', def: 0 },
+    { k: 'fecha_entrega', label: 'Fecha de entrega prevista', tipo: 'date' },
+  ];
+}
+async function camposFactura(clienteFijo) {
+  const [{ data: clientes }, { data: proyectos }] = await Promise.all([
+    sb.from('clientes').select('id,nombre,empresa').order('nombre'),
+    sb.from('proyectos').select('id,nombre').order('nombre'),
+  ]);
+  return [
+    { k: 'cliente_id', label: 'Cliente', tipo: 'select', req: true, def: clienteFijo, opciones: (clientes || []).map((c) => ({ v: c.id, l: c.empresa ? `${c.nombre} · ${c.empresa}` : c.nombre })) },
+    { k: 'proyecto_id', label: 'Proyecto', tipo: 'select', opciones: [{ v: '', l: '— Ninguno —' }, ...(proyectos || []).map((p) => ({ v: p.id, l: p.nombre }))] },
+    { k: 'tipo', label: 'Tipo', tipo: 'select', opciones: [{ v: 'factura', l: 'Factura' }, { v: 'presupuesto', l: 'Presupuesto' }] },
+    { k: 'numero', label: 'Número', attrs: 'placeholder="2026-001"' },
+    { k: 'concepto', label: 'Concepto', req: true },
+    { k: 'base', label: 'Base imponible (€)', tipo: 'number', attrs: 'step="0.01" min="0"', req: true },
+    { k: 'iva_pct', label: 'IVA (%)', tipo: 'number', attrs: 'step="0.01" min="0"', def: 21 },
+    { k: 'estado', label: 'Estado', tipo: 'select', opciones: opts(ESTADOS_FACTURA), def: 'pendiente' },
+    { k: 'fecha_emision', label: 'Fecha de emisión', tipo: 'date', def: new Date().toISOString().slice(0, 10) },
+    { k: 'fecha_vencimiento', label: 'Vencimiento', tipo: 'date' },
+  ];
+}
+
+const guardarEn = (tabla, id) => async (datos) => {
+  const q = id ? sb.from(tabla).update(datos).eq('id', id) : sb.from(tabla).insert(datos);
+  const { error } = await q;
+  if (fallo(error, 'No se pudo guardar')) return false;
+  toast('Guardado');
+};
+async function borrar(tabla, id, texto, despues) {
+  if (!confirm(`¿Seguro que quieres borrar ${texto}? No se puede deshacer.`)) return;
+  const { error } = await sb.from(tabla).delete().eq('id', id);
+  if (fallo(error, 'No se pudo borrar')) return;
+  toast('Borrado');
+  if (despues) location.hash = despues; else router();
+}
+
+// ---------- Invitar al portal ----------
+async function invitar(email) {
+  const redirectTo = new URL('login.html', location.href).href;
+  const { data, error } = await sb.functions.invoke('invitar-cliente', { body: { email, redirectTo } });
+  if (error) {
+    let msg = error.message;
+    try { msg = (await error.context.json()).error || msg; } catch {}
+    toast('No se pudo invitar: ' + msg, 'bad');
+    return;
+  }
+  if (data?.ok) toast('Invitación enviada a ' + email);
+}
+
+// ---------- Contador de mensajes sin leer ----------
+async function actualizarSinLeer() {
+  const { count } = await sb.from('comentarios').select('id', { count: 'exact', head: true }).eq('leido', false);
+  const el = document.getElementById('nSinLeer');
+  el.textContent = count || '';
+  el.classList.toggle('oculto', !count);
+}
+
+// =================== VISTAS ===================
+async function vResumen() {
+  const [c, p, m, f] = await Promise.all([
+    sb.from('clientes').select('id', { count: 'exact', head: true }).eq('estado', 'activo'),
+    sb.from('proyectos').select('*, clientes(nombre)').neq('estado', 'entregado').order('fecha_entrega', { nullsFirst: false }),
+    sb.from('comentarios').select('*, proyectos(nombre), comentarios_ia(*)').eq('leido', false).order('created_at', { ascending: false }).limit(8),
+    sb.from('facturas').select('total').in('estado', ['pendiente', 'vencida']).eq('tipo', 'factura'),
+  ]);
+  const pendiente = (f.data || []).reduce((s, x) => s + Number(x.total), 0);
+  vista.innerHTML = `
+    <div class="cabecera"><div><p class="eyebrow">Panel de creador</p><h1>Hola, ${esc(perfil.nombre || '')}</h1></div>
+      <div class="acciones"><button class="btn" id="nCli">+ Cliente</button><button class="btn solid" id="nPro">+ Proyecto</button></div></div>
+    <div class="kpis">
+      <div class="card kpi"><p class="eyebrow">Clientes activos</p><p class="v">${c.count ?? 0}</p></div>
+      <div class="card kpi"><p class="eyebrow">Proyectos en curso</p><p class="v">${p.data?.length ?? 0}</p></div>
+      <div class="card kpi"><p class="eyebrow">Mensajes sin leer</p><p class="v">${m.data?.length ?? 0}</p></div>
+      <div class="card kpi"><p class="eyebrow">Por cobrar</p><p class="v">${euros(pendiente)}</p></div>
+    </div>
+    <div class="dos">
+      <div class="card"><h3>Proyectos en curso</h3>
+        ${p.data?.length ? p.data.map((x) => `
+          <div class="item" style="cursor:pointer" data-go="#proyecto/${x.id}">
+            <div><p style="font-weight:600">${esc(x.nombre)}</p><p class="muted" style="font-size:13px">${esc(x.clientes?.nombre)} · entrega ${fecha(x.fecha_entrega)}</p>
+              <div class="barra" style="width:160px;margin-top:8px"><i style="width:${x.progreso}%"></i></div></div>
+            <div>${tagEstado(x.estado)}</div>
+          </div>`).join('') : `<p class="muted" style="margin-top:10px">No hay proyectos en curso.</p>`}
+      </div>
+      <div class="card"><h3>Últimos mensajes sin leer</h3>
+        ${m.data?.length ? m.data.map((x) => `
+          <div class="item" style="cursor:pointer;display:block" data-go="#mensajes/${x.cliente_id}">
+            <p class="mono muted" style="font-size:11.5px">${tagsIA(iaDe(x))}${esc(x.autor_nombre)}${x.proyectos?.nombre ? ' · ' + esc(x.proyectos.nombre) : ''} · ${fecha(x.created_at, true)}</p>
+            <p style="margin-top:3px">${iaDe(x) ? '<strong>IA:</strong> ' + esc(iaDe(x).resumen) : esc(x.mensaje.length > 140 ? x.mensaje.slice(0, 140) + '…' : x.mensaje)}</p>
+          </div>`).join('') : `<p class="muted" style="margin-top:10px">Estás al día.</p>`}
+      </div>
+    </div>`;
+  document.getElementById('nCli').onclick = () => abrirForm({ titulo: 'Nuevo cliente', campos: camposCliente, guardar: guardarEn('clientes') });
+  document.getElementById('nPro').onclick = async () => abrirForm({ titulo: 'Nuevo proyecto', campos: await camposProyecto(), guardar: guardarEn('proyectos') });
+}
+
+async function vClientes() {
+  const { data, error } = await sb.from('clientes').select('*, proyectos(count)').order('created_at', { ascending: false });
+  if (fallo(error)) return;
+  vista.innerHTML = `
+    <div class="cabecera"><div><p class="eyebrow">Base de datos</p><h1>Clientes</h1></div><button class="btn solid" id="nCli">+ Nuevo cliente</button></div>
+    <div class="herr"><input id="buscar" type="search" placeholder="Buscar nombre, empresa, correo…">
+      <select id="filtro"><option value="">Todos los estados</option>${opts(ESTADOS_CLIENTE).map((o) => `<option value="${o.v}">${o.l}</option>`).join('')}</select></div>
+    <div class="card" style="padding:0"><div class="tabla-wrap"><table>
+      <thead><tr><th>Cliente</th><th>Contacto</th><th>Servicios</th><th>Proyectos</th><th>Portal</th><th>Estado</th></tr></thead>
+      <tbody id="filas"></tbody></table></div></div>`;
+  const pintar = () => {
+    const t = document.getElementById('buscar').value.toLowerCase();
+    const f = document.getElementById('filtro').value;
+    const lista = data.filter((c) => (!f || c.estado === f) && [c.nombre, c.empresa, c.email, c.telefono, c.nif].join(' ').toLowerCase().includes(t));
+    document.getElementById('filas').innerHTML = lista.length ? lista.map((c) => `
+      <tr class="click" data-go="#cliente/${c.id}">
+        <td><strong>${esc(c.nombre)}</strong><br><span class="muted" style="font-size:13px">${esc(c.empresa || '')}</span></td>
+        <td>${esc(c.email)}<br><span class="muted" style="font-size:13px">${esc(c.telefono || '')}</span></td>
+        <td>${esc(c.servicios || '—')}</td>
+        <td class="mono">${c.proyectos?.[0]?.count ?? 0}</td>
+        <td>${c.user_id ? '<span class="tag ok">Activo</span>' : '<span class="tag">Sin invitar</span>'}</td>
+        <td><span class="tag ${c.estado === 'activo' ? 'dark' : ''}">${ESTADOS_CLIENTE[c.estado]}</span></td>
+      </tr>`).join('') : `<tr><td colspan="6"><div class="vacio" style="border:0">${data.length ? 'Sin resultados' : 'Aún no hay clientes. Crea el primero.'}</div></td></tr>`;
+  };
+  document.getElementById('buscar').oninput = pintar;
+  document.getElementById('filtro').onchange = pintar;
+  pintar();
+  document.getElementById('nCli').onclick = () => abrirForm({ titulo: 'Nuevo cliente', campos: camposCliente, guardar: guardarEn('clientes') });
+}
+
+async function vCliente(id) {
+  const [{ data: c, error }, { data: proyectos }, { data: facturas }] = await Promise.all([
+    sb.from('clientes').select('*').eq('id', id).single(),
+    sb.from('proyectos').select('*').eq('cliente_id', id).order('created_at', { ascending: false }),
+    sb.from('facturas').select('*').eq('cliente_id', id).order('fecha_emision', { ascending: false }),
+  ]);
+  if (fallo(error, 'Cliente no encontrado')) return;
+  const facturado = (facturas || []).filter((f) => f.tipo === 'factura' && f.estado === 'pagada').reduce((s, f) => s + Number(f.total), 0);
+  vista.innerHTML = `
+    <a class="volver" href="#clientes">← Clientes</a>
+    <div class="cabecera"><div><p class="eyebrow">${esc(c.empresa || 'Cliente')}</p><h1>${esc(c.nombre)}</h1></div>
+      <div class="acciones">
+        ${c.user_id ? '<span class="tag ok" style="align-self:center">Acceso al portal activo</span>' : `<button class="btn solid" id="inv">Invitar al portal</button>`}
+        <button class="btn" id="edit">Editar</button><button class="btn danger" id="del">Borrar</button></div></div>
+    <div class="dos">
+      <div class="stack">
+        <div class="card"><h3 style="margin-bottom:14px">Datos</h3><dl class="datos">
+          <dt>Correo</dt><dd><a href="mailto:${esc(c.email)}">${esc(c.email)}</a></dd>
+          <dt>Teléfono</dt><dd>${c.telefono ? `<a href="tel:${esc(c.telefono)}">${esc(c.telefono)}</a>` : '—'}</dd>
+          <dt>NIF / CIF</dt><dd>${esc(c.nif || '—')}</dd>
+          <dt>Dirección</dt><dd>${esc(c.direccion || '—')}</dd>
+          <dt>Servicios</dt><dd>${esc(c.servicios || '—')}</dd>
+          <dt>Estado</dt><dd>${ESTADOS_CLIENTE[c.estado]}</dd>
+          <dt>Alta</dt><dd>${fecha(c.created_at)}</dd>
+          <dt>Facturado</dt><dd class="mono">${euros(facturado)}</dd>
+        </dl></div>
+        <div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><h3>Proyectos</h3><button class="btn small" id="nPro">+ Proyecto</button></div>
+          ${proyectos?.length ? proyectos.map((p) => `
+            <div class="item" style="cursor:pointer" data-go="#proyecto/${p.id}"><div><p style="font-weight:600">${esc(p.nombre)}</p><p class="muted" style="font-size:13px">${p.progreso}% · entrega ${fecha(p.fecha_entrega)}</p></div>${tagEstado(p.estado)}</div>`).join('')
+            : `<p class="muted" style="margin-top:10px">Sin proyectos todavía.</p>`}
+        </div>
+      </div>
+      <div class="stack">
+        <div class="card"><h3 style="margin-bottom:10px">Notas privadas</h3><p style="white-space:pre-wrap" class="${c.notas_privadas ? '' : 'muted'}">${esc(c.notas_privadas || 'Sin notas.')}</p></div>
+        <div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><h3>Facturas y presupuestos</h3><button class="btn small" id="nFac">+ Nueva</button></div>
+          ${facturas?.length ? facturas.map((f) => `
+            <div class="item"><div><p style="font-weight:600">${esc(f.numero || (f.tipo === 'presupuesto' ? 'Presupuesto' : 'Factura'))}</p><p class="muted" style="font-size:13px">${esc(f.concepto)} · ${fecha(f.fecha_emision)}</p></div>
+              <div style="text-align:right"><p class="mono">${euros(f.total)}</p>${tagFactura(f.estado)}</div></div>`).join('')
+            : `<p class="muted" style="margin-top:10px">Sin facturas.</p>`}
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('edit').onclick = () => abrirForm({ titulo: 'Editar cliente', campos: camposCliente, valores: c, guardar: guardarEn('clientes', id) });
+  document.getElementById('del').onclick = () => borrar('clientes', id, `a ${c.nombre} y todos sus proyectos`, '#clientes');
+  document.getElementById('inv')?.addEventListener('click', async (e) => { e.target.disabled = true; await invitar(c.email); e.target.disabled = false; });
+  document.getElementById('nPro').onclick = async () => abrirForm({ titulo: 'Nuevo proyecto', campos: await camposProyecto(), valores: { cliente_id: id }, guardar: guardarEn('proyectos') });
+  document.getElementById('nFac').onclick = async () => abrirForm({ titulo: 'Nueva factura o presupuesto', campos: await camposFactura(id), guardar: guardarEn('facturas') });
+}
+
+async function vProyectos() {
+  const { data, error } = await sb.from('proyectos').select('*, clientes(nombre,empresa)').order('created_at', { ascending: false });
+  if (fallo(error)) return;
+  vista.innerHTML = `
+    <div class="cabecera"><div><p class="eyebrow">Trabajo</p><h1>Proyectos</h1></div><button class="btn solid" id="nPro">+ Nuevo proyecto</button></div>
+    <div class="card" style="padding:0"><div class="tabla-wrap"><table>
+      <thead><tr><th>Proyecto</th><th>Cliente</th><th>Fase</th><th>Progreso</th><th>Entrega</th><th>Vista previa</th></tr></thead>
+      <tbody>${data.length ? data.map((p) => {
+        const u = urlSegura(p.url_preview);
+        return `<tr class="click" data-go="#proyecto/${p.id}">
+          <td><strong>${esc(p.nombre)}</strong></td><td>${esc(p.clientes?.nombre)}</td><td>${tagEstado(p.estado)}</td>
+          <td><div class="barra" style="width:90px;display:inline-block;vertical-align:middle"><i style="width:${p.progreso}%"></i></div> <span class="mono" style="font-size:12px">${p.progreso}%</span></td>
+          <td>${fecha(p.fecha_entrega)}</td>
+          <td>${u ? `<a class="mono" style="font-size:13px" href="${esc(u)}" target="_blank" rel="noopener" data-stop>Abrir ↗</a>` : '—'}</td></tr>`;
+      }).join('') : `<tr><td colspan="6"><div class="vacio" style="border:0">Aún no hay proyectos.</div></td></tr>`}</tbody></table></div></div>`;
+  document.getElementById('nPro').onclick = async () => abrirForm({ titulo: 'Nuevo proyecto', campos: await camposProyecto(), guardar: guardarEn('proyectos') });
+}
+
+async function vProyecto(id) {
+  const [{ data: p, error }, { data: avances }, { data: comentarios }] = await Promise.all([
+    sb.from('proyectos').select('*, clientes(id,nombre,email,user_id)').eq('id', id).single(),
+    sb.from('avances').select('*').eq('proyecto_id', id).order('created_at', { ascending: false }),
+    sb.from('comentarios').select('*, comentarios_ia(*)').eq('proyecto_id', id).order('created_at'),
+  ]);
+  if (fallo(error, 'Proyecto no encontrado')) return;
+  const u = urlSegura(p.url_preview);
+  const idx = ORDEN_ESTADOS.indexOf(p.estado);
+  const enlacePortal = new URL('login.html', location.href).href;
+  vista.innerHTML = `
+    <a class="volver" href="#cliente/${p.clientes.id}">← ${esc(p.clientes.nombre)}</a>
+    <div class="cabecera"><div><p class="eyebrow">Proyecto</p><h1>${esc(p.nombre)}</h1></div>
+      <div class="acciones">${u ? `<a class="btn" href="${esc(u)}" target="_blank" rel="noopener">Ver web ↗</a>` : ''}
+        <button class="btn" id="copiar">Copiar enlace del portal</button>
+        <button class="btn" id="edit">Editar</button><button class="btn danger" id="del">Borrar</button></div></div>
+    ${!p.clientes.user_id ? `<div class="card" style="margin-bottom:18px;border-color:var(--warn)"><p><strong>El cliente aún no tiene acceso al portal.</strong> <span class="muted">Invítale desde su ficha para que pueda ver este proyecto.</span></p></div>` : ''}
+    <div class="dos">
+      <div class="stack">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><h3>Estado</h3><span class="mono muted" style="font-size:13px">${p.progreso}% · entrega ${fecha(p.fecha_entrega)}</span></div>
+          <div class="barra" style="margin:14px 0 4px"><i style="width:${p.progreso}%"></i></div>
+          <div class="fases">${ORDEN_ESTADOS.map((e, i) => `<div class="fase ${i < idx ? 'hecha' : ''} ${i === idx ? 'actual' : ''}">${ESTADOS[e]}</div>`).join('')}</div>
+          ${p.descripcion ? `<p class="muted" style="margin-top:16px;white-space:pre-wrap">${esc(p.descripcion)}</p>` : ''}
+        </div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center"><h3>Avances publicados</h3><button class="btn small solid" id="nAv">+ Publicar avance</button></div>
+          ${avances?.length ? avances.map((a) => {
+            const au = urlSegura(a.url);
+            return `<div class="item"><div><p class="mono muted" style="font-size:11.5px">${fecha(a.created_at)}</p><p style="font-weight:600">${esc(a.titulo)}</p>
+              ${a.descripcion ? `<p class="muted" style="white-space:pre-wrap">${esc(a.descripcion)}</p>` : ''}
+              ${au ? `<a class="mono" style="font-size:13px" href="${esc(au)}" target="_blank" rel="noopener">Ver ↗</a>` : ''}</div>
+              <button class="btn small ghost" data-del-av="${a.id}">Borrar</button></div>`;
+          }).join('') : `<p class="muted" style="margin-top:10px">Publica el primer avance para que el cliente lo vea.</p>`}
+        </div>
+      </div>
+      <div class="card">
+        <h3>Conversación con el cliente</h3>
+        <p class="muted" style="font-size:13.5px;margin:4px 0 16px">Lo que escribas aquí lo verá ${esc(p.clientes.nombre)}.</p>
+        <div class="hilo" id="hilo">${comentarios?.length ? comentarios.map((c) => `
+          <div class="msg ${c.autor_rol === 'creador' ? 'mio' : ''}"><p class="meta">${esc(c.autor_nombre)} · ${fecha(c.created_at, true)}</p><p>${esc(c.mensaje)}</p>${c.autor_rol === 'creador' ? '' : bloqueIA(c)}</div>`).join('')
+          : `<p class="muted" style="font-size:13.5px">Sin mensajes todavía.</p>`}</div>
+        <form id="fCom" style="margin-top:16px"><textarea id="txt" maxlength="4000" placeholder="Responder…" required></textarea>
+          <button class="btn solid" style="margin-top:10px;width:100%">Enviar</button></form>
+      </div>
+    </div>`;
+  const hilo = document.getElementById('hilo'); hilo.scrollTop = hilo.scrollHeight;
+
+  // Al abrir el proyecto, se marcan sus mensajes como leídos
+  if (comentarios?.some((c) => !c.leido)) { await sb.from('comentarios').update({ leido: true }).eq('proyecto_id', id).eq('leido', false); actualizarSinLeer(); }
+
+  document.getElementById('copiar').onclick = async () => { await navigator.clipboard.writeText(enlacePortal); toast('Enlace copiado: ' + enlacePortal); };
+  document.getElementById('edit').onclick = async () => abrirForm({ titulo: 'Editar proyecto', campos: await camposProyecto(), valores: p, guardar: guardarEn('proyectos', id) });
+  document.getElementById('del').onclick = () => borrar('proyectos', id, 'este proyecto', '#cliente/' + p.clientes.id);
+  document.getElementById('nAv').onclick = () => abrirForm({
+    titulo: 'Publicar avance',
+    campos: [{ k: 'titulo', label: 'Título', req: true, attrs: 'placeholder="Página de inicio terminada"' },
+             { k: 'descripcion', label: 'Qué ha cambiado', tipo: 'textarea' },
+             { k: 'url', label: 'Enlace (opcional)', tipo: 'url', attrs: 'placeholder="https://…"' }],
+    guardar: async (d) => guardarEn('avances')({ ...d, proyecto_id: id }),
+  });
+  vista.querySelectorAll('[data-del-av]').forEach((b) => (b.onclick = () => borrar('avances', b.dataset.delAv, 'este avance')));
+  vista.querySelectorAll('[data-analizar]').forEach((b) => (b.onclick = () => analizar(b.dataset.analizar, !!b.dataset.forzar, b)));
+  vista.querySelectorAll('[data-usar]').forEach((b) => (b.onclick = () => {
+    const a = iaDe(comentarios.find((x) => x.id === b.dataset.usar));
+    const t = document.getElementById('txt');
+    t.value = a?.respuesta || ''; t.focus(); t.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    toast('Respuesta copiada al cuadro. Revísala y pulsa Enviar.');
+  }));
+  document.getElementById('fCom').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const txt = document.getElementById('txt').value.trim(); if (!txt) return;
+    e.target.querySelector('button').disabled = true;
+    const { error } = await sb.from('comentarios').insert({ proyecto_id: id, mensaje: txt });
+    if (fallo(error, 'No se pudo enviar')) { e.target.querySelector('button').disabled = false; return; }
+    router();
+  });
+}
+
+function bloqueIA(c) {
+  const a = iaDe(c);
+  if (!a) return `<div class="ia"><button class="btn small ghost" data-analizar="${c.id}">✦ Analizar con IA</button></div>`;
+  return `<div class="ia">
+    <div class="ia-cab"><span class="mono muted" style="font-size:11px">✦ ASISTENTE</span>${tagsIA(a)}</div>
+    <p>${esc(a.resumen)}</p>
+    ${a.necesita_info ? `<p class="aviso">⚠ ${esc(a.necesita_info)}</p>` : ''}
+    ${a.respuesta ? `<p class="sug">${esc(a.respuesta)}</p>` : ''}
+    <div class="acciones">${a.respuesta ? `<button class="btn small solid" data-usar="${c.id}">Usar respuesta</button>` : ''}<button class="btn small ghost" data-analizar="${c.id}" data-forzar="1">Volver a analizar</button></div>
+  </div>`;
+}
+
+async function analizar(comentarioId, forzar, boton) {
+  if (boton) { boton.disabled = true; boton.textContent = 'Analizando…'; }
+  const { data, error } = await sb.functions.invoke('analizar-comentario', { body: { comentario_id: comentarioId, forzar } });
+  if (error || !data?.ok) {
+    let msg = error?.message || data?.error || 'error';
+    try { msg = (await error.context.json()).error || msg; } catch {}
+    toast('No se pudo analizar: ' + msg, 'bad');
+    if (boton) { boton.disabled = false; boton.textContent = '✦ Analizar con IA'; }
+    return;
+  }
+  router();
+}
+
+// =================== MENSAJES · chat con cada cliente, en tiempo real ===================
+let chatCliAbierto = null;     // cliente cuya conversación está abierta
+async function vMensajes(clienteId) {
+  // Si se recarga la conversación mientras escribes, no se pierde lo escrito
+  const borrador = (clienteId && clienteId === chatCliAbierto) ? document.getElementById('ccTxt')?.value : '';
+  chatCliAbierto = clienteId || null;
+  const [{ data: msgs, error }, { data: clientes }, { data: proys }] = await Promise.all([
+    sb.from('comentarios').select('*, proyectos(nombre), comentarios_ia(*)').order('created_at', { ascending: true }).limit(1000),
+    sb.from('clientes').select('id, nombre, empresa, user_id').order('nombre'),
+    sb.from('proyectos').select('id, nombre, cliente_id').order('created_at', { ascending: false }),
+  ]);
+  if (fallo(error)) return;
+  // Conversaciones: clientes con mensajes (más recientes arriba) y luego el resto con cuenta
+  const conv = (clientes || []).map((c) => {
+    const m = msgs.filter((x) => x.cliente_id === c.id);
+    const ult = m[m.length - 1];
+    return { ...c, mensajes: m, ultimo: ult, sinLeer: m.filter((x) => !x.leido && x.autor_rol !== 'creador').length };
+  }).filter((c) => c.mensajes.length || c.user_id)
+    .sort((x, y) => (y.ultimo?.created_at || '').localeCompare(x.ultimo?.created_at || ''));
+  const actual = conv.find((c) => c.id === chatCliAbierto) || null;
+
+  vista.innerHTML = `
+    <div class="cabecera"><div><p class="eyebrow">Bandeja</p><h1>Mensajes de clientes</h1></div></div>
+    <div class="cc ${actual ? 'con-chat' : ''}">
+      <nav class="cc-lista" aria-label="Conversaciones">${conv.length ? conv.map((c) => `
+        <a href="#mensajes/${c.id}" class="${c.id === actual?.id ? 'on' : ''}">
+          <span class="cc-fila"><b>${esc(c.nombre)}</b>${c.sinLeer ? `<span class="num">${c.sinLeer}</span>` : ''}</span>
+          <small>${c.ultimo ? esc((c.ultimo.autor_rol === 'creador' ? 'Tú: ' : '') + c.ultimo.mensaje.slice(0, 60)) : 'Sin mensajes todavía'}</small>
+          ${c.ultimo ? `<small class="mono" style="font-size:10.5px">${fecha(c.ultimo.created_at, true)}</small>` : ''}
+        </a>`).join('') : '<p class="muted" style="padding:12px">Aún no hay clientes con cuenta.</p>'}</nav>
+      <section class="card cc-chat">${actual ? `
+        <div class="cc-cab">
+          <a href="#mensajes" class="cc-volver mono">← Conversaciones</a>
+          <div><h3>${esc(actual.nombre)}</h3><p class="muted" style="font-size:12.5px">${esc(actual.empresa || '')}${actual.empresa ? ' · ' : ''}<a href="#cliente/${actual.id}">Ficha del cliente →</a></p></div>
+        </div>
+        <div class="cc-hilo" id="ccHilo">${actual.mensajes.length ? actual.mensajes.map(burbujaCC).join('') : '<p class="muted" style="margin:auto;text-align:center;font-size:13.5px">Todavía no os habéis escrito.<br>Puedes empezar tú la conversación.</p>'}</div>
+        ${sugerenciaIA(actual.mensajes)}
+        <form id="ccForm" class="cc-form">
+          <select id="ccProy" aria-label="Proyecto">${(proys || []).filter((p) => p.cliente_id === actual.id).map((p) => `<option value="${p.id}">Sobre: ${esc(p.nombre)}</option>`).join('')}<option value="">Sobre: general</option></select>
+          <div class="cc-escribir"><textarea id="ccTxt" rows="2" maxlength="4000" placeholder="Responde a ${esc(actual.nombre.split(' ')[0])}…" title="Intro para enviar · Mayús+Intro para nueva línea" required></textarea>
+          <button class="btn solid" type="submit">Enviar</button></div>
+        </form>` : '<div class="vacio" style="border:0;margin:auto">Elige una conversación para leerla y responder.</div>'}</section>
+    </div>`;
+
+  if (!actual) return;
+  const hilo = document.getElementById('ccHilo'); hilo.scrollTop = hilo.scrollHeight;
+  if (matchMedia('(max-width:900px)').matches) { const alto = document.querySelector('header.top')?.offsetHeight || 0; window.scrollTo(0, document.querySelector('.cc-chat').getBoundingClientRect().top + scrollY - alto - 8); }
+  // Proyecto por defecto: el del último mensaje del cliente
+  const ultCli = [...actual.mensajes].reverse().find((m) => m.autor_rol !== 'creador');
+  const selP = document.getElementById('ccProy');
+  if (ultCli && [...selP.options].some((o) => o.value === (ultCli.proyecto_id || ''))) selP.value = ultCli.proyecto_id || '';
+  const txt = document.getElementById('ccTxt');
+  if (borrador) txt.value = borrador;
+  txt.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey && !('ontouchstart' in window)) { e.preventDefault(); document.getElementById('ccForm').requestSubmit(); } });
+  document.getElementById('ccForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const mensaje = txt.value.trim(); if (!mensaje) return;
+    const b = e.target.querySelector('button'); b.disabled = true;
+    const proyecto_id = document.getElementById('ccProy').value || null;
+    const { data, error } = await sb.from('comentarios').insert({ mensaje, proyecto_id, cliente_id: actual.id }).select('*, proyectos(nombre), comentarios_ia(*)').single();
+    b.disabled = false;
+    if (fallo(error, 'No se ha enviado')) return;
+    txt.value = ''; txt.focus();
+    document.querySelector('.cc-ia')?.remove();
+    anadirCC(data);
+  });
+  vista.querySelectorAll('[data-usar-cc]').forEach((b) => (b.onclick = () => {
+    const m = actual.mensajes.find((x) => x.id === b.dataset.usarCc);
+    txt.value = iaDe(m)?.respuesta || ''; txt.focus();
+    toast('Respuesta copiada al cuadro. Revísala y pulsa Enviar.');
+  }));
+  vista.querySelectorAll('[data-analizar]').forEach((b) => (b.onclick = () => analizar(b.dataset.analizar, !!b.dataset.forzar, b)));
+  if (actual.sinLeer) { await sb.from('comentarios').update({ leido: true }).eq('cliente_id', actual.id).eq('leido', false); actualizarSinLeer(); }
+}
+
+const burbujaCC = (m) => `<div class="eq-msg ${m.autor_rol === 'creador' ? 'mio' : ''}" data-id="${m.id}">
+  <p class="meta">${esc(m.autor_rol === 'creador' ? (m.autor_id === perfil.id ? 'Tú' : (m.autor_nombre || 'A2WD')) : (m.autor_nombre || 'Cliente'))} · ${fecha(m.created_at, true)}${m.proyectos?.nombre ? ` · <span class="tag" style="font-size:10px">${esc(m.proyectos.nombre)}</span>` : ''}${m.autor_rol !== 'creador' ? tagsIA(iaDe(m)) : ''}</p>
+  <p>${esc(m.mensaje)}</p></div>`;
+
+// Sugerencia del asistente para el último mensaje del cliente que aún no tiene respuesta
+function sugerenciaIA(lista) {
+  const ult = lista[lista.length - 1];
+  if (!ult || ult.autor_rol === 'creador') return '';
+  const a = iaDe(ult);
+  if (!a) return `<div class="cc-ia"><button class="btn small ghost" data-analizar="${ult.id}">✦ Pedir borrador de respuesta a la IA</button></div>`;
+  return `<div class="cc-ia">
+    <p class="mono muted" style="font-size:11px;margin-bottom:4px">✦ ASISTENTE · ${esc(a.resumen)}</p>
+    ${a.necesita_info ? `<p class="aviso" style="font-size:12.5px">⚠ ${esc(a.necesita_info)}</p>` : ''}
+    ${a.respuesta ? `<p class="sug" style="font-size:13px">${esc(a.respuesta)}</p><button class="btn small solid" data-usar-cc="${ult.id}" style="margin-top:6px">Usar respuesta</button>` : ''}
+  </div>`;
+}
+
+function anadirCC(m) {
+  const hilo = document.getElementById('ccHilo');
+  if (!hilo || hilo.querySelector(`[data-id="${m.id}"]`)) return;
+  if (!hilo.querySelector('.eq-msg')) hilo.innerHTML = '';
+  hilo.insertAdjacentHTML('beforeend', burbujaCC(m));
+  hilo.scrollTop = hilo.scrollHeight;
+}
+
+// Tiempo real: mensajes nuevos de clientes
+sb.channel('chat-creador')
+  .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'comentarios' }, async ({ new: m }) => {
+    const abierta = location.hash.startsWith('#mensajes') && chatCliAbierto === m.cliente_id;
+    if (m.autor_rol !== 'creador') {
+      if (abierta) { vMensajes(chatCliAbierto); }                      // recarga la conversación (con análisis IA)
+      else if (location.hash.startsWith('#mensajes')) vMensajes(chatCliAbierto);
+      else toast(`💬 ${m.autor_nombre || 'Cliente'}: ${m.mensaje.slice(0, 60)}`);
+      actualizarSinLeer();
+    } else if (abierta && m.autor_id !== perfil.id) {
+      const { data } = await sb.from('comentarios').select('*, proyectos(nombre), comentarios_ia(*)').eq('id', m.id).single();
+      if (data) anadirCC(data);
+    }
+  })
+  .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'comentarios_ia' }, () => {
+    if (location.hash.startsWith('#mensajes/') && chatCliAbierto) vMensajes(chatCliAbierto);   // llega el borrador de la IA
+  })
+  .subscribe();
+
+async function vFacturas() {
+  const { data, error } = await sb.from('facturas').select('*, clientes(nombre,empresa)').order('fecha_emision', { ascending: false });
+  if (fallo(error)) return;
+  const suma = (e) => data.filter((f) => f.tipo === 'factura' && e.includes(f.estado)).reduce((s, f) => s + Number(f.total), 0);
+  vista.innerHTML = `
+    <div class="cabecera"><div><p class="eyebrow">Facturación</p><h1>Facturas y presupuestos</h1></div><button class="btn solid" id="nFac">+ Nueva</button></div>
+    <div class="kpis" style="grid-template-columns:repeat(3,1fr)">
+      <div class="card kpi"><p class="eyebrow">Cobrado</p><p class="v">${euros(suma(['pagada']))}</p></div>
+      <div class="card kpi"><p class="eyebrow">Pendiente</p><p class="v">${euros(suma(['pendiente']))}</p></div>
+      <div class="card kpi"><p class="eyebrow">Vencido</p><p class="v">${euros(suma(['vencida']))}</p></div>
+    </div>
+    <div class="card" style="padding:0"><div class="tabla-wrap"><table>
+      <thead><tr><th>Número</th><th>Cliente</th><th>Concepto</th><th>Emisión</th><th>Base</th><th>Total</th><th>Estado</th><th></th></tr></thead>
+      <tbody>${data.length ? data.map((f) => `<tr>
+        <td class="mono">${esc(f.numero || '—')}<br><span class="muted" style="font-size:11px">${f.tipo === 'presupuesto' ? 'Presupuesto' : 'Factura'}</span></td>
+        <td><a href="#cliente/${f.cliente_id}">${esc(f.clientes?.nombre)}</a></td><td>${esc(f.concepto)}</td><td>${fecha(f.fecha_emision)}</td>
+        <td class="mono">${euros(f.base)}</td><td class="mono"><strong>${euros(f.total)}</strong></td><td>${tagFactura(f.estado)}</td>
+        <td><button class="btn small ghost" data-edit="${f.id}">Editar</button></td></tr>`).join('')
+        : `<tr><td colspan="8"><div class="vacio" style="border:0">Aún no hay facturas.</div></td></tr>`}</tbody></table></div></div>`;
+  document.getElementById('nFac').onclick = async () => abrirForm({ titulo: 'Nueva factura o presupuesto', campos: await camposFactura(), guardar: guardarEn('facturas') });
+  vista.querySelectorAll('[data-edit]').forEach((b) => (b.onclick = async () => {
+    const f = data.find((x) => x.id === b.dataset.edit);
+    const { total, clientes, ...valores } = f;
+    abrirForm({ titulo: 'Editar ' + f.tipo, campos: await camposFactura(), valores, guardar: guardarEn('facturas', f.id) });
+  }));
+}
+
+
+// =================== TARIFAS · chuleta para hablar con clientes ===================
+// Precios: ../tarifas.js (los mismos que ve la web). Notas internas: tabla «chuleta».
+async function vTarifas() {
+  const T = window.A2WD_TARIFAS;
+  if (!T) { vista.innerHTML = '<div class="vacio">No se han podido cargar las tarifas.</div>'; return; }
+  const P = (n) => window.A2WD_precio(n, 'es');
+  const { data: nota } = await sb.from('chuleta').select('*').eq('clave', 'notas').maybeSingle();
+  vista.innerHTML = `
+    <div class="cabecera"><div><p class="eyebrow">Chuleta del equipo</p><h1>Tarifas</h1>
+      <p class="muted" style="margin-top:6px;font-size:13.5px">Precios sin IVA · los mismos que ve el cliente en la web · actualizado ${fecha(T.actualizado)}</p></div></div>
+
+    <div class="tarifas-grid">
+      ${T.paquetes.map((p) => `
+        <div class="card tarifa ${p.destacado ? 'dest' : ''}">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
+            <h3>${esc(p.nombre.es)}</h3>${p.destacado ? '<span class="tag dark">Recomendado</span>' : ''}</div>
+          <p class="cifra">${p.desde ? '<small>desde</small>' : ''}${P(p.precio)}</p>
+          <p class="muted" style="font-size:13px">${esc(p.para.es)}</p>
+          <ul>${p.incluye.es.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>
+          <p class="mono muted" style="font-size:12px">Plazo · ${esc(p.plazo.es)}</p>
+        </div>`).join('')}
+    </div>
+
+    <div class="tarifas-2">
+      <div class="card"><p class="eyebrow">Mantenimiento</p>
+        ${T.mantenimiento.map((m) => `<div class="fila-t"><span>${esc(m.nombre.es)}<small>${esc(m.incluye.es.join(' · '))}</small></span><b>${P(m.precio)}/mes</b></div>`).join('')}</div>
+      <div class="card"><p class="eyebrow">Extras</p>
+        ${T.extras.map((x) => `<div class="fila-t"><span>${esc(x.nombre.es)}</span><b>+${P(x.precio)} <small style="display:inline">${esc(x.unidad.es)}</small></b></div>`).join('')}</div>
+    </div>
+
+    <div class="card" style="margin-top:22px">
+      <p class="eyebrow">Calculadora rápida</p>
+      <div class="calc">
+        <div class="stack">
+          <div class="campo"><label>Paquete</label><select id="cPaq">${T.paquetes.map((p) => `<option value="${p.id}" ${p.destacado ? 'selected' : ''}>${esc(p.nombre.es)} · ${P(p.precio)}</option>`).join('')}</select></div>
+          ${T.extras.map((x) => `<div class="fila-x"><label style="text-transform:none;letter-spacing:0;font-size:13px">${esc(x.nombre.es)} <span class="muted">+${P(x.precio)}</span></label>
+            <input type="number" min="0" max="20" value="0" data-extra="${x.id}" aria-label="${esc(x.nombre.es)}"></div>`).join('')}
+          <div class="fila">
+            <div class="campo"><label>Mantenimiento</label><select id="cMant"><option value="">Sin mantenimiento</option>${T.mantenimiento.map((m, i) => `<option value="${m.id}" ${i === 0 ? 'selected' : ''}>${esc(m.nombre.es)} · ${P(m.precio)}/mes</option>`).join('')}</select></div>
+            <div class="campo"><label>IVA</label><select id="cIva"><option value="21">España 21 %</option><option value="20">Francia 20 %</option><option value="0">Sin IVA</option></select></div>
+          </div>
+          <div class="campo"><label>Descuento (%)</label><input id="cDto" type="number" min="0" max="100" value="0" style="max-width:140px"></div>
+          <label class="porta"><input type="checkbox" id="cPorta"> <span><b>Cliente portafolio</b> · descuento 100 % a cambio de testimonio, reseña y permiso para enseñar su web</span></label>
+        </div>
+        <div class="resumen-calc" id="cRes"></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:22px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+        <p class="eyebrow" style="margin:0">Notas internas (solo creadores)</p>
+        <span class="muted mono" style="font-size:11.5px">${nota ? 'Última edición: ' + fecha(nota.updated_at, true) + (nota.updated_por ? ' · ' + esc(nota.updated_por) : '') : ''}</span></div>
+      <textarea id="notas" style="min-height:360px;margin-top:12px;font-size:13.5px;line-height:1.6">${esc(nota?.contenido || '')}</textarea>
+      <div style="display:flex;justify-content:flex-end;margin-top:10px"><button class="btn solid" id="gNotas">Guardar notas</button></div>
+    </div>`;
+
+  // ---- Calculadora ----
+  const $ = (id) => document.getElementById(id);
+  let ultimo = null;
+  const calcular = () => {
+    const paq = T.paquetes.find((p) => p.id === $('cPaq').value);
+    const lineas = [[paq.nombre.es, paq.precio]];
+    vista.querySelectorAll('[data-extra]').forEach((i) => {
+      const n = Math.max(0, parseInt(i.value, 10) || 0);
+      if (n) { const x = T.extras.find((e) => e.id === i.dataset.extra); lineas.push([`${x.nombre.es}${n > 1 ? ' ×' + n : ''}`, x.precio * n]); }
+    });
+    const bruto = lineas.reduce((s, l) => s + l[1], 0);
+    const pct = $('cPorta').checked ? 100 : Math.min(100, Math.max(0, Number($('cDto').value) || 0));
+    const dto = Math.round(bruto * pct) / 100;
+    const base = bruto - dto, iva = Number($('cIva').value), total = base * (1 + iva / 100);
+    const mant = T.mantenimiento.find((m) => m.id === $('cMant').value);
+    ultimo = { paq, lineas, pct, base, iva, mant };
+    $('cRes').innerHTML = `
+      ${lineas.map((l) => `<div class="fila-t"><span>${esc(l[0])}</span><b>${euros(l[1])}</b></div>`).join('')}
+      ${pct ? `<div class="fila-t"><span>${$('cPorta').checked ? 'Descuento portafolio' : 'Descuento'} (-${pct} %)</span><b>-${euros(dto)}</b></div>` : ''}
+      <div class="fila-t"><span>Base imponible</span><b>${euros(base)}</b></div>
+      <div class="fila-t"><span>IVA ${iva} %</span><b>${euros(base * iva / 100)}</b></div>
+      <div class="fila-t total"><span>Total web</span><b>${euros(total)}</b></div>
+      ${mant ? `<div class="fila-t"><span>${esc(mant.nombre.es)}</span><b>${euros(mant.precio * (1 + iva / 100))}/mes</b></div>` : ''}
+      ${pct < 100 ? `<p class="muted" style="font-size:12.5px;margin-top:8px">Pago: 50 % al aceptar (${euros(total / 2)}) y 50 % al publicar.</p>` : `<p class="muted" style="font-size:12.5px;margin-top:8px">Precio real ${euros(bruto)} · a cambio de testimonio, reseña y permiso para enseñarla.</p>`}
+      <button class="btn solid" id="gPresu" style="width:100%;margin-top:14px">Guardar como presupuesto</button>`;
+    $('gPresu').onclick = async () => {
+      const u = ultimo;
+      const concepto = `Web ${u.paq.nombre.es}` + (u.lineas.length > 1 ? ' + ' + u.lineas.slice(1).map((l) => l[0]).join(', ') : '') + (u.pct ? ` (dto. ${u.pct} %${u.pct === 100 ? ' portafolio' : ''})` : '') + (u.mant ? ` · ${u.mant.nombre.es} ${P(u.mant.precio)}/mes` : '');
+      abrirForm({ titulo: 'Nuevo presupuesto', campos: await camposFactura(),
+        valores: { tipo: 'presupuesto', concepto, base: u.base.toFixed(2), iva_pct: u.iva, estado: 'borrador' },
+        guardar: guardarEn('facturas') });
+    };
+  };
+  vista.querySelectorAll('#cPaq,#cMant,#cIva,#cDto,#cPorta,[data-extra]').forEach((el) => (el.oninput = el.onchange = calcular));
+  calcular();
+
+  // ---- Notas ----
+  $('gNotas').onclick = async () => {
+    const { error } = await sb.from('chuleta').upsert({ clave: 'notas', contenido: $('notas').value, updated_at: new Date().toISOString(), updated_por: perfil.nombre || perfil.email });
+    if (!fallo(error, 'No se han guardado las notas')) toast('Notas guardadas');
+  };
+}
+
+// =================== EQUIPO · chat interno solo para creadores ===================
+// Canal «General» + un canal por proyecto. Mensajes en tiempo real y aviso en el móvil.
+let equipoCanal = null;           // null = General; o id de proyecto
+let equipoVisible = false;        // ¿está abierta la vista del chat?
+const enlazar = (t) => esc(t).replace(/(https?:\/\/[^\s<]+)/g, (u) => `<a href="${u}" target="_blank" rel="noopener">${u}</a>`);
+const diaDe = (d) => { const t = new Date(d).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }); return t.charAt(0).toUpperCase() + t.slice(1); };
+const horaDe = (d) => new Date(d).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+
+async function actualizarEquipo() {
+  const { data: l } = await sb.from('equipo_lecturas').select('visto_en').eq('usuario_id', perfil.id).maybeSingle();
+  let q = sb.from('equipo_mensajes').select('id', { count: 'exact', head: true }).neq('autor_id', perfil.id);
+  if (l?.visto_en) q = q.gt('created_at', l.visto_en);
+  const { count } = await q;
+  const el = document.getElementById('nEquipo');
+  const n = equipoVisible ? 0 : (count || 0);
+  el.textContent = n || ''; el.classList.toggle('oculto', !n);
+}
+const marcarEquipoLeido = () => sb.from('equipo_lecturas').upsert({ usuario_id: perfil.id, visto_en: new Date().toISOString() });
+
+function burbuja(m) {
+  const mio = m.autor_id === perfil.id;
+  return `<div class="eq-msg ${mio ? 'mio' : ''}" data-id="${m.id}">
+    <p class="meta">${esc(mio ? 'Tú' : (m.autor_nombre || 'Equipo'))} · ${horaDe(m.created_at)}${mio ? ` <button class="eq-borrar" data-borrar="${m.id}" title="Borrar mensaje" aria-label="Borrar mensaje">×</button>` : ''}</p>
+    <p>${enlazar(m.mensaje)}</p></div>`;
+}
+function pintarHilo(lista) {
+  let dia = '', html = '';
+  for (const m of lista) {
+    const d = diaDe(m.created_at);
+    if (d !== dia) { dia = d; html += `<p class="eq-dia">${esc(d)}</p>`; }
+    html += burbuja(m);
+  }
+  return html || '<p class="muted" style="margin:auto;text-align:center;font-size:13.5px">Aún no hay mensajes en este canal.<br>Escribe el primero.</p>';
+}
+
+async function vEquipo(canalId) {
+  equipoCanal = canalId || null;
+  const [{ data: proyectos }, { data: mensajes }] = await Promise.all([
+    sb.from('proyectos').select('id, nombre, estado').order('created_at', { ascending: false }),
+    (() => { let q = sb.from('equipo_mensajes').select('*').order('created_at', { ascending: true }).limit(300);
+             return equipoCanal ? q.eq('proyecto_id', equipoCanal) : q.is('proyecto_id', null); })(),
+  ]);
+  const canales = [{ id: '', nombre: 'General', sub: 'Organización, ideas y avisos' }, ...(proyectos || []).map((p) => ({ id: p.id, nombre: p.nombre, sub: ESTADOS[p.estado] || '' }))];
+  const actual = canales.find((c) => c.id === (equipoCanal || '')) || canales[0];
+  vista.innerHTML = `
+    <div class="cabecera"><div><p class="eyebrow">Solo creadores</p><h1>Comunicación de equipo</h1></div></div>
+    <div class="eq">
+      <nav class="eq-canales" aria-label="Canales">
+        <select id="eqSel" class="eq-sel" aria-label="Canal">${canales.map((c) => `<option value="${c.id}" ${c.id === actual.id ? 'selected' : ''}>${c.id ? '# ' : ''}${esc(c.nombre)}</option>`).join('')}</select>
+        ${canales.map((c) => `<a href="#equipo${c.id ? '/' + c.id : ''}" class="${c.id === actual.id ? 'on' : ''}"><b>${c.id ? '# ' : ''}${esc(c.nombre)}</b><small>${esc(c.sub)}</small></a>`).join('')}
+      </nav>
+      <section class="card eq-chat">
+        <div class="eq-cab"><div><h3>${actual.id ? '# ' : ''}${esc(actual.nombre)}</h3><p class="muted" style="font-size:12.5px">${actual.id ? `<a href="#proyecto/${actual.id}">Abrir ficha del proyecto →</a>` : 'Canal común del equipo'}</p></div></div>
+        <div class="eq-hilo" id="eqHilo">${pintarHilo(mensajes || [])}</div>
+        <form id="eqForm" class="eq-form">
+          <textarea id="eqTxt" rows="2" maxlength="4000" placeholder="Escribe a tu socio…" title="Intro para enviar · Mayús+Intro para nueva línea" required></textarea>
+          <button class="btn solid" type="submit">Enviar</button>
+        </form>
+      </section>
+    </div>`;
+  equipoVisible = true;
+  const hilo = document.getElementById('eqHilo');
+  hilo.scrollTop = hilo.scrollHeight;
+  if (matchMedia('(max-width:900px)').matches) { const sel = document.getElementById('eqSel'); const alto = document.querySelector('header.top')?.offsetHeight || 0; window.scrollTo(0, sel.getBoundingClientRect().top + scrollY - alto - 8); }
+  document.getElementById('eqSel').onchange = (e) => { location.hash = 'equipo' + (e.target.value ? '/' + e.target.value : ''); };
+  const txt = document.getElementById('eqTxt');
+  txt.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey && !('ontouchstart' in window)) { e.preventDefault(); document.getElementById('eqForm').requestSubmit(); }
+  });
+  document.getElementById('eqForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const mensaje = txt.value.trim(); if (!mensaje) return;
+    const b = e.target.querySelector('button'); b.disabled = true;
+    const { data, error } = await sb.from('equipo_mensajes').insert({ mensaje, proyecto_id: equipoCanal }).select('*').single();
+    b.disabled = false;
+    if (fallo(error, 'No se ha enviado')) return;
+    txt.value = ''; txt.focus();
+    anadirMensaje(data);
+  });
+  hilo.addEventListener('click', async (e) => {
+    const id = e.target.dataset?.borrar; if (!id) return;
+    if (!confirm('¿Borrar este mensaje para los dos?')) return;
+    const { error } = await sb.from('equipo_mensajes').delete().eq('id', id);
+    if (!fallo(error, 'No se ha borrado')) hilo.querySelector(`[data-id="${id}"]`)?.remove();
+  });
+  await marcarEquipoLeido();
+  actualizarEquipo();
+}
+
+function anadirMensaje(m) {
+  const hilo = document.getElementById('eqHilo');
+  if (!hilo || hilo.querySelector(`[data-id="${m.id}"]`)) return;
+  if (!hilo.querySelector('.eq-msg')) hilo.innerHTML = '';
+  const ultimoDia = [...hilo.querySelectorAll('.eq-dia')].pop()?.textContent;
+  const d = diaDe(m.created_at);
+  if (d !== ultimoDia) hilo.insertAdjacentHTML('beforeend', `<p class="eq-dia">${esc(d)}</p>`);
+  hilo.insertAdjacentHTML('beforeend', burbuja(m));
+  hilo.scrollTop = hilo.scrollHeight;
+}
+
+// Tiempo real: mensajes nuevos del socio sin recargar
+sb.channel('equipo')
+  .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'equipo_mensajes' }, async ({ new: m }) => {
+    const enEsteCanal = equipoVisible && (m.proyecto_id || null) === equipoCanal && location.hash.startsWith('#equipo');
+    if (enEsteCanal) { anadirMensaje(m); if (!document.hidden) await marcarEquipoLeido(); }
+    else if (m.autor_id !== perfil.id) toast(`👥 ${m.autor_nombre || 'Equipo'}: ${m.mensaje.slice(0, 60)}`);
+    actualizarEquipo();
+  })
+  .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'equipo_mensajes' }, ({ old }) => {
+    document.querySelector(`#eqHilo [data-id="${old.id}"]`)?.remove();
+  })
+  .subscribe();
+window.addEventListener('hashchange', () => { if (!location.hash.startsWith('#equipo')) equipoVisible = false; });
+
+// =================== GESTIÓN DE LA WEB · portafolio de la página principal ===================
+const WEB_PUBLICA = new URL('../index.html', location.href).href;
+const IDIOMAS_WEB = [['es', 'Español'], ['fr', 'Francés'], ['it', 'Italiano'], ['en', 'Inglés']];
+const imgWeb = (i) => !i ? '' : /^https?:/.test(i) ? i : new URL('../' + i, location.href).href;
+
+async function vWeb() {
+  const { data, error } = await sb.from('portfolio').select('*').order('orden').order('created_at', { ascending: false });
+  if (fallo(error)) return;
+  vista.innerHTML = `
+    <div class="cabecera"><div><p class="eyebrow">Gestión de la web</p><h1>Portafolio en la web</h1>
+      <p class="muted" style="margin-top:6px;font-size:13.5px">Lo que añadas aquí aparece en la sección «Proyectos» de la página principal, en el orden de esta lista.</p></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn ghost" href="${WEB_PUBLICA}#proyectos" target="_blank" rel="noopener">Ver la web ↗</a><button class="btn solid" id="nPort">+ Añadir proyecto</button></div></div>
+    <div class="port-lista">${data.length ? data.map((p, i) => `
+      <div class="card port-item ${p.publicado ? '' : 'oculto-web'}">
+        <div class="port-thumb">${p.imagen ? `<img src="${esc(imgWeb(p.imagen))}" alt="" loading="lazy">` : '<span class="muted mono" style="font-size:12px">Sin imagen</span>'}</div>
+        <div class="port-info">
+          <p class="mono muted" style="font-size:11.5px">${String(i + 1).padStart(2, '0')} · ${p.publicado ? '<span class="tag ok">Publicado</span>' : '<span class="tag">Oculto</span>'}</p>
+          <h3 style="margin:4px 0">${esc(p.titulo)}</h3>
+          <p class="muted" style="font-size:13px">${esc((p.descripcion?.es || '').slice(0, 140))}${(p.descripcion?.es || '').length > 140 ? '…' : ''}</p>
+          <p class="mono muted" style="font-size:11.5px;margin-top:6px">${(p.etiquetas || []).map(esc).join(' · ')}${p.url ? ` · <a href="${esc(p.url)}" target="_blank" rel="noopener">abrir web ↗</a>` : ''}</p>
+        </div>
+        <div class="port-acc">
+          <button class="btn small ghost" data-sub="${p.id}" ${i === 0 ? 'disabled' : ''} title="Subir">↑</button>
+          <button class="btn small ghost" data-baj="${p.id}" ${i === data.length - 1 ? 'disabled' : ''} title="Bajar">↓</button>
+          <button class="btn small ghost" data-pub="${p.id}">${p.publicado ? 'Ocultar' : 'Publicar'}</button>
+          <button class="btn small ghost" data-edit="${p.id}">Editar</button>
+          <button class="btn small danger" data-del="${p.id}">Borrar</button>
+        </div>
+      </div>`).join('') : '<div class="vacio">Aún no hay proyectos en el portafolio. Añade el primero.</div>'}</div>`;
+
+  document.getElementById('nPort').onclick = () => formPortfolio(null, data.length);
+  const porId = (id) => data.find((x) => x.id === id);
+  vista.querySelectorAll('[data-edit]').forEach((b) => (b.onclick = () => formPortfolio(porId(b.dataset.edit))));
+  vista.querySelectorAll('[data-pub]').forEach((b) => (b.onclick = async () => {
+    const p = porId(b.dataset.pub);
+    const { error } = await sb.from('portfolio').update({ publicado: !p.publicado }).eq('id', p.id);
+    if (!fallo(error)) { toast(p.publicado ? 'Oculto en la web' : 'Publicado en la web'); vWeb(); }
+  }));
+  const mover = async (id, dir) => {
+    const i = data.findIndex((x) => x.id === id), j = i + dir;
+    if (j < 0 || j >= data.length) return;
+    const orden = data.map((x) => x.id); [orden[i], orden[j]] = [orden[j], orden[i]];
+    const res = await Promise.all(orden.map((pid, k) => sb.from('portfolio').update({ orden: k + 1 }).eq('id', pid)));
+    if (!fallo(res.find((r) => r.error)?.error)) vWeb();
+  };
+  vista.querySelectorAll('[data-sub]').forEach((b) => (b.onclick = () => mover(b.dataset.sub, -1)));
+  vista.querySelectorAll('[data-baj]').forEach((b) => (b.onclick = () => mover(b.dataset.baj, 1)));
+  vista.querySelectorAll('[data-del]').forEach((b) => (b.onclick = async () => {
+    const p = porId(b.dataset.del);
+    if (!confirm(`¿Borrar «${p.titulo}» del portafolio? Dejará de verse en la web.`)) return;
+    const { error } = await sb.from('portfolio').delete().eq('id', p.id);
+    if (fallo(error)) return;
+    const ruta = rutaStorage(p.imagen); if (ruta) await sb.storage.from('portfolio').remove([ruta]);
+    toast('Proyecto borrado'); vWeb();
+  }));
+}
+
+const rutaStorage = (url) => { const m = /\/storage\/v1\/object\/public\/portfolio\/(.+)$/.exec(url || ''); return m ? decodeURIComponent(m[1]) : null; };
+
+// Reduce la foto (máx. 1600 px de ancho) y la convierte a WebP antes de subirla
+async function prepararImagen(file) {
+  const bmp = await createImageBitmap(file);
+  const escala = Math.min(1, 1600 / bmp.width);
+  const cv = document.createElement('canvas');
+  cv.width = Math.round(bmp.width * escala); cv.height = Math.round(bmp.height * escala);
+  cv.getContext('2d').drawImage(bmp, 0, 0, cv.width, cv.height);
+  const blob = await new Promise((ok) => cv.toBlob(ok, 'image/webp', 0.85));
+  return blob || file;
+}
+
+async function formPortfolio(p, total = 0) {
+  const { data: proyectos } = await sb.from('proyectos').select('id, nombre, url_preview, descripcion').order('created_at', { ascending: false });
+  const d = document.createElement('dialog');
+  d.className = 'port-dlg';
+  d.innerHTML = `<form method="dialog" id="fPort">
+    <div class="dlg-head"><h3>${p ? 'Editar proyecto del portafolio' : 'Añadir proyecto al portafolio'}</h3><button type="button" class="x" data-cerrar aria-label="Cerrar">×</button></div>
+    <div class="dlg-body">
+      ${!p && proyectos?.length ? `<div class="campo"><label>Partir de un proyecto de cliente (opcional)</label>
+        <select id="pBase"><option value="">— Ninguno —</option>${proyectos.map((x) => `<option value="${x.id}">${esc(x.nombre)}</option>`).join('')}</select></div>` : ''}
+      <div class="campo"><label>Título *</label><input id="pTit" required maxlength="120" value="${esc(p?.titulo || '')}"></div>
+      <div class="campo"><label>Descripción (español) *</label><textarea id="pDes_es" required maxlength="600">${esc(p?.descripcion?.es || '')}</textarea></div>
+      <details class="campo"><summary class="mono" style="font-size:12.5px;cursor:pointer">Traducciones (opcional · si faltan se muestra el español)</summary>
+        ${IDIOMAS_WEB.slice(1).map(([l, n]) => `<div class="campo" style="margin-top:10px"><label>${n}</label><textarea id="pDes_${l}" maxlength="600">${esc(p?.descripcion?.[l] || '')}</textarea></div>`).join('')}
+      </details>
+      <div class="campo"><label>Enlace a la web del proyecto</label><input id="pUrl" type="url" placeholder="https://…" value="${esc(p?.url || '')}"></div>
+      <div class="campo"><label>Etiquetas (separadas por comas)</label><input id="pEti" placeholder="Diseño a medida, Reservas, SEO" value="${esc((p?.etiquetas || []).join(', '))}"></div>
+      <div class="campo"><label>Captura de la web</label>
+        <div class="port-prev" id="pPrev">${p?.imagen ? `<img src="${esc(imgWeb(p.imagen))}" alt="">` : '<span class="muted" style="font-size:12.5px">Sin imagen · mejor horizontal (ordenador)</span>'}</div>
+        <input id="pImg" type="file" accept="image/*" style="margin-top:8px"></div>
+      <label style="display:flex;gap:8px;align-items:center;font-family:'IBM Plex Sans';text-transform:none;letter-spacing:0;font-size:13.5px"><input type="checkbox" id="pPub" style="width:auto" ${p ? (p.publicado ? 'checked' : '') : 'checked'}> Publicar en la web</label>
+      <p class="error" id="pErr"></p>
+    </div>
+    <div class="dlg-foot"><button type="button" class="btn ghost" data-cerrar>Cancelar</button><button type="submit" class="btn solid">Guardar</button></div>
+  </form>`;
+  document.body.appendChild(d);
+  const $ = (id) => d.querySelector('#' + id);
+  const cerrarD = () => { d.close(); d.remove(); };
+  d.querySelectorAll('[data-cerrar]').forEach((b) => (b.onclick = cerrarD));
+  let archivo = null;
+  $('pImg').onchange = () => {
+    archivo = $('pImg').files[0] || null;
+    if (archivo) $('pPrev').innerHTML = `<img src="${URL.createObjectURL(archivo)}" alt="">`;
+  };
+  if ($('pBase')) $('pBase').onchange = () => {
+    const x = proyectos.find((y) => y.id === $('pBase').value); if (!x) return;
+    if (!$('pTit').value) $('pTit').value = x.nombre;
+    if (!$('pUrl').value && x.url_preview) $('pUrl').value = x.url_preview;
+    if (!$('pDes_es').value && x.descripcion) $('pDes_es').value = x.descripcion;
+  };
+  $('fPort').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const b = e.target.querySelector('[type=submit]'); b.disabled = true; $('pErr').textContent = '';
+    try {
+      let imagen = p?.imagen || null;
+      if (archivo) {
+        const blob = await prepararImagen(archivo);
+        const ruta = `${crypto.randomUUID()}.webp`;
+        const up = await sb.storage.from('portfolio').upload(ruta, blob, { contentType: blob.type || 'image/webp', cacheControl: '31536000' });
+        if (up.error) throw up.error;
+        const viejo = rutaStorage(imagen); if (viejo) sb.storage.from('portfolio').remove([viejo]);
+        imagen = sb.storage.from('portfolio').getPublicUrl(ruta).data.publicUrl;
+      }
+      const descripcion = {};
+      IDIOMAS_WEB.forEach(([l]) => { const v = $('pDes_' + l).value.trim(); if (v) descripcion[l] = v; });
+      const fila = {
+        titulo: $('pTit').value.trim(), descripcion, imagen, publicado: $('pPub').checked,
+        url: $('pUrl').value.trim() || null,
+        etiquetas: $('pEti').value.split(',').map((x) => x.trim()).filter(Boolean).slice(0, 6),
+      };
+      if (!p && $('pBase')?.value) fila.proyecto_id = $('pBase').value;
+      const { error } = p ? await sb.from('portfolio').update(fila).eq('id', p.id)
+                          : await sb.from('portfolio').insert({ ...fila, orden: total + 1 });
+      if (error) throw error;
+      toast(fila.publicado ? 'Guardado y publicado en la web' : 'Guardado (oculto en la web)');
+      cerrarD(); vWeb();
+    } catch (err) {
+      console.error(err); $('pErr').textContent = 'No se ha podido guardar: ' + (err.message || err); b.disabled = false;
+    }
+  });
+  d.showModal();
+}
+
+// =================== ASISTENTE IA (entrenamiento) ===================
+const AUDIENCIAS = { todos: 'Todos (web y clientes)', visitantes: 'Solo visitantes de la web', clientes: 'Solo clientes del portal' };
+const CATS_KN = { general: 'General', estudio: 'Estudio', servicios: 'Servicios', portal: 'Portal', proceso: 'Proceso y plazos', precios: 'Precios y pagos', contenido: 'Contenido', contacto: 'Contacto', tecnico: 'Técnico' };
+const camposKn = [
+  { k: 'pregunta', label: 'Pregunta (como la haría un cliente)', req: true, attrs: 'maxlength="500" placeholder="¿Cuánto tarda en estar lista una web?"' },
+  { k: 'respuesta', label: 'Respuesta que debe dar el asistente', tipo: 'textarea', req: true },
+  { k: 'categoria', label: 'Categoría', tipo: 'select', opciones: opts(CATS_KN), def: 'general' },
+  { k: 'audiencia', label: '¿Quién puede recibir esta respuesta?', tipo: 'select', opciones: opts(AUDIENCIAS), def: 'todos' },
+  { k: 'activo', label: 'Estado', tipo: 'select', opciones: [{ v: 'true', l: 'Activa (el asistente la usa)' }, { v: 'false', l: 'Pausada' }], def: 'true' },
+];
+const guardarKn = (id) => async (d) => guardarEn('conocimiento', id)({ ...d, activo: d.activo !== 'false' });
+
+async function actualizarAsis() {
+  const { count } = await sb.from('asistente_preguntas').select('id', { count: 'exact', head: true }).eq('sabia', false).eq('estado', 'nueva');
+  const el = document.getElementById('nAsis');
+  el.textContent = count || ''; el.classList.toggle('oculto', !count);
+}
+
+async function vAsistente(sub = 'conocimiento') {
+  const tabs = [['conocimiento', 'Conocimiento'], ['preguntas', 'Preguntas recibidas'], ['probar', 'Probar']];
+  vista.innerHTML = `
+    <div class="cabecera"><div><p class="eyebrow">Asistente virtual</p><h1>Rodolfo</h1>
+      <p class="muted" style="margin-top:6px;max-width:70ch">Responde a los visitantes de la web y a los clientes en su panel. Solo usa lo que le enseñéis aquí (y, con clientes, los datos de su proyecto). Si no sabe algo, lo dice: al visitante le invita a escribir por Contacto y al cliente le ofrece pasar la pregunta al equipo.</p></div></div>
+    <nav class="subtabs">${tabs.map(([k, l]) => `<a href="#asistente/${k}" class="${k === sub ? 'on' : ''}">${l}</a>`).join('')}</nav>
+    <div id="asisCont"></div>`;
+  const cont = document.getElementById('asisCont');
+
+  if (sub === 'probar') {
+    const { data: proys } = await sb.from('proyectos').select('id, nombre, clientes(nombre)').order('created_at', { ascending: false });
+    cont.innerHTML = `
+      <div class="dos"><div>
+        <div class="herr"><select id="pruebaProy"><option value="__web">Como visitante de la web</option><option value="">Como cliente sin proyecto</option>${(proys || []).map((p) => `<option value="${p.id}">${esc(p.nombre)} · ${esc(p.clientes?.nombre)}</option>`).join('')}</select></div>
+        <div id="chatPrueba"></div></div>
+        <div class="card"><h3>Cómo probarlo</h3><p class="muted" style="margin-top:8px">Escribe como si fueras un visitante o un cliente, en cualquier idioma. Elige «Como visitante de la web» para ver lo que responde en la página principal, o un proyecto para que responda con sus datos.</p>
+          <p class="muted" style="margin-top:8px">Las pruebas no se guardan en «Preguntas de clientes». Si ves «⚠ No lo sabía», añade esa pregunta en <a href="#asistente/conocimiento">Conocimiento</a>.</p></div></div>`;
+    const sel = () => document.getElementById('pruebaProy').value;
+    chatAsistente({ destino: document.getElementById('chatPrueba'), proyecto: () => (sel() && sel() !== '__web' ? sel() : null), modo: () => (sel() === '__web' ? 'visitante' : null), prueba: true });
+    return;
+  }
+
+  if (sub === 'preguntas') {
+    const { data, error } = await sb.from('asistente_preguntas').select('*, perfiles(nombre, email), proyectos(nombre)').order('created_at', { ascending: false }).limit(200);
+    if (fallo(error)) return;
+    const sinSaber = data.filter((q) => !q.sabia && q.estado === 'nueva').length;
+    const estadoTag = (q) => q.estado === 'ensenada' ? '<span class="tag ok">Enseñada</span>' : q.estado === 'enviada_equipo' ? '<span class="tag warn">Pasada al equipo</span>' : q.estado === 'revisada' ? '<span class="tag">Revisada</span>' : (q.sabia ? '<span class="tag">Respondida</span>' : '<span class="tag bad">No lo sabía</span>');
+    cont.innerHTML = `
+      <div class="herr"><select id="filtroQ"><option value="pend">Pendientes de enseñar (${sinSaber})</option><option value="todas">Todas</option></select></div>
+      <div class="card" id="listaQ"></div>`;
+    const pintar = () => {
+      const f = document.getElementById('filtroQ').value;
+      const lista = f === 'todas' ? data : data.filter((q) => !q.sabia && q.estado !== 'ensenada' && q.estado !== 'revisada');
+      document.getElementById('listaQ').innerHTML = lista.length ? lista.map((q) => `
+        <div class="kn"><div>
+          <p class="mono muted" style="font-size:11.5px">${estadoTag(q)} ${q.origen === 'web' ? '<span class="tag dark">Web</span> Visitante anónimo' : esc(q.perfiles?.nombre || q.perfiles?.email || '—') + ' · ' + esc(q.proyectos?.nombre || 'sin proyecto')} · ${fecha(q.created_at, true)}${q.idioma ? ' · ' + esc(q.idioma) : ''}</p>
+          <p style="font-weight:600;margin-top:6px">${esc(q.pregunta)}</p>
+          <p class="r">↳ ${esc(q.respuesta || '—')}</p></div>
+          <div class="acciones" style="align-content:flex-start">
+            ${q.estado !== 'ensenada' ? `<button class="btn small solid" data-ensenar="${q.id}">Enseñar respuesta</button>` : ''}
+            ${q.estado === 'nueva' && !q.sabia ? `<button class="btn small ghost" data-revisar="${q.id}">Ignorar</button>` : ''}
+          </div></div>`).join('') : `<p class="muted">${f === 'todas' ? 'Aún nadie le ha preguntado nada.' : 'Nada pendiente: el asistente supo responder a todo.'}</p>`;
+      cont.querySelectorAll('[data-ensenar]').forEach((b) => (b.onclick = () => {
+        const q = data.find((x) => x.id === b.dataset.ensenar);
+        abrirForm({ titulo: 'Enseñar a Rodolfo', campos: camposKn, valores: { pregunta: q.pregunta.slice(0, 500), categoria: 'general', activo: 'true', audiencia: q.origen === 'web' ? 'visitantes' : 'todos' },
+          guardar: async (d) => {
+            const r = await guardarKn()(d); if (r === false) return false;
+            await sb.from('asistente_preguntas').update({ estado: 'ensenada' }).eq('id', q.id);
+          } });
+      }));
+      cont.querySelectorAll('[data-revisar]').forEach((b) => (b.onclick = async () => {
+        await sb.from('asistente_preguntas').update({ estado: 'revisada' }).eq('id', b.dataset.revisar); router();
+      }));
+    };
+    document.getElementById('filtroQ').onchange = pintar;
+    pintar();
+    return;
+  }
+
+  // Conocimiento
+  const { data, error } = await sb.from('conocimiento').select('*').order('categoria').order('created_at');
+  if (fallo(error)) return;
+  cont.innerHTML = `
+    <div class="herr" style="justify-content:space-between">
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><input id="buscarKn" type="search" placeholder="Buscar…">
+        <select id="catKn"><option value="">Todas las categorías</option>${opts(CATS_KN).map((o) => `<option value="${o.v}">${o.l}</option>`).join('')}</select></div>
+      <button class="btn solid" id="nKn">+ Enseñar algo nuevo</button></div>
+    <p class="muted" style="margin-bottom:12px;font-size:13.5px">${data.filter((k) => k.activo).length} respuestas activas. Escribidlas en español: el asistente las traduce solo al idioma del cliente. Nunca pongáis aquí datos privados de un cliente.</p>
+    <div class="card" id="listaKn"></div>`;
+  const pintar = () => {
+    const t = document.getElementById('buscarKn').value.toLowerCase(), c = document.getElementById('catKn').value;
+    const lista = data.filter((k) => (!c || k.categoria === c) && (k.pregunta + ' ' + k.respuesta).toLowerCase().includes(t));
+    document.getElementById('listaKn').innerHTML = lista.length ? lista.map((k) => `
+      <div class="kn ${k.activo ? '' : 'inactivo'}"><div>
+        <p class="mono muted" style="font-size:11.5px"><span class="tag">${esc(CATS_KN[k.categoria] || k.categoria)}</span> <span class="tag ${k.audiencia === 'todos' ? '' : 'dark'}">${esc(AUDIENCIAS[k.audiencia] || k.audiencia)}</span>${k.activo ? '' : ' <span class="tag warn">Pausada</span>'}</p>
+        <p style="font-weight:600;margin-top:6px">${esc(k.pregunta)}</p><p class="r">${esc(k.respuesta)}</p></div>
+        <div class="acciones" style="align-content:flex-start"><button class="btn small ghost" data-edit-kn="${k.id}">Editar</button><button class="btn small ghost" data-del-kn="${k.id}">Borrar</button></div></div>`).join('')
+      : '<p class="muted">Sin resultados.</p>';
+    cont.querySelectorAll('[data-edit-kn]').forEach((b) => (b.onclick = () => {
+      const k = data.find((x) => x.id === b.dataset.editKn);
+      abrirForm({ titulo: 'Editar respuesta', campos: camposKn, valores: { ...k, activo: String(k.activo) }, guardar: guardarKn(k.id) });
+    }));
+    cont.querySelectorAll('[data-del-kn]').forEach((b) => (b.onclick = () => borrar('conocimiento', b.dataset.delKn, 'esta respuesta')));
+  };
+  document.getElementById('buscarKn').oninput = pintar;
+  document.getElementById('catKn').onchange = pintar;
+  document.getElementById('nKn').onclick = () => abrirForm({ titulo: 'Enseñar algo nuevo', campos: camposKn, guardar: guardarKn() });
+  pintar();
+}
+
+// =================== ROUTER ===================
+async function router() {
+  const [seccion, id] = (location.hash.slice(1) || 'resumen').split('/');
+  const menu = { cliente: 'clientes', proyecto: 'proyectos' }[seccion] || seccion;
+  document.querySelectorAll('#side a').forEach((a) => a.classList.toggle('on', a.dataset.s === menu));
+  const vistas = { resumen: vResumen, clientes: vClientes, cliente: vCliente, proyectos: vProyectos, proyecto: vProyecto, mensajes: vMensajes, facturas: vFacturas, tarifas: vTarifas, equipo: vEquipo, web: vWeb, asistente: vAsistente };
+  await (vistas[seccion] || vResumen)(id);
+  actualizarSinLeer();
+  actualizarAsis();
+  actualizarEquipo();
+}
+// Clics en filas/tarjetas con data-go
+vista.addEventListener('click', (e) => {
+  if (e.target.closest('a,button')) return;
+  const go = e.target.closest('[data-go]');
+  if (go) location.hash = go.dataset.go;
+});
+window.addEventListener('hashchange', () => { router(); window.scrollTo(0, 0); });
+router();
