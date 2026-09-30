@@ -1,6 +1,6 @@
-import { sb, configurado, avisoSinConfigurar, toast, LOGO, t, selectorIdioma } from '../app.js';
-import { sesionGuardada, leerCopia } from '../movil.js';
-import { SUPABASE_URL } from '../config.js';
+import { sb, configurado, avisoSinConfigurar, toast, LOGO, t, selectorIdioma } from './app.js';
+import { sesionGuardada, leerCopia } from './movil.js';
+import { SUPABASE_URL } from './config.js';
 
 document.querySelectorAll('[data-t]').forEach((el) => (el.textContent = t(el.dataset.t)));
 selectorIdioma(document.getElementById('idioma'));
