@@ -156,16 +156,16 @@
     position:relative;overflow:hidden;
     border-bottom:1px solid var(--line);
   }
+  /* Banda de Möbius fija detrás de TODA la web: no se mueve al hacer scroll.
+     100lvh = alto máximo de la pantalla, así en el móvil no salta al esconderse la barra del navegador. */
   .hero-blur{
-    position:absolute;top:50%;left:50%;
-    width:min(1100px,140vw);
-    aspect-ratio:640/420;
-    transform:translate(-50%,-50%);
-    filter:blur(46px);
-    opacity:.55;
-    z-index:0;pointer-events:none;
-    mix-blend-mode:screen;
+    position:fixed;top:0;left:0;
+    width:100vw;height:100vh;height:100lvh;
+    filter:blur(16px);
+    opacity:.7;
+    z-index:-1;pointer-events:none;
   }
+  @media (max-width:600px){.hero-blur{filter:blur(10px);}}
   .hero-blur svg{width:100%;height:100%;display:block;}
   .hero-blur canvas{width:100% !important;height:100% !important;display:block;}
   .hero-grid{
@@ -207,10 +207,10 @@
   .hero .cta-row{animation-delay:.22s;}
   .hero-blur{animation:fadeArt 1.4s ease forwards;}
   @keyframes riseIn{to{opacity:1;transform:translateY(0);}}
-  @keyframes fadeArt{from{opacity:0;}to{opacity:.42;}}
+  @keyframes fadeArt{from{opacity:0;}to{opacity:.7;}}
   @media (prefers-reduced-motion: reduce){
     .hero h1,.hero p.lead,.hero .cta-row{animation:none;opacity:1;transform:none;}
-    .hero-blur{animation:none;opacity:.42;}
+    .hero-blur{animation:none;opacity:.7;}
   }
 
   /* ---------- BLUEPRINT GRID BG ---------- */
@@ -385,15 +385,16 @@
   @media (max-width:520px){.nav-inner .mobius-logo{width:116px;height:42px;}.nav-inner .mobius-txt{font-size:17px;}}
 
   /* ---------- AMBIENTE OSCURO (negros y grises) ---------- */
+  /* Mismos tonos de siempre, pero algo translúcidos para que se intuya la banda de Möbius del fondo */
   .hero{background:
-      radial-gradient(1200px 520px at 78% 30%, rgba(120,120,128,0.16), transparent 60%),
-      linear-gradient(180deg, #0A0A0B 0%, #0E0E10 100%);}
-  .manifesto{background:var(--bg);}
-  .servicios{background:var(--bg-alt);}
-  .proyectos{background:var(--bg);}
-  .nosotros{background:var(--bg-alt);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
-  .contacto{background:var(--bg);}
-  footer{background:var(--dark-bg);}
+      radial-gradient(1200px 520px at 78% 30%, rgba(120,120,128,0.10), transparent 60%),
+      linear-gradient(180deg, rgba(10,10,11,.55) 0%, rgba(14,14,16,.7) 100%);}
+  .manifesto{background:rgba(10,10,11,.74);}
+  .servicios{background:rgba(17,17,19,.8);}
+  .proyectos{background:rgba(10,10,11,.74);}
+  .nosotros{background:rgba(17,17,19,.8);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+  .contacto{background:rgba(10,10,11,.74);}
+  footer{background:rgba(6,6,7,.9);}
   .service-card{background:transparent;transition:background .2s ease;}
   .service-card:hover{background:rgba(255,255,255,0.025);}
   .project-card{background:var(--paper);}
@@ -755,8 +756,13 @@ window.A2WD_mobius = function(){
 
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 100);
-    camera.position.set(0, 2.1, 3.4);
-    camera.lookAt(0, 0, 0);
+    // Encuadre: misma vista de siempre; en pantallas estrechas (móvil) la cámara se aleja para que la banda quepa entera
+    function encuadrar(aspect){
+      var d = Math.max(4.0, 4.6 / aspect);
+      camera.position.set(0, 2.1 * d / 4.0, 3.4 * d / 4.0);
+      camera.lookAt(0, 0, 0);
+    }
+    encuadrar(width / height);
 
     var renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -808,8 +814,8 @@ window.A2WD_mobius = function(){
     });
 
     var mesh = new THREE.Mesh(geometry, material);
-    mesh.rotation.x = -0.55;
-    mesh.rotation.y = 0.5;
+    mesh.rotation.x = -0.25;
+    mesh.rotation.y = 1.1;
     mesh.rotation.z = 0.15;
     scene.add(mesh);
 
@@ -838,7 +844,10 @@ window.A2WD_mobius = function(){
       resizeTimer = setTimeout(function(){
         var w = container.clientWidth || width;
         var h = container.clientHeight || height;
+        if (w === width && h === height) return;
+        width = w; height = h;
         camera.aspect = w / h;
+        encuadrar(w / h);
         camera.updateProjectionMatrix();
         renderer.setSize(w, h);
         renderer.render(scene, camera);
