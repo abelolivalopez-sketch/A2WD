@@ -1,0 +1,214 @@
+import { sb, exigirSesion, salir, esc, urlSegura, fecha, toast, ORDEN_ESTADOS, LOGO, activarCambioPassword, chatAsistente, t, LANG, selectorIdioma } from '../app.js';
+import { esFalloRed, guardarCopia, leerCopia, franjaSinConexion, textoSinRedEnviar, botonAvisos, avisosAlAbrir } from '../movil.js';
+
+// Textos fijos de la cabecera en el idioma del cliente
+document.getElementById('cargando').textContent = t('cargando');
+document.getElementById('subMarca').textContent = '/ ' + t('mi_proyecto');
+document.getElementById('irWeb').textContent = t('web');
+document.getElementById('irWeb').title = t('web_title');
+document.getElementById('cambiarPw').textContent = t('contrasena');
+document.getElementById('salir').textContent = t('salir');
+selectorIdioma(document.getElementById('idioma'));
+
+document.getElementById('logo').insertAdjacentHTML('afterbegin', LOGO);
+const ctx = await exigirSesion('cliente');
+if (!ctx) throw new Error('Sin sesión');
+const { perfil } = ctx;
+document.getElementById('quien').textContent = perfil.nombre || perfil.email;
+document.getElementById('salir').onclick = salir;
+activarCambioPassword();
+avisosAlAbrir(sb, { creador: false });   // pide activar avisos al abrir la app instalada
+
+
+// ---------- Nuestros precios (solo en el portal; datos en ../tarifas.js) ----------
+(function preciosCliente() {
+  const T = window.A2WD_TARIFAS, cont = document.getElementById('preciosCliente');
+  if (!T || !cont) return;
+  const L = T.textos[LANG] ? LANG : 'es', x = T.textos[L], P = (n) => window.A2WD_precio(n, L);
+  cont.innerHTML = `<details class="precios-c" style="margin-top:28px">
+    <summary><div><p class="eyebrow" style="margin-bottom:4px">A2WD</p><h3>${esc(x.titulo)}</h3></div><span class="flecha">▾</span></summary>
+    <div class="cuerpo">
+      <p class="muted" style="font-size:13.5px">${esc(x.sub)}</p>
+      <div class="planes-c">${T.paquetes.map((p) => `
+        <div class="plan-c ${p.destacado ? 'dest' : ''}">
+          <div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline"><h3 style="font-size:15px">${esc(p.nombre[L])}</h3>${p.destacado ? `<span class="tag dark">${esc(x.popular)}</span>` : ''}</div>
+          <p class="cifra">${p.desde ? `<small>${esc(x.desde)}</small>` : ''}${esc(P(p.precio))}</p>
+          <p class="muted" style="font-size:13px">${esc(p.para[L])}</p>
+          <ul>${p.incluye[L].map((i) => `<li>${esc(i)}</li>`).join('')}</ul>
+          <p class="mono muted" style="font-size:12px">${esc(x.plazo)} · ${esc(p.plazo[L])}</p>
+        </div>`).join('')}</div>
+      <div class="listas-c">
+        <div><p class="eyebrow">${esc(x.mant)}</p>${T.mantenimiento.map((m) => `<div class="fila-c"><span>${esc(m.nombre[L])}<small>${esc(m.incluye[L].join(' · '))}</small></span><b>${esc(P(m.precio))}${esc(x.mes)}</b></div>`).join('')}</div>
+        <div><p class="eyebrow">${esc(x.extras)}</p>${T.extras.map((m) => `<div class="fila-c"><span>${esc(m.nombre[L])}</span><b>+${esc(P(m.precio))} <small style="display:inline">${esc(m.unidad[L])}</small></b></div>`).join('')}</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px">
+        <p class="mono muted" style="font-size:12px">${esc(x.iva)}</p>
+        <button class="btn small" type="button" id="preguntarPrecio">${esc(x.preguntar)}</button>
+      </div>
+    </div></details>`;
+  document.getElementById('preguntarPrecio').onclick = () => {
+    const txt = document.getElementById('txt');
+    if (txt) { txt.scrollIntoView({ behavior: 'smooth', block: 'center' }); txt.focus(); }
+    else document.querySelector('.asis-fab, [class*="asis"] button')?.click();
+  };
+})();
+
+// ---------- Chat con A2WD: una conversación por cliente, en tiempo real ----------
+let chatMensajes = [];
+let proyectoChat = () => null;          // proyecto al que se asocian los mensajes nuevos (si hay)
+const burbujaCli = (c) => `<div class="msg ${c.autor_id === perfil.id ? 'mio' : ''}" data-id="${c.id}">
+  <p class="meta">${esc(c.autor_rol === 'creador' ? 'A2WD · ' + (c.autor_nombre || '') : t('tu'))} · ${fecha(c.created_at, true)}</p>
+  <p>${esc(c.mensaje)}</p></div>`;
+async function cargarChat() {
+  const { data, error } = await sb.from('comentarios').select('*').order('created_at').limit(300);
+  if (error && esFalloRed(error)) { chatMensajes = leerCopia(uid, 'chat')?.datos ?? []; return true; }
+  chatMensajes = data || []; guardarCopia(uid, 'chat', chatMensajes); return false;
+}
+function montarChat(caja, sinRed) {
+  caja.innerHTML = `
+    <h3>${t('dudas')}</h3>
+    <p class="muted" style="font-size:13.5px;margin:4px 0 16px">${t('dudas_sub')}</p>
+    <div class="hilo" id="hilo">${chatMensajes.length ? chatMensajes.map(burbujaCli).join('') : `<p class="muted" id="chatVacio" style="font-size:13.5px">${t('sin_mensajes')}</p>`}</div>
+    <form id="fComentario" style="margin-top:16px">
+      <textarea id="txt" maxlength="4000" placeholder="${t('escribe_msg')}" required></textarea>
+      <button class="btn solid" style="margin-top:10px;width:100%" type="submit" ${sinRed ? 'disabled' : ''}>${t('enviar')}</button>
+      ${sinRed ? `<p class="muted" style="font-size:13px;margin-top:8px">${textoSinRedEnviar()}</p>` : ''}
+    </form>`;
+  const hilo = caja.querySelector('#hilo');
+  hilo.scrollTop = hilo.scrollHeight;
+  const txt = caja.querySelector('#txt');
+  txt.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey && !('ontouchstart' in window)) { e.preventDefault(); caja.querySelector('#fComentario').requestSubmit(); }
+  });
+  caja.querySelector('#fComentario').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const mensaje = txt.value.trim(); if (!mensaje) return;
+    const b = e.target.querySelector('button'); b.disabled = true;
+    const { data: nuevo, error } = await sb.from('comentarios').insert({ proyecto_id: proyectoChat(), mensaje }).select('*').single();
+    b.disabled = false;
+    if (error) { toast(esFalloRed(error) ? textoSinRedEnviar() : t('msg_error'), 'bad'); return; }
+    txt.value = ''; txt.focus();
+    anadirAlChat(nuevo);
+    // El asistente de A2WD analiza el mensaje en segundo plano (el cliente no ve el resultado)
+    sb.functions.invoke('analizar-comentario', { body: { comentario_id: nuevo.id } }).catch(() => {});
+  });
+}
+function anadirAlChat(c) {
+  if (chatMensajes.some((x) => x.id === c.id)) return;
+  chatMensajes.push(c); guardarCopia(uid, 'chat', chatMensajes);
+  const hilo = document.getElementById('hilo'); if (!hilo) return;
+  document.getElementById('chatVacio')?.remove();
+  hilo.insertAdjacentHTML('beforeend', burbujaCli(c));
+  hilo.scrollTop = hilo.scrollHeight;
+}
+// Las respuestas de A2WD aparecen solas, sin recargar
+sb.channel('chat-cliente')
+  .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'comentarios' }, ({ new: c }) => anadirAlChat(c))
+  .subscribe();
+
+const app = document.getElementById('app');
+const uid = ctx.session.user.id;
+let cargadoEn = new Date().toISOString();
+
+// Con internet se guarda una copia en el móvil; sin internet se enseña esa copia
+let { data: proyectos, error } = await sb.from('proyectos').select('*').order('created_at', { ascending: false });
+if (error && esFalloRed(error)) {
+  const copia = leerCopia(uid, 'proyectos');
+  proyectos = copia?.datos ?? [];
+  cargadoEn = copia?.fecha ?? null;
+  error = null;
+  franjaSinConexion(cargadoEn);
+} else if (!error) {
+  guardarCopia(uid, 'proyectos', proyectos);
+}
+// Al volver internet se recarga todo; si se va, se avisa
+addEventListener('online', () => location.reload());
+addEventListener('offline', () => franjaSinConexion(cargadoEn));
+
+if (error) {
+  app.innerHTML = `<div class="vacio">${t('err_proyectos')}</div>`;
+} else if (!proyectos.length) {
+  const sinRed = await cargarChat();
+  app.innerHTML = `
+    <p class="eyebrow">${esc(t('hola', { n: perfil.nombre || '' }))}</p>
+    <h1>${t('preparando')}</h1>
+    <p class="muted" style="margin-top:10px">${t('preparando_sub')}</p>
+    <div id="avisos" style="margin-top:12px"></div>
+    <div class="card" id="chatCaja" style="margin-top:24px;max-width:640px"></div>`;
+  botonAvisos(document.getElementById('avisos'), sb);
+  montarChat(document.getElementById('chatCaja'), sinRed || !navigator.onLine);
+  chatAsistente({ proyecto: () => null });
+} else {
+  let actual = proyectos[0].id;
+  const pintarSelector = () => proyectos.length < 2 ? '' :
+    `<div class="selector">${proyectos.map((p) => `<button data-id="${p.id}" class="${p.id === actual ? 'on' : ''}">${esc(p.nombre)}</button>`).join('')}</div>`;
+
+  async function mostrar(id) {
+    actual = id;
+    const p = proyectos.find((x) => x.id === id);
+    let [{ data: avances, error: e1 }, chatSinRed] = await Promise.all([
+      sb.from('avances').select('*').eq('proyecto_id', id).order('created_at', { ascending: false }),
+      cargarChat(),
+    ]);
+    const sinRed = esFalloRed(e1) || chatSinRed || !navigator.onLine;
+    if (sinRed) {
+      const copia = leerCopia(uid, 'proyecto_' + id);
+      avances = copia?.datos.avances ?? [];
+      if (copia?.fecha) cargadoEn = copia.fecha;
+      franjaSinConexion(cargadoEn);
+    } else {
+      guardarCopia(uid, 'proyecto_' + id, { avances });
+    }
+    const url = urlSegura(p.url_preview);
+    const idx = ORDEN_ESTADOS.indexOf(p.estado);
+
+    app.innerHTML = `
+      <p class="eyebrow">${esc(t('hola', { n: perfil.nombre || '' }))}</p>
+      <h1>${esc(p.nombre)}</h1>
+      <div id="avisos" style="margin-top:12px"></div>
+      ${p.descripcion ? `<p class="muted" style="margin-top:8px;max-width:70ch">${esc(p.descripcion)}</p>` : ''}
+      ${pintarSelector()}
+      <div class="grid" style="${proyectos.length < 2 ? 'margin-top:28px' : ''}">
+        <div class="stack">
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap">
+              <h3>${t('estado_proyecto')}</h3>
+              <span class="mono muted" style="font-size:13px">${p.progreso}% · ${t('entrega', { f: fecha(p.fecha_entrega) })}</span>
+            </div>
+            <div class="barra" style="margin:14px 0 4px"><i style="width:${p.progreso}%"></i></div>
+            <div class="fases">${ORDEN_ESTADOS.map((e, i) =>
+              `<div class="fase ${i < idx ? 'hecha' : ''} ${i === idx ? 'actual' : ''}">${t('fase_' + e)}</div>`).join('')}</div>
+          </div>
+          ${url ? `
+          <div class="preview">
+            <div class="preview-bar">
+              <span class="url">${esc(url)}</span>
+              <a class="btn small" href="${esc(url)}" target="_blank" rel="noopener">${t('abrir_web')}</a>
+            </div>
+            ${sinRed ? '' : `<iframe src="${esc(url)}" title="${esc(t('vista_previa_de', { n: p.nombre }))}" loading="lazy"></iframe>`}
+          </div>` : `<div class="vacio">${t('vista_pronto')}</div>`}
+          <div class="card">
+            <h3 style="margin-bottom:4px">${t('avances')}</h3>
+            ${avances?.length ? avances.map((a) => {
+              const u = urlSegura(a.url);
+              return `<div class="avance">
+                <p class="meta">${fecha(a.created_at)}</p>
+                <p style="font-weight:600;margin:2px 0">${esc(a.titulo)}</p>
+                ${a.descripcion ? `<p class="muted" style="white-space:pre-wrap">${esc(a.descripcion)}</p>` : ''}
+                ${u ? `<a class="mono" style="font-size:13px" href="${esc(u)}" target="_blank" rel="noopener">${t('ver')}</a>` : ''}
+              </div>`;
+            }).join('') : `<p class="muted" style="margin-top:10px">${t('sin_avances')}</p>`}
+          </div>
+        </div>
+
+        <div class="card" id="chatCaja"></div>
+      </div>`;
+
+    botonAvisos(document.getElementById('avisos'), sb);
+    montarChat(document.getElementById('chatCaja'), sinRed);
+    app.querySelectorAll('.selector button').forEach((b) => (b.onclick = () => mostrar(b.dataset.id)));
+  }
+  proyectoChat = () => actual;
+  mostrar(actual);
+  chatAsistente({ proyecto: () => actual });
+}
