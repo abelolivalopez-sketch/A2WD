@@ -1,5 +1,5 @@
-import { sb, exigirSesion, salir, esc, urlSegura, fecha, euros, toast, ESTADOS, ORDEN_ESTADOS, LOGO, activarCambioPassword, chatAsistente } from '../app.js';
-import { botonAvisos, idiomaMovil, avisosAlAbrir } from '../movil.js';
+import { sb, exigirSesion, salir, esc, urlSegura, fecha, euros, toast, ESTADOS, ORDEN_ESTADOS, LOGO, activarCambioPassword, chatAsistente } from './app.js';
+import { botonAvisos, idiomaMovil, avisosAlAbrir } from './movil.js';
 
 document.getElementById('logo').insertAdjacentHTML('afterbegin', LOGO);
 const ctx = await exigirSesion('creador');
