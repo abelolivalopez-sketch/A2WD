@@ -1,5 +1,5 @@
-import { sb, exigirSesion, salir, esc, urlSegura, fecha, toast, ORDEN_ESTADOS, LOGO, activarCambioPassword, chatAsistente, t, LANG, selectorIdioma } from '../app.js';
-import { esFalloRed, guardarCopia, leerCopia, franjaSinConexion, textoSinRedEnviar, botonAvisos, avisosAlAbrir } from '../movil.js';
+import { sb, exigirSesion, salir, esc, urlSegura, fecha, toast, ORDEN_ESTADOS, LOGO, activarCambioPassword, chatAsistente, t, LANG, selectorIdioma } from './app.js';
+import { esFalloRed, guardarCopia, leerCopia, franjaSinConexion, textoSinRedEnviar, botonAvisos, avisosAlAbrir } from './movil.js';
 
 // Textos fijos de la cabecera en el idioma del cliente
 document.getElementById('cargando').textContent = t('cargando');
