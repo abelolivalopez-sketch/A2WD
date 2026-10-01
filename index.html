@@ -60,6 +60,9 @@
 }
 </script>
 <title data-i18n="meta.title">A2WD — Diseño web para comercios</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Megrim&display=swap" rel="stylesheet">
 <link href="fonts/fonts.css" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/main.css">
 </head>
@@ -109,7 +112,7 @@
       <defs>
         <linearGradient id="heroBlurGrad" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0" stop-color="#3A3A3F"/>
-          <stop offset="0.5" stop-color="#C6C6C2"/>
+          <stop offset="0.5" stop-color="#D8D8D4"/>
           <stop offset="1" stop-color="#3A3A3F"/>
         </linearGradient>
       </defs>
@@ -117,14 +120,26 @@
         stroke="url(#heroBlurGrad)" stroke-width="46" fill="none" stroke-linecap="round"/>
     </svg>
   </div>
-  <div class="wrap hero-grid">
-    <h1 data-i18n="hero.title">Tu negocio, conectado.<br>Sin principio ni final.</h1>
-    <p class="lead" data-i18n="hero.lead">Diseñamos y construimos páginas web para comercios y negocios locales: rápidas, claras y pensadas para que vendan también cuando la persiana está bajada.</p>
-    <div class="cta-row">
-      <a href="#proyectos" class="btn btn-solid" data-i18n="hero.ver">Ver proyectos</a>
-      <a href="#contacto" class="btn btn-ghost" data-i18n="hero.escribe">Escríbenos</a>
+
+  <div class="hero-stage hero-intro">
+    <div class="hero-brand-center" aria-label="A2WD">
+      <span class="hero-brand-name">A2WD</span>
     </div>
-    <div class="hero-foot mono" data-i18n="hero.foot">A2WD — Estudio de diseño y desarrollo web · Fundado por Abel Oliva &amp; Ariel Occhietti</div>
+    <a class="hero-scroll-cue mono" href="#heroMensaje" aria-label="Bajar al mensaje">
+      <span>SCROLL</span><i aria-hidden="true"></i>
+    </a>
+  </div>
+
+  <div class="hero-stage hero-message" id="heroMensaje">
+    <div class="wrap hero-grid">
+      <h1 data-i18n="hero.title">Tu negocio, conectado.<br>Sin principio ni final.</h1>
+      <p class="lead" data-i18n="hero.lead">Diseñamos y construimos páginas web para comercios y negocios locales: rápidas, claras y pensadas para que vendan también cuando la persiana está bajada.</p>
+      <div class="cta-row">
+        <a href="#proyectos" class="btn btn-solid" data-i18n="hero.ver">Ver proyectos</a>
+        <a href="#contacto" class="btn btn-ghost" data-i18n="hero.escribe">Escríbenos</a>
+      </div>
+      <div class="hero-foot mono" data-i18n="hero.foot">A2WD — Estudio de diseño y desarrollo web · Fundado por Abel Oliva &amp; Ariel Occhietti</div>
+    </div>
   </div>
 </section>
 
