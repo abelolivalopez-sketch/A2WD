@@ -423,8 +423,8 @@ window.A2WD_mobius = function(){
     var camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 100);
 
     function encuadrar(aspect){
-      var d = aspect < 0.9 ? 5.0 : 4.0;
-      camera.position.set(0, 1.7 * d / 4.0, 3.35 * d / 4.0);
+      var d = aspect < 0.9 ? 5.35 : 4.55;
+      camera.position.set(0, 1.55 * d / 4.0, 3.55 * d / 4.0);
       camera.lookAt(0, 0, 0);
     }
     encuadrar(width / height);
@@ -487,11 +487,11 @@ window.A2WD_mobius = function(){
 
     function colocar(aspect){
       if (aspect > 1.15) {
-        mesh.position.set(0.52, 0.03, 0);
-        mesh.scale.setScalar(1.13);
+        mesh.position.set(0, 0.02, 0);
+        mesh.scale.setScalar(0.94);
       } else {
-        mesh.position.set(0.10, 0.10, 0);
-        mesh.scale.setScalar(0.92);
+        mesh.position.set(0, 0.06, 0);
+        mesh.scale.setScalar(0.78);
       }
     }
     colocar(width / height);
