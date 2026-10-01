@@ -69,7 +69,8 @@
 <header class="nav">
   <div class="nav-inner">
     <a href="#inicio" class="brand" aria-label="A2WD">
-      <span class="mobius-logo" aria-hidden="true"><canvas></canvas><span class="mobius-txt">A²WD</span></span>
+      <img class="brand-mark" src="img/favicon.svg" alt="" aria-hidden="true">
+      <span class="brand-word">A²WD</span>
     </a>
     <nav class="links" id="deskLinks">
       <a href="#inicio" data-i18n="nav.inicio">Inicio</a>
@@ -389,8 +390,8 @@
   (window.requestIdleCallback || function(f){ setTimeout(f, 300); })(function(){ document.head.appendChild(s3); });
 })();
 window.A2WD_mobius = function(){
-  // Construye la cinta de Möbius en 3D (imagen ESTÁTICA: un único render, sin bucle de animación).Sacado de internet.
-  // Si algo falla (sin WebGL, sin conexión al CDN, etc.) se deja el SVG plano de reserva tal cual está.
+  // Cinta de Möbius 3D del hero. Se anima lentamente y se pausa cuando no está visible.
+  // Si WebGL falla o el usuario prefiere menos movimiento, permanece la reserva SVG.
   try {
     if (typeof THREE === 'undefined') return;
 
@@ -398,15 +399,17 @@ window.A2WD_mobius = function(){
     var fallback = document.getElementById('mobiusFallbackSvg');
     if (!container) return;
 
-    var width = container.clientWidth || 640;
-    var height = container.clientHeight || 420;
+    var width = container.clientWidth || 900;
+    var height = container.clientHeight || 700;
+    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var visible = true;
 
     var scene = new THREE.Scene();
-    var camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 100);
-    // Encuadre: misma vista de siempre; en pantallas estrechas (móvil) la cámara se aleja para que la banda quepa entera
+    var camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 100);
+
     function encuadrar(aspect){
-      var d = Math.max(4.0, 4.6 / aspect);
-      camera.position.set(0, 2.1 * d / 4.0, 3.4 * d / 4.0);
+      var d = aspect < 0.9 ? 5.0 : 4.0;
+      camera.position.set(0, 1.7 * d / 4.0, 3.35 * d / 4.0);
       camera.lookAt(0, 0, 0);
     }
     encuadrar(width / height);
@@ -414,12 +417,12 @@ window.A2WD_mobius = function(){
     var renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.setSize(width, height);
+    renderer.setClearColor(0x000000, 0);
 
-    // Geometría paramétrica de la banda de Möbius
-    var segmentsU = 140;
-    var segmentsV = 14;
+    var segmentsU = 180;
+    var segmentsV = 18;
     var R = 1.15;
-    var bandWidth = 0.62;
+    var bandWidth = 0.66;
 
     var positions = [];
     var uvs = [];
@@ -434,6 +437,7 @@ window.A2WD_mobius = function(){
         uvs.push(i / segmentsU, j / segmentsV);
       }
     }
+
     var indices = [];
     for (var ii = 0; ii < segmentsU; ii++) {
       for (var jj = 0; jj < segmentsV; jj++) {
@@ -453,38 +457,52 @@ window.A2WD_mobius = function(){
     geometry.computeVertexNormals();
 
     var material = new THREE.MeshStandardMaterial({
-      color: 0x9c9c95,
-      metalness: 0.25,
-      roughness: 0.42,
+      color: 0xd4d4cf,
+      metalness: 0.72,
+      roughness: 0.28,
       side: THREE.DoubleSide,
       flatShading: false
     });
 
     var mesh = new THREE.Mesh(geometry, material);
-    mesh.rotation.x = -0.25;
-    mesh.rotation.y = 1.1;
-    mesh.rotation.z = 0.15;
+    mesh.rotation.x = -0.24;
+    mesh.rotation.y = 0.9;
+    mesh.rotation.z = 0.12;
     scene.add(mesh);
 
-    // Iluminación en escala de grises para dar volumen real a la cinta
-    scene.add(new THREE.AmbientLight(0xffffff, 0.55));
-    var key = new THREE.DirectionalLight(0xffffff, 1.0);
-    key.position.set(3, 4, 2);
+    function colocar(aspect){
+      if (aspect > 1.15) {
+        mesh.position.set(0.52, 0.03, 0);
+        mesh.scale.setScalar(1.13);
+      } else {
+        mesh.position.set(0.10, 0.10, 0);
+        mesh.scale.setScalar(0.92);
+      }
+    }
+    colocar(width / height);
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.72));
+    var key = new THREE.DirectionalLight(0xffffff, 1.35);
+    key.position.set(3.5, 4.5, 3);
     scene.add(key);
-    var fill = new THREE.DirectionalLight(0x9a9a9a, 0.5);
-    fill.position.set(-3, -2, -2);
+    var fill = new THREE.DirectionalLight(0xa8a8a4, 0.72);
+    fill.position.set(-3, -1.5, -2);
     scene.add(fill);
-    var rim = new THREE.DirectionalLight(0xffffff, 0.4);
-    rim.position.set(-2, 3, -3);
+    var rim = new THREE.DirectionalLight(0xffffff, 0.7);
+    rim.position.set(-2, 3, -4);
     scene.add(rim);
 
-    renderer.render(scene, camera);
-
-    // Reemplaza el SVG de reserva por el render 3D ya calculado
     container.appendChild(renderer.domElement);
     if (fallback) fallback.style.display = 'none';
 
-    // Un único re-render (sin animación) si cambia el tamaño de la ventana
+    renderer.render(scene, camera);
+
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function(entries){
+        visible = !!(entries[0] && entries[0].isIntersecting);
+      }, { threshold: 0.02 }).observe(container);
+    }
+
     var resizeTimer = null;
     window.addEventListener('resize', function(){
       clearTimeout(resizeTimer);
@@ -492,17 +510,36 @@ window.A2WD_mobius = function(){
         var w = container.clientWidth || width;
         var h = container.clientHeight || height;
         if (w === width && h === height) return;
-        width = w; height = h;
+        width = w;
+        height = h;
         camera.aspect = w / h;
         encuadrar(w / h);
+        colocar(w / h);
         camera.updateProjectionMatrix();
         renderer.setSize(w, h);
         renderer.render(scene, camera);
-      }, 150);
+      }, 120);
     }, { passive: true });
 
+    if (reduceMotion) return;
+
+    var last = performance.now();
+    function animar(now){
+      var dt = Math.min((now - last) / 1000, 0.05);
+      last = now;
+
+      if (!document.hidden && visible) {
+        mesh.rotation.y += dt * 0.17;
+        mesh.rotation.x = -0.24 + Math.sin(now * 0.00023) * 0.055;
+        mesh.rotation.z = 0.12 + Math.sin(now * 0.00031) * 0.07;
+        renderer.render(scene, camera);
+      }
+      requestAnimationFrame(animar);
+    }
+    requestAnimationFrame(animar);
+
   } catch (err) {
-    // Si algo falla, el SVG de reserva sigue visible tal y como estaba.
+    // Si algo falla, el SVG de reserva permanece visible.
   }
 };
 </script>
