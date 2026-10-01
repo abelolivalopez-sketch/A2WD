@@ -1,5 +1,5 @@
 // Chat interno entre creadores y notificaciones en tiempo real.
-export function crearEquipo({ sb, vista, esc, perfil, fallo, toast }) {
+export function crearEquipo({ sb, vista, esc, perfil, fallo, toast, ESTADOS }) {
 // =================== EQUIPO · chat interno solo para creadores ===================
 // Canal «General» + un canal por proyecto. Mensajes en tiempo real y aviso en el móvil.
 let equipoCanal = null;           // null = General; o id de proyecto
