@@ -528,3 +528,227 @@
   .rod-form button:disabled{opacity:.5;cursor:wait;}
   .rod-aviso{font-size:11px;color:var(--muted);padding:0 16px 10px;}
   @media (max-width:520px){.rod-panel{right:8px;left:8px;width:auto;bottom:76px;}.rod-fab{right:14px;bottom:14px;}}
+
+/* ============================================================
+   REFRESH VISUAL · HERO ESPACIAL + NOSOTROS INTERACTIVO
+   ============================================================ */
+/* La sección manifiesto deja de ocupar espacio: su idea se integra visualmente en Nosotros. */
+.manifesto{display:none !important;}
+
+/* Möbius ligeramente más grande, sin perder márgenes. */
+.hero-blur svg,
+.hero-blur canvas{
+  width:min(94vw,1320px) !important;
+  height:min(84vh,880px) !important;
+}
+
+/* Campo estelar sutil: varias escalas para evitar aspecto de patrón evidente. */
+.hero::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  opacity:.72;
+  background-image:
+    radial-gradient(circle,rgba(255,255,255,.54) 0 1px,transparent 1.35px),
+    radial-gradient(circle,rgba(255,255,255,.28) 0 .8px,transparent 1.1px),
+    radial-gradient(circle,rgba(210,220,235,.22) 0 1px,transparent 1.4px);
+  background-size:137px 137px,211px 211px,293px 293px;
+  background-position:17px 31px,83px 119px,149px 47px;
+  animation:starDrift 80s linear infinite;
+}
+@keyframes starDrift{
+  to{background-position:154px 168px,294px 330px,442px 340px;}
+}
+
+/* Cometa: visible solo unos segundos dentro de un ciclo largo. */
+.hero::after{
+  content:"";
+  position:absolute;
+  top:18vh;
+  left:-24vw;
+  width:clamp(130px,14vw,230px);
+  height:1px;
+  z-index:1;
+  pointer-events:none;
+  opacity:0;
+  transform:rotate(-16deg);
+  transform-origin:right center;
+  background:linear-gradient(90deg,transparent 0%,rgba(205,220,240,.04) 25%,rgba(235,242,255,.52) 84%,rgba(255,255,255,.9) 100%);
+  box-shadow:18px 0 22px rgba(210,225,255,.15);
+  animation:cometPass 24s linear infinite;
+}
+@keyframes cometPass{
+  0%,76%{opacity:0;transform:translate3d(0,0,0) rotate(-16deg);}
+  78%{opacity:0;transform:translate3d(0,0,0) rotate(-16deg);}
+  79%{opacity:.9;}
+  87%{opacity:.52;transform:translate3d(148vw,46vh,0) rotate(-16deg);}
+  89%,100%{opacity:0;transform:translate3d(158vw,50vh,0) rotate(-16deg);}
+}
+
+/* En el segundo acto la Möbius sigue presente, pero algo más atmosférica. */
+.hero-message::before{
+  background:linear-gradient(180deg,rgba(10,10,11,.20) 0%,rgba(10,10,11,.43) 44%,rgba(10,10,11,.70) 100%);
+  backdrop-filter:blur(5px);
+  -webkit-backdrop-filter:blur(5px);
+}
+
+/* Nosotros: el texto anterior se condensa aquí. */
+.nosotros .section-head{
+  max-width:900px;
+  margin-bottom:54px;
+}
+.nosotros .section-head p{
+  max-width:78ch;
+  font-size:17px;
+  line-height:1.7;
+  color:var(--ink-soft);
+}
+.nosotros .section-head p::after{
+  content:" De esa curiosidad nació A2WD: un estudio pequeño que combina estructura, lógica y ganas de construir para ayudar a negocios locales a tener una web tan cuidada como su producto.";
+  color:var(--muted);
+}
+html[lang="fr"] .nosotros .section-head p::after{
+  content:" De cette curiosité est né A2WD : un petit studio qui réunit structure, logique et envie de construire pour aider les commerces locaux à avoir un site aussi soigné que leur produit.";
+}
+html[lang="it"] .nosotros .section-head p::after{
+  content:" Da questa curiosità è nato A2WD: un piccolo studio che unisce struttura, logica e voglia di costruire per aiutare le attività locali ad avere un sito curato quanto il loro prodotto.";
+}
+html[lang="en"] .nosotros .section-head p::after{
+  content:" That curiosity became A2WD: a small studio combining structure, logic and a love of building to help local businesses have a website as polished as their product.";
+}
+
+/* Tarjetas fotográficas con footer desplegable. */
+.founders{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:24px;
+  align-items:stretch;
+}
+.founder-divider{display:none !important;}
+.founder{
+  position:relative;
+  display:block;
+  padding:0;
+  aspect-ratio:4/5;
+  overflow:hidden;
+  border:1px solid var(--line);
+  background:#0D0D0F;
+  isolation:isolate;
+  cursor:default;
+  transition:transform .38s cubic-bezier(.2,.7,.3,1),border-color .38s ease,box-shadow .38s ease;
+}
+.founder::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:1;
+  background:linear-gradient(180deg,rgba(5,5,6,.02) 30%,rgba(5,5,6,.22) 58%,rgba(5,5,6,.88) 100%);
+  pointer-events:none;
+}
+.founder img{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  border:0;
+  border-radius:0;
+  filter:grayscale(.55) contrast(1.04) brightness(.82);
+  transform:scale(1.01);
+  transition:transform .65s cubic-bezier(.2,.7,.3,1),filter .45s ease;
+}
+.founder>div{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  z-index:3;
+  min-height:215px;
+  padding:24px 28px 26px;
+  background:linear-gradient(180deg,rgba(8,8,9,.12) 0%,rgba(8,8,9,.92) 36%,rgba(8,8,9,.98) 100%);
+  border-top:1px solid rgba(255,255,255,.10);
+  transform:translateY(calc(100% - 106px));
+  transition:transform .45s cubic-bezier(.2,.75,.25,1),background .35s ease;
+}
+.founder .role{
+  font-family:'IBM Plex Mono';
+  font-size:11px;
+  letter-spacing:.12em;
+  color:var(--muted);
+}
+.founder h3{
+  font-family:'Megrim','IBM Plex Sans',sans-serif;
+  font-size:clamp(28px,3vw,44px);
+  font-weight:400;
+  line-height:1;
+  margin-top:8px;
+  letter-spacing:.025em;
+}
+.founder p.bio{
+  margin-top:20px;
+  max-width:46ch;
+  color:var(--ink-soft);
+  font-size:14.5px;
+  line-height:1.65;
+  opacity:0;
+  transform:translateY(12px);
+  transition:opacity .28s ease .08s,transform .36s ease .06s;
+}
+.founder:hover,
+.founder:focus-within{
+  transform:translateY(-8px);
+  border-color:var(--line-strong);
+  box-shadow:0 28px 60px rgba(0,0,0,.42);
+}
+.founder:hover img,
+.founder:focus-within img{
+  transform:scale(1.055);
+  filter:grayscale(.12) contrast(1.04) brightness(.92);
+}
+.founder:hover>div,
+.founder:focus-within>div{
+  transform:translateY(0);
+  background:linear-gradient(180deg,rgba(8,8,9,.24) 0%,rgba(8,8,9,.95) 31%,rgba(8,8,9,.99) 100%);
+}
+.founder:hover p.bio,
+.founder:focus-within p.bio{
+  opacity:1;
+  transform:translateY(0);
+}
+
+@media (max-width:900px){
+  .hero-blur svg,
+  .hero-blur canvas{
+    width:126vw !important;
+    height:78vh !important;
+  }
+  .founders{grid-template-columns:1fr 1fr;gap:16px;}
+  .founder>div{padding:20px 22px 22px;transform:translateY(calc(100% - 96px));}
+  .founder h3{font-size:clamp(25px,4vw,34px);}
+}
+@media (max-width:680px){
+  .founders{grid-template-columns:1fr;gap:18px;}
+  .founder{aspect-ratio:4/5;}
+  .founder>div{
+    min-height:auto;
+    transform:none;
+    padding:22px;
+    background:linear-gradient(180deg,rgba(8,8,9,.18),rgba(8,8,9,.96) 28%,rgba(8,8,9,.99));
+  }
+  .founder p.bio{opacity:1;transform:none;margin-top:14px;}
+  .founder:hover{transform:none;}
+}
+@media (max-width:560px){
+  .hero-blur svg,
+  .hero-blur canvas{
+    width:151vw !important;
+    height:68vh !important;
+  }
+}
+@media (prefers-reduced-motion:reduce){
+  .hero::before{animation:none;}
+  .hero::after{animation:none;display:none;}
+  .founder,.founder img,.founder>div,.founder p.bio{transition:none;}
+}
