@@ -1,6 +1,7 @@
 // Tarifas, calculadora comercial y notas internas.
 export function crearGestionTarifas({
-  vista, esc, euros, toast, abrirForm, camposFactura, guardarEn,
+  sb, vista, perfil, esc, fecha, euros, toast, fallo,
+  abrirForm, camposFactura, guardarEn,
 }) {
 // =================== TARIFAS · chuleta para hablar con clientes ===================
 // Precios: ../tarifas.js (los mismos que ve la web). Notas internas: tabla «chuleta».
