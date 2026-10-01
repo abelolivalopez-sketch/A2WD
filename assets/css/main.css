@@ -54,8 +54,9 @@
     max-width:1180px;margin:0 auto;padding:18px 28px;
     display:flex;align-items:center;justify-content:space-between;gap:16px;
   }
-  .brand{display:flex;align-items:center;gap:10px;font-family:'IBM Plex Mono';font-weight:600;font-size:19px;letter-spacing:0.01em;}
-  .brand svg{width:30px;height:30px;flex-shrink:0;}
+  .brand{display:flex;align-items:center;gap:11px;font-family:'IBM Plex Mono';font-weight:600;letter-spacing:.01em;}
+  .brand-mark{width:36px;height:36px;display:block;flex-shrink:0;border-radius:9px;}
+  .brand-word{font-size:19px;letter-spacing:.025em;color:var(--ink);}
   nav.links{display:flex;align-items:center;gap:30px;}
   nav.links a{font-size:14.5px;color:var(--ink-soft);position:relative;padding:4px 0;}
   nav.links a:hover{color:var(--ink);}
@@ -90,66 +91,146 @@
 
   /* ---------- HERO ---------- */
   .hero{
-    background:var(--bg);color:var(--ink);
-    padding:168px 0 110px;
-    position:relative;overflow:hidden;
+    min-height:100svh;
+    display:flex;
+    align-items:center;
+    color:var(--ink);
+    padding:clamp(142px,16vh,190px) 0 clamp(72px,9vh,110px);
+    position:relative;
+    overflow:hidden;
     border-bottom:1px solid var(--line);
+    isolation:isolate;
   }
-  /* Banda de Möbius fija detrás de TODA la web: no se mueve al hacer scroll.
-     100lvh = alto máximo de la pantalla, así en el móvil no salta al esconderse la barra del navegador. */
+  .hero .wrap{
+    width:100%;
+    max-width:1480px;
+    padding-inline:clamp(28px,5vw,78px);
+  }
+  /* La Möbius queda como pieza visual del hero: nítida, metálica y en movimiento lento. */
   .hero-blur{
-    position:fixed;top:0;left:0;
-    width:100vw;height:100vh;height:100lvh;
-    filter:blur(16px);
-    opacity:.7;
-    z-index:-1;pointer-events:none;
+    position:absolute;
+    top:0;
+    right:-11vw;
+    width:min(82vw,1240px);
+    height:100%;
+    filter:contrast(1.08) brightness(1.12);
+    opacity:.62;
+    z-index:0;
+    pointer-events:none;
   }
-  @media (max-width:600px){.hero-blur{filter:blur(10px);}}
   .hero-blur svg{width:100%;height:100%;display:block;}
   .hero-blur canvas{width:100% !important;height:100% !important;display:block;}
+  .hero::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    z-index:1;
+    pointer-events:none;
+    background:
+      linear-gradient(90deg,rgba(10,10,11,.97) 0%,rgba(10,10,11,.9) 31%,rgba(10,10,11,.6) 55%,rgba(10,10,11,.12) 78%,rgba(10,10,11,.42) 100%),
+      linear-gradient(180deg,rgba(10,10,11,.18),rgba(10,10,11,.4));
+  }
   .hero-grid{
-    position:relative;z-index:1;max-width:640px;
+    position:relative;
+    z-index:2;
+    max-width:none;
   }
   .hero h1{
-    font-family:'IBM Plex Mono';font-weight:600;
-    font-size:clamp(34px,5.4vw,58px);
-    line-height:1.12;letter-spacing:-0.01em;
-    max-width:14ch;
+    font-family:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
+    font-weight:500;
+    font-size:clamp(58px,7.6vw,114px);
+    line-height:.94;
+    letter-spacing:-.055em;
+    max-width:12.4ch;
+    text-wrap:balance;
+    color:var(--ink);
+    background:linear-gradient(180deg,#fff 4%,#d8d8d4 64%,#9b9b98 115%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
   }
   .hero p.lead{
-    margin-top:26px;color:var(--muted);font-size:17px;max-width:44ch;
+    margin-top:clamp(28px,4vh,44px);
+    color:var(--ink-soft);
+    font-size:clamp(17px,1.45vw,21px);
+    line-height:1.6;
+    max-width:56ch;
   }
-  .hero .cta-row{display:flex;gap:14px;margin-top:38px;flex-wrap:wrap;}
+  .hero .cta-row{
+    display:flex;
+    gap:14px;
+    margin-top:clamp(30px,4.5vh,48px);
+    flex-wrap:wrap;
+  }
   .btn{
     font-family:'IBM Plex Mono';font-size:14px;font-weight:500;
     padding:13px 24px;border:1px solid currentColor;display:inline-block;
-    transition:background .18s ease,color .18s ease;
+    transition:background .18s ease,color .18s ease,transform .18s ease;
   }
+  .hero .btn{padding:14px 27px;}
+  .hero .btn:hover{transform:translateY(-2px);}
   .btn-solid{background:var(--ink);color:var(--bg);border-color:var(--ink);}
   .btn-solid:hover{background:transparent;color:var(--ink);}
   .btn-ghost{color:var(--ink);}
   .btn-ghost:hover{background:var(--ink);color:var(--bg);}
-  .hero-foot{margin-top:56px;font-family:'IBM Plex Mono';font-size:12.5px;color:var(--muted);
-    border-top:1px solid var(--line);padding-top:18px;letter-spacing:0.02em;position:relative;z-index:1;}
+  .hero-foot{
+    width:min(760px,100%);
+    margin-top:clamp(48px,7vh,76px);
+    font-family:'IBM Plex Mono';
+    font-size:12px;
+    color:var(--muted);
+    border-top:1px solid rgba(255,255,255,.14);
+    padding-top:18px;
+    letter-spacing:.04em;
+    position:relative;
+    z-index:2;
+  }
   .hero-art{display:none;}
-  @media (max-width:860px){
-    .hero{padding:150px 0 70px;}
-    .hero-grid{grid-template-columns:1fr;}
+
+  @media (max-width:900px){
+    .hero{
+      min-height:100svh;
+      padding:138px 0 72px;
+      align-items:flex-start;
+    }
+    .hero .wrap{padding-inline:28px;}
+    .hero h1{font-size:clamp(52px,11.5vw,86px);max-width:11.7ch;}
+    .hero-blur{
+      width:145vw;
+      height:68%;
+      top:28%;
+      right:-58vw;
+      opacity:.4;
+      filter:contrast(1.04) brightness(1.08);
+    }
+    .hero::after{
+      background:
+        linear-gradient(180deg,rgba(10,10,11,.96) 0%,rgba(10,10,11,.78) 46%,rgba(10,10,11,.24) 76%,rgba(10,10,11,.66) 100%);
+    }
+  }
+  @media (max-width:560px){
+    .hero{padding-top:126px;}
+    .hero .wrap{padding-inline:22px;}
+    .hero h1{font-size:clamp(48px,14vw,70px);max-width:10.8ch;}
+    .hero p.lead{font-size:16px;max-width:36ch;}
+    .hero-foot{margin-top:46px;}
   }
 
-  /* fade-in on load, once */
-  .hero h1, .hero p.lead, .hero .cta-row{
-    opacity:0;transform:translateY(14px);
+  /* entrada sutil: el movimiento protagonista queda en la Möbius */
+  .hero h1,.hero p.lead,.hero .cta-row,.hero-foot{
+    opacity:0;
+    transform:translateY(18px);
     animation:riseIn .9s cubic-bezier(.2,.7,.3,1) forwards;
   }
-  .hero p.lead{animation-delay:.12s;}
-  .hero .cta-row{animation-delay:.22s;}
-  .hero-blur{animation:fadeArt 1.4s ease forwards;}
+  .hero p.lead{animation-delay:.10s;}
+  .hero .cta-row{animation-delay:.18s;}
+  .hero-foot{animation-delay:.28s;}
+  .hero-blur{animation:fadeArt 1.3s ease forwards;}
   @keyframes riseIn{to{opacity:1;transform:translateY(0);}}
-  @keyframes fadeArt{from{opacity:0;}to{opacity:.7;}}
-  @media (prefers-reduced-motion: reduce){
-    .hero h1,.hero p.lead,.hero .cta-row{animation:none;opacity:1;transform:none;}
-    .hero-blur{animation:none;opacity:.7;}
+  @keyframes fadeArt{from{opacity:0;}to{opacity:.62;}}
+  @media (prefers-reduced-motion:reduce){
+    .hero h1,.hero p.lead,.hero .cta-row,.hero-foot{animation:none;opacity:1;transform:none;}
+    .hero-blur{animation:none;opacity:.58;}
   }
 
   /* ---------- BLUEPRINT GRID BG ---------- */
@@ -321,13 +402,14 @@
     text-shadow:0 0 6px rgba(10,10,11,.95),0 0 14px rgba(10,10,11,.85),0 1px 1px rgba(0,0,0,.9);}
   .mobius-logo.pequeno{width:104px;height:38px;}
   .mobius-logo.pequeno .mobius-txt{font-size:15px;}
-  @media (max-width:520px){.nav-inner .mobius-logo{width:116px;height:42px;}.nav-inner .mobius-txt{font-size:17px;}}
+  @media (max-width:520px){.brand-mark{width:32px;height:32px}.brand-word{font-size:17px;}.mobius-logo.pequeno{width:96px;height:36px;}}
 
   /* ---------- AMBIENTE OSCURO (negros y grises) ---------- */
   /* Mismos tonos de siempre, pero algo translúcidos para que se intuya la banda de Möbius del fondo */
   .hero{background:
-      radial-gradient(1200px 520px at 78% 30%, rgba(120,120,128,0.10), transparent 60%),
-      linear-gradient(180deg, rgba(10,10,11,.55) 0%, rgba(14,14,16,.7) 100%);}
+      radial-gradient(900px 680px at 78% 43%,rgba(134,134,142,.12),transparent 64%),
+      radial-gradient(700px 460px at 15% 30%,rgba(255,255,255,.025),transparent 70%),
+      linear-gradient(180deg,#0A0A0B 0%,#0B0B0D 100%);}
   .manifesto{background:rgba(10,10,11,.74);}
   .servicios{background:rgba(17,17,19,.8);}
   .proyectos{background:rgba(10,10,11,.74);}
