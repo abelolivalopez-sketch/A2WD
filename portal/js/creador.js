@@ -98,7 +98,7 @@ const { vTarifas } = crearGestionTarifas({
 });
 
 const { vEquipo, actualizarEquipo } = crearEquipo({
-  sb, vista, esc, perfil, fallo, toast,
+  sb, vista, esc, perfil, fallo, toast, ESTADOS,
 });
 
 const { vWeb } = crearPortfolio({
