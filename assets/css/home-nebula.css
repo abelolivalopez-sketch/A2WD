@@ -1,0 +1,50 @@
+/* A2WD · fondo de nebulosa detrás de la banda de Möbius
+   Capa final de la home. Cargada después de home-nav-fix.css.
+   - La imagen sustituye al degradado de estrellas dibujado en CSS.
+   - Deriva muy lenta (traslación, zoom y giro mínimos) para que se note que
+     está "viva" sin distraer.
+   - Las estrellas fugaces CSS se apagan: ahora las dibuja assets/js/meteoros.js. */
+
+body:has(.hero)::before{
+  inset:-7% !important;
+  background:
+    radial-gradient(ellipse 120% 90% at 50% 50%,transparent 45%,rgba(3,4,9,.55) 100%),
+    linear-gradient(180deg,rgba(3,4,9,.10) 0%,rgba(3,4,9,0) 30%,rgba(3,4,9,.25) 100%),
+    url("../../img/nebulosa.webp") center / cover no-repeat,
+    #03050a !important;
+  opacity:1 !important;
+  transform-origin:50% 50%;
+  will-change:transform;
+  animation:
+    nebulaDrift 96s ease-in-out infinite alternate,
+    galaxyBreath 22s ease-in-out infinite alternate !important;
+}
+
+@keyframes nebulaDrift{
+  0%  {transform:translate3d(0,0,0) scale(1) rotate(0deg);}
+  33% {transform:translate3d(-1.6%,.9%,0) scale(1.025) rotate(.35deg);}
+  66% {transform:translate3d(1.1%,-.8%,0) scale(1.04) rotate(-.25deg);}
+  100%{transform:translate3d(-.6%,-1.4%,0) scale(1.03) rotate(.5deg);}
+}
+
+/* Estrellas fugaces antiguas (pseudo-elementos CSS): desactivadas. */
+body:has(.hero)::after,
+body:has(.hero) .hero::after{
+  display:none !important;
+  animation:none !important;
+}
+
+/* Lienzo de las estrellas fugaces: encima de la nebulosa, detrás de la banda. */
+#meteoros{
+  position:fixed;
+  inset:0;
+  width:100vw;
+  height:100vh;
+  z-index:0;
+  pointer-events:none;
+}
+
+@media (prefers-reduced-motion:reduce){
+  body:has(.hero)::before{animation:none !important;transform:none !important;}
+  #meteoros{display:none;}
+}
