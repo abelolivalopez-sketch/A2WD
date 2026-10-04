@@ -132,6 +132,7 @@
     function elegir(quien, animar){
       if (quien === actual && animar) return;
       actual = quien;
+      caja.setAttribute('data-activo', quien);
       cards.forEach(function(c){
         var on = c.getAttribute('data-persona') === quien;
         c.classList.toggle('activa', on); c.setAttribute('aria-pressed', on ? 'true' : 'false');
@@ -178,6 +179,9 @@
       .fromTo(inf, { strokeDashoffset: L }, { strokeDashoffset: 0, duration: 1.5, ease: 'power2.inOut' }, 0.25)
       .fromTo('.trip-linea', { '--l': 0 }, { '--l': 1, duration: 1.1, ease: 'expo.inOut' }, 0.3)
       .from('.trip-punto', { scale: 0, duration: 0.5, stagger: 0.12, ease: 'back.out(3)', clearProps: 'transform' }, 0.7)
+      .from('.trip-orbitas', { autoAlpha: 0, scale: 0.92, duration: 1.6, ease: 'power3.out' }, 0)
+      .from('.trip-dato-izq', { autoAlpha: 0, x: -30, duration: 1, ease: 'expo.out', clearProps: 'opacity,visibility,transform' }, 0.5)
+      .from('.trip-dato-der', { autoAlpha: 0, x: 30, duration: 1, ease: 'expo.out', clearProps: 'opacity,visibility,transform' }, 0.6)
       .from('#tripPanel', { autoAlpha: 0, y: 30, duration: 1, ease: 'expo.out' }, 0.6);
   }
 

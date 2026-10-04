@@ -389,9 +389,58 @@ html.con-cursor input,html.con-cursor textarea,html.con-cursor select,html.con-c
   display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,4vw,70px);align-items:end;
 }
 .nos-head p{color:var(--ink-soft);font-size:16.5px;line-height:1.7;max-width:62ch;}
-.tripulacion{max-width:1100px;margin:clamp(40px,7vh,80px) auto 0;padding:0 var(--gutter);}
-.trip-fila,.trip-linea{display:grid;grid-template-columns:minmax(0,1fr) clamp(56px,10vw,130px) minmax(0,1fr);gap:clamp(8px,1.6vw,22px);}
-.trip-fila{align-items:center;}
+/* Fila: [dato] [tarjeta] [∞] [tarjeta] [dato]; detrás, órbitas decorativas */
+.tripulacion{
+  --carta:clamp(170px,19vw,270px);--centro:clamp(56px,7.5vw,104px);
+  max-width:1180px;margin:clamp(30px,5vh,60px) auto 0;padding:0 var(--gutter);
+}
+.trip-fila,.trip-linea{display:grid;grid-template-columns:minmax(0,1fr) var(--carta) var(--centro) var(--carta) minmax(0,1fr);gap:clamp(10px,1.6vw,24px);}
+.trip-fila{position:relative;align-items:center;padding-block:clamp(26px,5vh,54px);}
+.trip-fila>*{position:relative;z-index:1;}
+.trip-dato-izq{grid-column:1;}
+.trip-card[data-persona="abel"]{grid-column:2;}
+.trip-infinito{grid-column:3;}
+.trip-card[data-persona="ariel"]{grid-column:4;}
+.trip-dato-der{grid-column:5;}
+.p-abel{grid-column:2;}
+.p-centro{grid-column:3;}
+.p-ariel{grid-column:4;}
+
+/* Órbitas y marcas de esquina detrás de las tarjetas */
+.trip-fila>.trip-orbitas{position:absolute;inset:0;z-index:0;width:100%;height:100%;overflow:visible;pointer-events:none;}
+.to-anillo{fill:none;stroke:rgba(186,206,245,.24);stroke-width:1;stroke-dasharray:2 7;animation:orbFlujo 60s linear infinite;}
+.to-a2{stroke:rgba(186,206,245,.15);animation-duration:40s;animation-direction:reverse;}
+.to-eje{fill:none;stroke:rgba(186,206,245,.09);stroke-dasharray:14 4 2 4;}
+.to-cruz{fill:none;stroke:rgba(214,228,255,.42);stroke-width:1;}
+.to-sat{fill:#eef4ff;offset-path:path('M20 210 A480 176 0 1 1 980 210 A480 176 0 1 1 20 210');offset-distance:30%;animation:infinito 30s linear infinite;}
+.to-s2{offset-path:path('M128 210 A372 132 0 1 1 872 210 A372 132 0 1 1 128 210');offset-distance:70%;animation-duration:20s;animation-direction:reverse;fill:var(--luz);}
+
+/* Lecturas tipo telemetría a cada lado */
+.trip-dato{
+  display:flex;flex-direction:column;gap:12px;font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;color:#7d8597;opacity:.55;transition:opacity .6s ease,color .6s ease;
+}
+.trip-dato-izq{align-items:flex-end;text-align:right;}
+.trip-dato-der{align-items:flex-start;}
+.tripulacion[data-activo="abel"] .trip-dato-izq,.tripulacion[data-activo="ariel"] .trip-dato-der{opacity:1;color:#d2dae8;}
+.td-k{font-size:10.5px;color:var(--luz);}
+.td-fila{display:flex;align-items:center;gap:12px;}
+.trip-dato-der .td-fila{flex-direction:row-reverse;justify-content:flex-end;}
+.td-barras{display:inline-flex;align-items:flex-end;gap:3px;height:16px;}
+.td-barras i{display:block;width:3px;height:100%;background:currentColor;transform:scaleY(.4);transform-origin:50% 100%;animation:barra 1.7s ease-in-out infinite;}
+.td-barras i:nth-child(2){animation-delay:-.3s;}
+.td-barras i:nth-child(3){animation-delay:-.9s;}
+.td-barras i:nth-child(4){animation-delay:-.5s;}
+.td-barras i:nth-child(5){animation-delay:-1.3s;}
+.td-barras i:nth-child(6){animation-delay:-.7s;}
+.td-fila+.td-fila .td-barras i{animation-duration:2.3s;}
+@keyframes barra{0%,100%{transform:scaleY(.25);}50%{transform:scaleY(1);}}
+.tripulacion[data-activo="abel"] .trip-dato-izq .td-barras,.tripulacion[data-activo="ariel"] .trip-dato-der .td-barras{color:var(--luz);}
+.td-guia{position:relative;display:block;width:min(130px,100%);height:1px;margin-top:4px;background:linear-gradient(90deg,rgba(186,206,245,0),rgba(186,206,245,.45));}
+.trip-dato-der .td-guia{background:linear-gradient(270deg,rgba(186,206,245,0),rgba(186,206,245,.45));}
+.td-guia::after{content:"";position:absolute;top:-3px;width:7px;height:7px;border-radius:50%;border:1px solid rgba(214,228,255,.6);background:#05060c;}
+.trip-dato-izq .td-guia::after{right:-4px;}
+.trip-dato-der .td-guia::after{left:-4px;}
 .trip-card{
   position:relative;display:block;width:100%;aspect-ratio:4/5;padding:0;margin:0;
   border:1px solid var(--panel-borde);background:#0b0d14;overflow:hidden;isolation:isolate;
@@ -414,7 +463,7 @@ html.con-cursor input,html.con-cursor textarea,html.con-cursor select,html.con-c
 .trip-card.activa .trip-halo{opacity:1;transform:translate(-50%,-50%) scale(1);}
 .trip-card.activa .trip-foto img{filter:grayscale(1) brightness(1) contrast(1.1);transform:scale(1);}
 .trip-card:not(.activa):hover .trip-foto img{filter:grayscale(1) brightness(.62) contrast(1.05);}
-.trip-nombre{position:absolute;z-index:3;left:clamp(14px,2vw,22px);bottom:clamp(12px,1.6vw,18px);font-family:var(--f-display);font-weight:600;font-size:clamp(20px,2.4vw,34px);letter-spacing:-.04em;color:#eef2f9;}
+.trip-nombre{position:absolute;z-index:3;left:clamp(14px,2vw,22px);bottom:clamp(12px,1.6vw,18px);font-family:var(--f-display);font-weight:600;font-size:clamp(18px,1.9vw,28px);letter-spacing:-.04em;color:#eef2f9;}
 .trip-infinito svg{display:block;width:100%;height:auto;overflow:visible;}
 .inf-trazo{fill:none;stroke:rgba(206,222,255,.75);stroke-width:2.2;}
 .inf-punto{fill:#fff;offset-path:path('M50,30 C50,19 41,10 30,10 C19,10 10,19 10,30 C10,41 19,50 30,50 C41,50 50,41 50,30 C50,19 59,10 70,10 C81,10 90,19 90,30 C90,41 81,50 70,50 C59,50 50,41 50,30 Z');animation:infinito 6s linear infinite;}
@@ -426,7 +475,7 @@ html.con-cursor input,html.con-cursor textarea,html.con-cursor select,html.con-c
 .trip-punto.activo::before{content:"";position:absolute;left:50%;bottom:100%;width:1px;height:20px;background:linear-gradient(transparent,var(--luz-fuerte));}
 .trip-punto.p-centro{background:transparent;border:1px solid rgba(186,206,245,.6);}
 .trip-panel{
-  margin-top:16px;border:1px solid var(--panel-borde);background:rgba(8,10,17,.8);
+  max-width:880px;margin:16px auto 0;border:1px solid var(--panel-borde);background:rgba(8,10,17,.8);
   padding:clamp(20px,3vw,34px) clamp(20px,3.4vw,44px);
   display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:clamp(14px,3vw,48px);align-items:start;
 }
@@ -436,8 +485,17 @@ html.con-cursor input,html.con-cursor textarea,html.con-cursor select,html.con-c
 .trip-rol{display:block;margin-top:12px;font-size:11.5px;letter-spacing:.18em;color:var(--texto-2);}
 .trip-panel p{margin:0;color:#c2cad8;font-size:clamp(15px,1.3vw,18px);line-height:1.6;}
 .trip-pista{margin-top:12px;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#6b7386;text-align:center;}
-@media (max-width:900px){.nos-head{grid-template-columns:minmax(0,1fr);}}
+@media (max-width:900px){
+  .nos-head{grid-template-columns:minmax(0,1fr);}
+  .trip-dato{display:none;}
+  .tripulacion{--carta:clamp(150px,30vw,240px);}
+}
 @media (max-width:700px){.trip-panel{grid-template-columns:minmax(0,1fr);}}
+@media (max-width:560px){
+  .tripulacion{--centro:44px;}
+  .trip-fila,.trip-linea{grid-template-columns:0 minmax(0,1fr) var(--centro) minmax(0,1fr) 0;gap:8px;}
+  .to-cruz{display:none;}
+}
 
 /* =====================================================================
    CONTACTO (se mantiene; solo se adapta al fondo)

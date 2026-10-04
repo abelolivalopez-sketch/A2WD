@@ -406,8 +406,22 @@
     <h2 class="display-l" data-reveal="palabras" data-i18n="nos.h2">Dos ingenieros con ganas de construir</h2>
     <p data-reveal data-i18n="nos.p">Nos conocemos bien y trabajamos igual de bien juntos: uno piensa en estructura y mecanismos, el otro en lógica y código. El resultado son webs sólidas por dentro y por fuera. De esa curiosidad nació A2WD: un estudio pequeño que combina estructura, lógica y ganas de construir para ayudar a negocios locales a tener una web tan cuidada como su producto.</p>
   </div>
-  <div class="tripulacion" id="tripulacion">
-    <div class="trip-fila">
+  <div class="tripulacion" id="tripulacion" data-activo="abel">
+    <div class="trip-fila" data-anim>
+      <svg class="trip-orbitas" viewBox="0 0 1000 420" aria-hidden="true">
+        <ellipse class="to-anillo to-a1" cx="500" cy="210" rx="480" ry="176"/>
+        <ellipse class="to-anillo to-a2" cx="500" cy="210" rx="372" ry="132"/>
+        <path class="to-eje" d="M20 210H980"/>
+        <circle class="to-sat to-s1" r="3.2"/>
+        <circle class="to-sat to-s2" r="2.4"/>
+        <path class="to-cruz" d="M40 40h16M48 32v16M944 40h16M952 32v16M40 380h16M48 372v16M944 380h16M952 372v16"/>
+      </svg>
+      <div class="trip-dato trip-dato-izq" aria-hidden="true">
+        <span class="td-k" data-i18n="nos.trip1">Tripulante 01</span>
+        <span class="td-fila"><span data-i18n="nos.d1a">Estructura</span><span class="td-barras"><i></i><i></i><i></i><i></i><i></i><i></i></span></span>
+        <span class="td-fila"><span data-i18n="nos.d1b">Mecanismos</span><span class="td-barras"><i></i><i></i><i></i><i></i><i></i><i></i></span></span>
+        <span class="td-guia"></span>
+      </div>
       <button type="button" class="trip-card activa" data-persona="abel" aria-pressed="true" aria-controls="tripPanel">
         <span class="trip-foto"><img src="img/abel.webp" width="600" height="600" loading="lazy" decoding="async" alt="Retrato en blanco y negro de Abel Oliva, cofundador de A2WD"></span>
         <span class="trip-halo" aria-hidden="true"></span>
@@ -423,6 +437,12 @@
         <span class="trip-nombre">Ariel</span>
         <span class="trip-datos" hidden><span class="d-nombre">Ariel Occhietti</span><span class="d-rol" data-i18n="ariel.role">INGENIERÍA INFORMÁTICA</span><span class="d-bio" data-i18n="ariel.bio">Cofundador de A2WD. Le apasiona programar y entender cómo hacer que una web sea rápida, clara y fácil de usar de principio a fin.</span></span>
       </button>
+      <div class="trip-dato trip-dato-der" aria-hidden="true">
+        <span class="td-k" data-i18n="nos.trip2">Tripulante 02</span>
+        <span class="td-fila"><span data-i18n="nos.d2a">Lógica</span><span class="td-barras"><i></i><i></i><i></i><i></i><i></i><i></i></span></span>
+        <span class="td-fila"><span data-i18n="nos.d2b">Código</span><span class="td-barras"><i></i><i></i><i></i><i></i><i></i><i></i></span></span>
+        <span class="td-guia"></span>
+      </div>
     </div>
     <div class="trip-linea" aria-hidden="true"><i class="trip-punto p-abel activo"></i><i class="trip-punto p-centro"></i><i class="trip-punto p-ariel"></i></div>
     <div class="trip-panel" id="tripPanel" aria-live="polite">
