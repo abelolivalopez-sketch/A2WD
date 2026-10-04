@@ -7,7 +7,7 @@
 //  - Recibe las notificaciones push y abre la app al tocarlas.
 //  Al cambiar archivos del portal, sube el número de VERSION.
 // =====================================================================
-const VERSION = 'a2wd-v17';
+const VERSION = 'a2wd-v18';
 const CARCASA = [
   './',
   './index.html',
@@ -21,10 +21,10 @@ const CARCASA = [
   './portal/cliente.html',
   './portal/creador.html',
   './portal/portal.css',
-  './portal/app.js',
-  './portal/i18n.js',
-  './portal/config.js',
-  './portal/movil.js',
+  './portal/js/app.js',
+  './portal/js/i18n.js',
+  './portal/js/config.js',
+  './portal/js/movil.js',
   './fonts/fonts.css',
 ];
 

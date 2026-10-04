@@ -60,13 +60,16 @@
 }
 </script>
 <title data-i18n="meta.title">A2WD — Diseño web para comercios</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Megrim&display=swap" rel="stylesheet">
+<link rel="preload" href="fonts/Sora-Variable-Latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/Megrim-Latin.woff2" as="font" type="font/woff2" crossorigin>
 <link href="fonts/fonts.css" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/main.css">
+<link rel="stylesheet" href="assets/css/nav.css">
+<link rel="stylesheet" href="assets/css/galaxia.css">
 </head>
-<body>
+<body class="home">
+<a class="saltar" href="#servicios" data-i18n="nav.saltar">Saltar al contenido</a>
+<canvas id="cosmos" aria-hidden="true"></canvas>
 
 <!-- ============ NAV ============ -->
 <header class="nav">
@@ -75,19 +78,19 @@
       <img class="brand-mark" src="img/favicon.svg" alt="" aria-hidden="true">
       <span class="brand-word">A²WD</span>
     </a>
-    <nav class="links" id="deskLinks">
-      <a href="#inicio" data-i18n="nav.inicio">Inicio</a>
-      <a href="#servicios" data-i18n="nav.servicios">Servicios</a>
-      <a href="#proyectos" data-i18n="nav.proyectos">Proyectos</a>
-      <a href="#nosotros" data-i18n="nav.nosotros">Nosotros</a>
-      <a href="#contacto" data-i18n="nav.contacto">Contacto</a>
-      <a href="portal/login.html" data-i18n="nav.acceso">Acceso clientes</a>
+    <nav class="links" id="deskLinks" data-i18n-aria="nav.principal" aria-label="Navegación principal">
+      <a href="#inicio" data-nav="inicio"><span class="ico" aria-hidden="true"></span><span class="lbl" data-i18n="nav.inicio">Inicio</span></a>
+      <a href="#servicios" data-nav="servicios"><span class="ico" aria-hidden="true"></span><span class="lbl" data-i18n="nav.servicios">Servicios</span></a>
+      <a href="#metodo" data-nav="metodo"><span class="ico" aria-hidden="true"></span><span class="lbl" data-i18n="nav.metodo">Método</span></a>
+      <a href="proyectos.html" data-nav="proyectos"><span class="ico" aria-hidden="true"></span><span class="lbl" data-i18n="nav.proyectos">Proyectos</span></a>
+      <a href="#nosotros" data-nav="nosotros"><span class="ico" aria-hidden="true"></span><span class="lbl" data-i18n="nav.nosotros">Nosotros</span></a>
+      <a href="#contacto" data-nav="contacto"><span class="ico" aria-hidden="true"></span><span class="lbl" data-i18n="nav.contacto">Contacto</span></a>
     </nav>
     <div class="nav-right">
       <div class="lang-switch" id="langSwitch" role="group" aria-label="Idioma / Language">
-      <button type="button" data-lang="es">ES</button><button type="button" data-lang="fr">FR</button><button type="button" data-lang="it">IT</button><button type="button" data-lang="en">EN</button>
-    </div>
-      <a href="#contacto" class="nav-cta" data-i18n="nav.cta">Hablemos</a>
+        <button type="button" data-lang="es">ES</button><button type="button" data-lang="fr">FR</button><button type="button" data-lang="it">IT</button><button type="button" data-lang="en">EN</button>
+      </div>
+      <a href="portal/login.html" class="nav-acceso" data-nav="acceso" data-magnetic="0.25"><span class="ico" aria-hidden="true"></span><span data-i18n="nav.acceso.corto">Acceso</span></a>
     </div>
     <button class="burger" id="burgerBtn" type="button" aria-label="Abrir menú" data-i18n-aria="nav.menu" aria-controls="mobileMenu" aria-expanded="false">
       <span></span><span></span><span></span>
@@ -95,19 +98,22 @@
   </div>
 </header>
 
-<div class="mobile-menu" id="mobileMenu">
-  <a href="#inicio" data-i18n="nav.inicio">Inicio</a>
-  <a href="#servicios" data-i18n="nav.servicios">Servicios</a>
-  <a href="#proyectos" data-i18n="nav.proyectos">Proyectos</a>
-  <a href="#nosotros" data-i18n="nav.nosotros">Nosotros</a>
-  <a href="#contacto" data-i18n="nav.contacto">Contacto</a>
-  <a href="portal/login.html" data-i18n="nav.acceso">Acceso clientes</a>
-  <a href="#" data-instalar data-i18n="nav.app">Añadir a mi móvil</a>
+<div class="mobile-menu" id="mobileMenu" data-lenis-prevent>
+  <a href="#inicio" data-nav="inicio"><span class="ico" aria-hidden="true"></span><span data-i18n="nav.inicio">Inicio</span></a>
+  <a href="#servicios" data-nav="servicios"><span class="ico" aria-hidden="true"></span><span data-i18n="nav.servicios">Servicios</span></a>
+  <a href="#metodo" data-nav="metodo"><span class="ico" aria-hidden="true"></span><span data-i18n="nav.metodo">Método</span></a>
+  <a href="proyectos.html" data-nav="proyectos"><span class="ico" aria-hidden="true"></span><span data-i18n="nav.proyectos">Proyectos</span></a>
+  <a href="#nosotros" data-nav="nosotros"><span class="ico" aria-hidden="true"></span><span data-i18n="nav.nosotros">Nosotros</span></a>
+  <a href="#contacto" data-nav="contacto"><span class="ico" aria-hidden="true"></span><span data-i18n="nav.contacto">Contacto</span></a>
+  <a href="portal/login.html" data-nav="acceso"><span class="ico" aria-hidden="true"></span><span data-i18n="nav.acceso">Acceso clientes</span></a>
+  <a href="#" data-instalar data-nav="app"><span class="ico" aria-hidden="true"></span><span data-i18n="nav.app">Añadir a mi móvil</span></a>
 </div>
 
+<main id="contenido">
 <!-- ============ HERO ============ -->
-<section class="hero" id="inicio">
-  <div class="hero-blur" aria-hidden="true" id="mobiusContainer">
+<section class="hero" id="inicio" data-cosmos-hero>
+  <div class="hero-mobius" aria-hidden="true">
+   <div class="mobius-capa" id="mobiusContainer">
     <svg viewBox="0 0 640 420" fill="none" xmlns="http://www.w3.org/2000/svg" id="mobiusFallbackSvg">
       <defs>
         <linearGradient id="heroBlurGrad" x1="0" y1="0" x2="1" y2="1">
@@ -119,171 +125,346 @@
       <path d="M320,210 C320,140 260,80 190,80 C110,80 50,140 50,210 C50,280 110,340 190,340 C260,340 320,280 320,210 C320,140 380,80 450,80 C530,80 590,140 590,210 C590,280 530,340 450,340 C380,340 320,280 320,210 Z"
         stroke="url(#heroBlurGrad)" stroke-width="46" fill="none" stroke-linecap="round"/>
     </svg>
+   </div>
   </div>
 
-  <div class="hero-stage hero-intro">
+  <div class="hero-intro" id="heroIntro">
     <div class="hero-brand-center" aria-label="A2WD">
-      <span class="hero-brand-name">A2WD</span>
+      <span class="hero-brand-name" aria-hidden="true"><span>A</span><span>2</span><span>W</span><span>D</span></span>
     </div>
-    <a class="hero-scroll-cue mono" href="#heroMensaje" aria-label="Bajar al mensaje">
+    <a class="hero-scroll-cue mono" href="#heroMensaje" data-i18n-aria="hero.bajar" aria-label="Bajar al mensaje">
       <span>SCROLL</span><i aria-hidden="true"></i>
     </a>
   </div>
 
-  <div class="hero-stage hero-message" id="heroMensaje">
-    <div class="wrap hero-grid">
-      <h1 data-i18n="hero.title">Tu negocio, conectado.<br>Sin principio ni final.</h1>
-      <p class="lead" data-i18n="hero.lead">Diseñamos y construimos páginas web para comercios y negocios locales: rápidas, claras y pensadas para que vendan también cuando la persiana está bajada.</p>
-      <div class="cta-row">
-        <a href="#proyectos" class="btn btn-solid" data-i18n="hero.ver">Ver proyectos</a>
-        <a href="#contacto" class="btn btn-ghost" data-i18n="hero.escribe">Escríbenos</a>
-      </div>
+  <div class="hero-message" id="heroMensaje">
+    <div class="hero-grid">
+      <h1 class="hero-titulo">
+        <span class="hero-l hero-l1" data-i18n="hero.l1">Tu negocio, conectado.</span>
+        <span class="hero-l hero-l2" data-i18n="hero.l2">Sin principio ni final.</span>
+      </h1>
       <div class="hero-foot mono" data-i18n="hero.foot">A2WD — Estudio de diseño y desarrollo web · Fundado por Abel Oliva &amp; Ariel Occhietti</div>
-    </div>
-  </div>
-</section>
-
-<!-- ============ MANIFIESTO ============ -->
-<section class="manifesto section-pad blueprint" id="estudio">
-  <div class="wrap manifesto-inner">
-    <div class="manifesto-mark mono" data-i18n="man.mark">
-      A2WD<br>A·al·cuadrado<br>Web&nbsp;Designers
-    </div>
-    <div class="manifesto-body">
-      <p data-i18n="man.p1">Somos Abel y Ariel. Estudiamos ingeniería —informática y mecánica— y en algún punto entre planos técnicos y líneas de código descubrimos lo mismo: nos gusta trastear, entender cómo funcionan las cosas y construirlas con nuestras manos.</p>
-      <p data-i18n="man.p2">De esa curiosidad nació A2WD, un estudio pequeño con ganas grandes. Ayudamos a comercios y negocios locales a tener una página web tan cuidada como su producto, porque hoy una buena web vende tanto —o más— que el propio local.</p>
-      <div class="signoff" data-i18n="man.firma">— Abel &amp; Ariel, fundadores de A2WD</div>
     </div>
   </div>
 </section>
 
 <!-- ============ SERVICIOS ============ -->
 <section class="servicios" id="servicios">
-  <div class="wrap section-pad">
-    <div class="section-head">
-      <div class="tag mono" data-i18n="nav.servicios">Servicios</div>
-      <h2 data-i18n="serv.h2">Todo lo que necesita tu negocio para tener presencia en internet</h2>
-      <p data-i18n="serv.p">Nos encargamos de diseñar, construir y dejar lista tu web, sin complicaciones y hablando en tu idioma, no en el nuestro.</p>
+  <!-- Pantalla 1: frase + órbita + barra de carga ligada al scroll -->
+  <div class="sv-intro" id="svIntro">
+    <div class="sec-bar mono">
+      <span data-i18n="sv.bar.l">(02 — Servicios)</span>
+      <span data-i18n="sv.bar.r">Tu negocio, en órbita</span>
+    </div>
+    <div class="sv-grid">
+      <div class="sv-copy">
+        <h2 class="display-xl" data-reveal="palabras" data-i18n="sv.h2">El límite ya no es tu calle.</h2>
+        <p class="sv-p" data-reveal data-reveal-delay="0.2" data-i18n="sv.p">Con una buena web, tu negocio sale del barrio y entra en órbita: clientes que te encuentran en Google, reservas a las tres de la mañana y pedidos desde la otra punta del país.</p>
+        <ul class="sv-hitos mono" id="svHitos">
+          <li><span class="hito-n">01</span><span data-i18n="sv.hito1">Abierta 24 horas, 365 días</span></li>
+          <li><span class="hito-n">02</span><span data-i18n="sv.hito2">Visible cuando te buscan en Google</span></li>
+          <li><span class="hito-n">03</span><span data-i18n="sv.hito3">Lista para vender desde el móvil</span></li>
+        </ul>
+      </div>
+      <figure class="sv-orbita" data-reveal="desenfoque" data-anim>
+        <div class="orb-marco">
+          <svg viewBox="0 0 640 440" role="img" aria-labelledby="orbTexto" class="orb-svg">
+            <ellipse class="orb-anillo orb-anillo-ext" cx="320" cy="220" rx="292" ry="186"/>
+            <ellipse class="orb-anillo orb-anillo-int" cx="320" cy="220" rx="226" ry="140"/>
+            <g class="orb-lineas">
+              <path d="M96 86 L250 150"/><path d="M544 86 L390 150"/><path d="M96 354 L250 290"/><path d="M544 354 L390 290"/><path d="M320 392 L320 290"/>
+            </g>
+            <g class="orb-senales">
+              <path style="--d:0s" d="M96 86 L250 150"/><path style="--d:1.2s" d="M544 86 L390 150"/><path style="--d:2.4s" d="M96 354 L250 290"/><path style="--d:3.6s" d="M544 354 L390 290"/><path style="--d:4.8s" d="M320 392 L320 290"/>
+            </g>
+            <g class="orb-web">
+              <rect class="orb-pagina" x="250" y="150" width="140" height="140"/>
+              <rect x="264" y="164" width="112" height="8"/>
+              <rect x="264" y="182" width="112" height="40" class="orb-img"/>
+              <rect x="264" y="230" width="112" height="6"/>
+              <rect x="264" y="242" width="78" height="6"/>
+              <rect x="264" y="256" width="40" height="12" class="orb-btn"/>
+              <rect x="264" y="276" width="112" height="5"/>
+            </g>
+            <text class="orb-centro" x="320" y="138" text-anchor="middle" data-i18n="orb.web">Tu web</text>
+            <g class="orb-nodos">
+              <g style="--d:0s"><rect x="82" y="72" width="16" height="16"/><circle cx="66" cy="80" r="6"/><text x="112" y="85" data-i18n="orb.clientes">Clientes</text></g>
+              <g style="--d:1.2s"><rect x="542" y="72" width="16" height="16"/><circle cx="574" cy="80" r="6"/><text x="528" y="85" text-anchor="end" data-i18n="orb.google">Google</text></g>
+              <g style="--d:2.4s"><rect x="82" y="352" width="16" height="16"/><circle cx="66" cy="360" r="6"/><text x="112" y="365" data-i18n="orb.reservas">Reservas</text></g>
+              <g style="--d:3.6s"><rect x="542" y="352" width="16" height="16"/><circle cx="574" cy="360" r="6"/><text x="528" y="365" text-anchor="end" data-i18n="orb.pedidos">Pedidos</text></g>
+              <g style="--d:4.8s"><rect x="312" y="392" width="16" height="16"/><circle cx="296" cy="400" r="6"/><text x="338" y="405" data-i18n="orb.redes">Redes</text></g>
+            </g>
+          </svg>
+        </div>
+        <div class="orb-pie mono"><span data-i18n="orb.pie.l">Todo gira a tu alrededor</span><span data-i18n="orb.pie.r">24 h · 365 días</span></div>
+        <figcaption id="orbTexto" data-i18n="orb.texto">Tu web en el centro y todo lo demás girando a su alrededor: clientes, reservas, pedidos y buscadores.</figcaption>
+      </figure>
+    </div>
+    <div class="sv-carga mono" id="svCarga" aria-hidden="true">
+      <span class="carga-txt"><span class="carga-a" data-i18n="sv.carga">Preparando el despegue</span><span class="carga-b" data-i18n="sv.listo">Listo para despegar</span></span>
+      <span class="carga-barra"><i></i></span>
+      <span class="carga-pct">000%</span>
     </div>
   </div>
-  <div class="wrap" style="padding:0;">
-    <div class="services-grid">
-      <div class="service-card">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="4" width="18" height="13" rx="0.5"/><path d="M3 15h18M9 20h6M12 17v3"/></svg>
-        <h3 data-i18n="s1.h">Diseño a medida</h3>
-        <p data-i18n="s1.p">Cada comercio es distinto, así que su web también lo es. Sin plantillas genéricas ni relleno.</p>
-      </div>
-      <div class="service-card">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M13 3 4 14h7l-1 7 9-11h-7z"/></svg>
-        <h3 data-i18n="s2.h">Desarrollo rápido</h3>
-        <p data-i18n="s2.p">Webs ligeras que cargan al instante, para que nadie se vaya antes de ver lo que ofreces.</p>
-      </div>
-      <div class="service-card">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 12a8 8 0 0 1 8-8M20 12a8 8 0 0 1-8 8M4 12a8 8 0 0 0 8 8M20 12a8 8 0 0 0-8-8" /><circle cx="12" cy="12" r="2"/></svg>
-        <h3 data-i18n="s3.h">Presencia conectada</h3>
-        <p data-i18n="s3.p">Tu tienda física y tu web trabajando como un mismo negocio, sin fisuras entre una y otra.</p>
-      </div>
-      <div class="service-card">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 4v4M12 16v4M4 12h4M16 12h4"/><circle cx="12" cy="12" r="4"/></svg>
-        <h3 data-i18n="s4.h">Acompañamiento</h3>
-        <p data-i18n="s4.p">Seguimos ahí después de publicar: ajustes, dudas y mejoras a medida que tu negocio crece.</p>
-      </div>
+
+  <!-- Pantalla 2: tarjetas de servicios -->
+  <div class="sv-cap" id="svCap">
+    <div class="sec-bar mono">
+      <span data-i18n="cap.bar.l">(02.B — Lo que hacemos)</span>
+      <span data-i18n="cap.bar.r">Todo, bajo un mismo cielo</span>
     </div>
+    <h2 class="visualmente-oculto" data-i18n="cap.h2">Lo que hacemos</h2>
+    <ul class="cap-grid" data-reveal="escalonado">
+      <li class="cap cap-ancha" data-anim>
+        <div class="cap-vis" aria-hidden="true">
+          <svg viewBox="0 0 600 340" preserveAspectRatio="xMidYMid slice" class="v1">
+            <defs><pattern id="v1cuad" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none"/></pattern></defs>
+            <rect class="v1-cuad" width="600" height="340" fill="url(#v1cuad)"/>
+            <g class="v1-todo">
+              <rect class="v1-marco" x="130" y="46" width="340" height="236" rx="6"/>
+              <path class="v1-barra" d="M130 68H470"/>
+              <circle cx="146" cy="57" r="3"/><circle cx="158" cy="57" r="3"/><circle cx="170" cy="57" r="3"/>
+              <g class="v1-b v1-b1"><rect x="148" y="82" width="304" height="82" rx="3"/><rect class="v1-t" x="164" y="102" width="120" height="9"/><rect class="v1-t" x="164" y="118" width="88" height="6"/><rect class="v1-btn" x="164" y="136" width="54" height="14" rx="2"/><circle class="v1-planeta" cx="402" cy="123" r="20"/><ellipse class="v1-aro" cx="402" cy="123" rx="34" ry="9"/></g>
+              <g class="v1-b v1-b2"><rect x="148" y="176" width="94" height="90" rx="3"/><rect class="v1-t" x="158" y="244" width="60" height="6"/></g>
+              <g class="v1-b v1-b3"><rect x="253" y="176" width="94" height="90" rx="3"/><rect class="v1-t" x="263" y="244" width="60" height="6"/></g>
+              <g class="v1-b v1-b4"><rect x="358" y="176" width="94" height="90" rx="3"/><rect class="v1-t" x="368" y="244" width="60" height="6"/></g>
+              <circle class="v1-clic v1-clic1" cx="190" cy="143" r="14"/>
+              <circle class="v1-clic v1-clic2" cx="300" cy="220" r="14"/>
+              <g class="v1-cursor"><path d="M0 0 L0 22 L6 16 L10 26 L14 24 L10 14 L18 14 Z"/></g>
+            </g>
+          </svg>
+        </div>
+        <span class="cap-n mono">01</span>
+        <div class="cap-txt"><h3 data-i18n="c1.h">Diseño web a medida</h3><p data-i18n="c1.p">Cada comercio es distinto, así que su web también. Sin plantillas ni relleno.</p></div>
+      </li>
+      <li class="cap" data-anim>
+        <div class="cap-vis" aria-hidden="true">
+          <svg viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice" class="v2">
+            <g class="v2-rayos" transform="translate(200 190)">
+              <g transform="rotate(0)"><line style="--d:-.1s" x1="40" x2="70"/></g><g transform="rotate(13)"><line style="--d:-.9s" x1="40" x2="70"/></g><g transform="rotate(26)"><line style="--d:-.4s" x1="40" x2="70"/></g><g transform="rotate(39)"><line style="--d:-1.3s" x1="40" x2="70"/></g><g transform="rotate(52)"><line style="--d:-.7s" x1="40" x2="70"/></g><g transform="rotate(65)"><line style="--d:-.2s" x1="40" x2="70"/></g><g transform="rotate(78)"><line style="--d:-1.1s" x1="40" x2="70"/></g><g transform="rotate(91)"><line style="--d:-.5s" x1="40" x2="70"/></g><g transform="rotate(104)"><line style="--d:-1.5s" x1="40" x2="70"/></g><g transform="rotate(117)"><line style="--d:-.8s" x1="40" x2="70"/></g><g transform="rotate(130)"><line style="--d:-.3s" x1="40" x2="70"/></g><g transform="rotate(143)"><line style="--d:-1.2s" x1="40" x2="70"/></g><g transform="rotate(156)"><line style="--d:-.6s" x1="40" x2="70"/></g><g transform="rotate(169)"><line style="--d:-1.4s" x1="40" x2="70"/></g><g transform="rotate(182)"><line style="--d:-1s" x1="40" x2="70"/></g><g transform="rotate(195)"><line style="--d:-.15s" x1="40" x2="70"/></g><g transform="rotate(208)"><line style="--d:-.95s" x1="40" x2="70"/></g><g transform="rotate(221)"><line style="--d:-.45s" x1="40" x2="70"/></g><g transform="rotate(234)"><line style="--d:-1.35s" x1="40" x2="70"/></g><g transform="rotate(247)"><line style="--d:-.75s" x1="40" x2="70"/></g><g transform="rotate(260)"><line style="--d:-.25s" x1="40" x2="70"/></g><g transform="rotate(273)"><line style="--d:-1.15s" x1="40" x2="70"/></g><g transform="rotate(286)"><line style="--d:-.55s" x1="40" x2="70"/></g><g transform="rotate(299)"><line style="--d:-1.45s" x1="40" x2="70"/></g><g transform="rotate(312)"><line style="--d:-.85s" x1="40" x2="70"/></g><g transform="rotate(325)"><line style="--d:-.35s" x1="40" x2="70"/></g><g transform="rotate(338)"><line style="--d:-1.25s" x1="40" x2="70"/></g><g transform="rotate(351)"><line style="--d:-.65s" x1="40" x2="70"/></g>
+            </g>
+            <circle class="v2-pista" cx="200" cy="190" r="58"/>
+            <circle class="v2-progreso" cx="200" cy="190" r="58" transform="rotate(-90 200 190)"/>
+            <text class="v2-num" x="200" y="198" text-anchor="middle" data-i18n="c.carga">0,8 s</text>
+          </svg>
+        </div>
+        <span class="cap-n mono">02</span>
+        <div class="cap-txt"><h3 data-i18n="c2.h">Desarrollo veloz</h3><p data-i18n="c2.p">Webs ligeras que cargan al instante, incluso con poca cobertura.</p></div>
+      </li>
+      <li class="cap" data-anim>
+        <div class="cap-vis" aria-hidden="true">
+          <svg viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice" class="v3">
+            <g transform="rotate(-12 200 196)">
+              <ellipse class="v3-orbita" cx="200" cy="196" rx="150" ry="50"/>
+            </g>
+            <circle class="v3-planeta" cx="200" cy="196" r="60"/>
+            <g class="v3-tienda">
+              <path d="M170 186 L176 172 H224 L230 186"/>
+              <path d="M170 186 Q176 194 182 186 Q188 194 194 186 Q200 194 206 186 Q212 194 218 186 Q224 194 230 186"/>
+              <path d="M174 190 V218 H226 V190 M193 218 V202 H207 V218"/>
+            </g>
+            <g transform="rotate(-12 200 196)">
+              <g class="v3-item" style="--d:0s"><rect x="-11" y="-8" width="22" height="16" rx="2"/><path d="M-11 -3 H11"/></g>
+              <g class="v3-item" style="--d:-3s"><path d="M-9 -4 H9 L7 10 H-7 Z M-4 -4 V-8 A4 4 0 0 1 4 -8 V-4"/></g>
+              <g class="v3-item" style="--d:-6s"><rect x="-10" y="-9" width="20" height="18" rx="2"/><path d="M-10 -3 H10 M-5 -12 V-6 M5 -12 V-6"/></g>
+            </g>
+            <g class="v3-aviso"><rect x="238" y="78" width="104" height="28" rx="14"/><text x="290" y="97" text-anchor="middle" data-i18n="c.pedido">+1 pedido</text></g>
+          </svg>
+        </div>
+        <span class="cap-n mono">03</span>
+        <div class="cap-txt"><h3 data-i18n="c3.h">Tiendas y reservas online</h3><p data-i18n="c3.p">Catálogo, reservas y pago con tarjeta para vender mientras duermes.</p></div>
+      </li>
+      <li class="cap cap-ancha" data-anim>
+        <div class="cap-vis" aria-hidden="true">
+          <svg viewBox="0 0 600 340" preserveAspectRatio="xMidYMid slice" class="v4">
+            <defs>
+              <linearGradient id="v4barrido" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9cc0ff" stop-opacity="0"/><stop offset="1" stop-color="#9cc0ff" stop-opacity=".38"/></linearGradient>
+            </defs>
+            <g class="v4-radar">
+              <circle cx="300" cy="180" r="40"/><circle cx="300" cy="180" r="80"/><circle cx="300" cy="180" r="120"/><circle cx="300" cy="180" r="160"/>
+              <path d="M140 180 H460 M300 20 V340"/>
+            </g>
+            <g class="v4-barrido"><path d="M300 180 L300 20 A160 160 0 0 1 413 67 Z" fill="url(#v4barrido)"/><path class="v4-filo" d="M300 180 L413 67"/></g>
+            <circle class="v4-blip" style="--d:3.96s" cx="370" cy="100" r="3.5"/>
+            <circle class="v4-blip" style="--d:.68s" cx="420" cy="215" r="3"/>
+            <circle class="v4-blip" style="--d:1.72s" cx="260" cy="290" r="3.5"/>
+            <circle class="v4-blip" style="--d:2.37s" cx="200" cy="200" r="3"/>
+            <circle class="v4-blip" style="--d:3.08s" cx="230" cy="90" r="3"/>
+            <g class="v4-tu" style="--d:3.65s"><circle cx="326" cy="70" r="7"/><circle class="v4-onda" cx="326" cy="70" r="7"/></g>
+            <g class="v4-etiqueta"><path d="M336 62 L362 40 H470"/><text x="370" y="34" data-i18n="c.resultado">Resultado 01</text></g>
+          </svg>
+        </div>
+        <span class="cap-n mono">04</span>
+        <div class="cap-txt"><h3 data-i18n="c4.h">Visibilidad en Google</h3><p data-i18n="c4.p">SEO desde la primera línea de código y ficha de Google optimizada.</p></div>
+      </li>
+      <li class="cap" data-anim>
+        <div class="cap-vis" aria-hidden="true">
+          <svg viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice" class="v5">
+            <g class="v5-globo">
+              <circle cx="200" cy="216" r="78"/>
+              <ellipse cx="200" cy="216" rx="78" ry="26"/>
+              <path d="M122 216 H278"/>
+              <ellipse class="v5-meridiano" style="--d:0s" cx="200" cy="216" rx="78" ry="78"/>
+              <ellipse class="v5-meridiano" style="--d:-2s" cx="200" cy="216" rx="78" ry="78"/>
+              <ellipse class="v5-meridiano" style="--d:-4s" cx="200" cy="216" rx="78" ry="78"/>
+            </g>
+            <g class="v5-casa"><path d="M188 146 L200 136 L212 146 V158 H188 Z"/></g>
+            <g class="v5-ondas"><path style="--d:0s" d="M186 128 A18 18 0 0 1 214 128"/><path style="--d:.6s" d="M186 128 A18 18 0 0 1 214 128"/><path style="--d:1.2s" d="M186 128 A18 18 0 0 1 214 128"/></g>
+            <ellipse class="v5-orbita" cx="200" cy="216" rx="136" ry="136"/>
+            <g class="v5-sat-giro">
+              <g transform="translate(200 80)"><rect x="-7" y="-5" width="14" height="10" rx="1.5"/><rect class="v5-panel" x="-30" y="-4" width="19" height="8"/><rect class="v5-panel" x="11" y="-4" width="19" height="8"/><path d="M-11 0 H-7 M7 0 H11 M0 5 V11"/></g>
+            </g>
+          </svg>
+        </div>
+        <span class="cap-n mono">05</span>
+        <div class="cap-txt"><h3 data-i18n="c5.h">Mantenimiento y soporte</h3><p data-i18n="c5.p">Seguimos en órbita después del lanzamiento: cambios, dudas y mejoras.</p></div>
+      </li>
+      <li class="cap cap-cta">
+        <a href="#contacto" class="cap-cta-link" data-cursor>
+          <span class="cap-k" data-i18n="c6.k">Todo, en casa —</span>
+          <span class="cap-cta-txt" data-magnetic="0.2"><span class="iman-in"><span data-i18n="c6.cta">Despega con nosotros</span> <svg class="flecha" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></span></span>
+        </a>
+      </li>
+    </ul>
   </div>
 </section>
 
-
-<!-- ============ PROYECTOS ============ -->
-<section class="proyectos section-pad" id="proyectos">
-  <div class="wrap">
-    <div class="section-head">
-      <div class="tag mono" data-i18n="nav.proyectos">Proyectos</div>
-      <h2 data-i18n="proy.h2">Algunos de nuestros trabajos</h2>
-      <p data-i18n="proy.p">Estamos empezando, así que esta lista aún es corta — pero crece rápido. Aquí tienes algunos de nuestros proyectos.</p>
+<!-- ============ CÓMO TRABAJAMOS ============ -->
+<section class="metodo" id="metodo">
+  <div class="sec-bar mono">
+    <span data-i18n="met.bar.l">(03 — Cómo trabajamos)</span>
+    <span data-i18n="met.bar.r">Ingeniería, no plantillas</span>
+  </div>
+  <div class="met-grid">
+    <div class="met-copy">
+      <h2 class="display-l" data-reveal="palabras" data-i18n="met.h2">Planos antes que píxeles.</h2>
+      <p class="met-p" data-reveal data-i18n="met.p">Somos ingenieros licenciados y analistas de software. Antes de diseñar nada estudiamos tu negocio, trazamos los planos y elegimos la tecnología adecuada. Así cada web es sólida, rápida y fácil de mantener.</p>
+      <a href="proyectos.html" class="btn-luz" data-magnetic data-cursor><span class="iman-in"><span data-i18n="met.cta">Ver método y proyectos</span><svg class="flecha" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
     </div>
-    <div class="projects-grid" id="portfolioGrid">
-      <div class="project-card">
-        <div class="project-thumb">
-         <img src="img/proyecto-viajes.webp" alt="Captura de la web Viajes pa pobres" width="1000" height="457" loading="lazy" decoding="async">
-        </div>
-        <div class="project-body">
-          <div class="pid mono" data-i18n="proy.id1">PROYECTO — 01</div>
-          <h3>Viajes pa pobres</h3>
-          <p data-i18n="p1.p">Web diseñada para comercio de guías de viajes reales y con mucha alma. Proyecto de guías cortas en la que se cuentan experiencias personales bien detalladas.</p>
-          <div class="chip-row">
-            <span class="chip">HTML/CSS</span><span class="chip">JavaScript</span><span class="chip">Responsive</span>
-          </div>
-          <a class="repo-link" href="https://aocchietti.github.io/TAD/guias.html" target="_blank" rel="noopener">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>
-            <span data-i18n="proy.repo">Ver web</span>
-          </a>
-        </div>
-      </div>
-      <div class="project-card">
-        <div class="project-thumb">
-          <img src="img/proyecto-tinyhouse.webp" alt="Captura de la web Tinyhouse" width="1000" height="457" loading="lazy" decoding="async">
-        </div>
-        <div class="project-body">
-          <div class="pid mono" data-i18n="proy.id2">PROYECTO — 02</div>
-          <h3>Tinyhouse</h3>
-          <p data-i18n="p2.p">Web diseñada para pequeño bed and breakfast en Francia, intentamos sacar todos los puntos fuertes del emplazamiento para darle visibilidad en las redes, seguimos con la ayuda de marketing y publicidad en google.</p>
-          <div class="chip-row">
-            <span class="chip">React</span><span class="chip">Node.js</span><span class="chip">SEO</span>
-          </div>
-          <a class="repo-link" href="https://abelolivalopez-sketch.github.io/WEB-AIRBNB/" target="_blank" rel="noopener">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>
-            <span data-i18n="proy.repo">Ver web</span>
-          </a>
-        </div>
-      </div>
-    </div>
+    <figure class="met-plano" aria-hidden="true">
+      <svg viewBox="0 0 560 400" class="plano" id="plano">
+        <defs><pattern id="planoCuad" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none"/></pattern></defs>
+        <rect class="plano-cuad" width="560" height="400" fill="url(#planoCuad)"/>
+        <g class="plano-dibujo">
+          <rect class="trazo" x="40" y="44" width="380" height="250" rx="4"/>
+          <path class="trazo" d="M40 66H420"/>
+          <path class="trazo" d="M54 55h4M64 55h4M74 55h4"/>
+          <rect class="trazo" x="56" y="80" width="348" height="78"/>
+          <path class="trazo eje" d="M48 119H412"/>
+          <path class="trazo" d="M72 98h120M72 112h84M72 132h44v12H72z"/>
+          <circle class="trazo" cx="340" cy="119" r="24"/>
+          <rect class="trazo" x="56" y="172" width="108" height="104"/>
+          <rect class="trazo" x="176" y="172" width="108" height="104"/>
+          <rect class="trazo" x="296" y="172" width="108" height="104"/>
+          <rect class="trazo" x="456" y="96" width="72" height="140" rx="10"/>
+          <path class="trazo" d="M466 116h52M466 128h40M466 168h52M466 180h30M480 226h24"/>
+          <rect class="trazo" x="466" y="138" width="52" height="22"/>
+          <g class="cota">
+            <path class="trazo" d="M40 30V38M420 30V38M40 34H420"/>
+            <path class="trazo" d="M456 252V260M528 252V260M456 256H528"/>
+            <path class="trazo" d="M340 95 L380 62 H404"/>
+            <path class="trazo" d="M492 96 L520 78 H540"/>
+          </g>
+        </g>
+        <g class="plano-textos">
+          <text x="230" y="26" text-anchor="middle">1440 px</text>
+          <text x="492" y="274" text-anchor="middle">390 px</text>
+          <text x="406" y="58" data-i18n="pl.carga">Carga ≤ 2 s</text>
+          <text x="470" y="74" data-i18n="pl.movil">100 % móvil</text>
+        </g>
+        <g class="plano-cajetin">
+          <rect class="trazo" x="252" y="306" width="276" height="78"/>
+          <path class="trazo" d="M252 326H528M252 346H528M252 366H528M412 346V366"/>
+          <text x="262" y="320" class="cj-marca">A2WD</text>
+          <text x="262" y="340" data-i18n="pl.titulo">Plano 01 · Web de comercio</text>
+          <text x="262" y="360" data-i18n="pl.escala">Escala 1:1</text>
+          <text x="422" y="360">Rev. 03</text>
+          <text x="262" y="379" class="cj-firma" data-i18n="pl.dibujo">Dibujó: A. Oliva · A. Occhietti</text>
+        </g>
+      </svg>
+    </figure>
+  </div>
+  <ul class="met-principios" data-reveal="escalonado">
+    <li><span class="pr-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></span><h3 data-i18n="pr1.h">Ingeniería de base</h3><p data-i18n="pr1.p">Licenciados en ingeniería mecánica e informática. Pensamos cada web como un sistema que tiene que funcionar.</p></li>
+    <li><span class="pr-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 20h18M6 16V9M11 16V5M16 16v-5M21 16V8"/></svg></span><h3 data-i18n="pr2.h">Análisis de software</h3><p data-i18n="pr2.p">Estudiamos procesos y requisitos antes de escribir una sola línea de código.</p></li>
+    <li><span class="pr-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m8 7-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg></span><h3 data-i18n="pr3.h">Tecnología profesional</h3><p data-i18n="pr3.p">Frameworks y herramientas actuales, código estructurado y documentado. Nada de plantillas.</p></li>
+    <li><span class="pr-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="6"/><path d="m9 14-2 8 5-3 5 3-2-8"/></svg></span><h3 data-i18n="pr4.h">Formación certificada</h3><p data-i18n="pr4.p">Certificaciones en desarrollo y análisis de software, y formación continua para estar al día.</p></li>
+  </ul>
+  <div class="met-tec" data-reveal>
+    <span class="met-tec-t mono" data-i18n="met.tec">Con qué construimos</span>
+    <ul class="met-chips mono"><li>HTML5</li><li>CSS</li><li>JavaScript</li><li>React</li><li>Node.js</li><li>Supabase</li><li>Three.js</li><li>GSAP</li><li>SEO</li></ul>
   </div>
 </section>
 
 <!-- ============ NOSOTROS ============ -->
-<section class="nosotros section-pad" id="nosotros">
-  <div class="wrap">
-    <div class="section-head">
-      <div class="tag mono" data-i18n="nav.nosotros">Nosotros</div>
-      <h2 data-i18n="nos.h2">Dos ingenieros con ganas de construir</h2>
-      <p data-i18n="nos.p">Nos conocemos bien y trabajamos igual de bien juntos: uno piensa en estructura y mecanismos, el otro en lógica y código. El resultado son webs sólidas por dentro y por fuera.</p>
+<section class="nosotros" id="nosotros">
+  <div class="sec-bar mono">
+    <span data-i18n="nos.bar.l">(04 — Nosotros)</span>
+    <span data-i18n="nos.bar.r">Dos ingenieros, un mismo rumbo</span>
+  </div>
+  <div class="nos-head">
+    <h2 class="display-l" data-reveal="palabras" data-i18n="nos.h2">Dos ingenieros con ganas de construir</h2>
+    <p data-reveal data-i18n="nos.p">Nos conocemos bien y trabajamos igual de bien juntos: uno piensa en estructura y mecanismos, el otro en lógica y código. El resultado son webs sólidas por dentro y por fuera. De esa curiosidad nació A2WD: un estudio pequeño que combina estructura, lógica y ganas de construir para ayudar a negocios locales a tener una web tan cuidada como su producto.</p>
+  </div>
+  <div class="tripulacion" id="tripulacion" data-activo="abel">
+    <div class="trip-fila" data-anim>
+      <svg class="trip-orbitas" viewBox="0 0 1000 420" aria-hidden="true">
+        <ellipse class="to-anillo to-a1" cx="500" cy="210" rx="480" ry="176"/>
+        <ellipse class="to-anillo to-a2" cx="500" cy="210" rx="372" ry="132"/>
+        <path class="to-eje" d="M20 210H980"/>
+        <circle class="to-sat to-s1" r="3.2"/>
+        <circle class="to-sat to-s2" r="2.4"/>
+        <path class="to-cruz" d="M40 40h16M48 32v16M944 40h16M952 32v16M40 380h16M48 372v16M944 380h16M952 372v16"/>
+      </svg>
+      <div class="trip-dato trip-dato-izq" aria-hidden="true">
+        <span class="td-k" data-i18n="nos.trip1">Tripulante 01</span>
+        <span class="td-fila"><span data-i18n="nos.d1a">Estructura</span><span class="td-barras"><i></i><i></i><i></i><i></i><i></i><i></i></span></span>
+        <span class="td-fila"><span data-i18n="nos.d1b">Mecanismos</span><span class="td-barras"><i></i><i></i><i></i><i></i><i></i><i></i></span></span>
+        <span class="td-guia"></span>
+      </div>
+      <button type="button" class="trip-card activa" data-persona="abel" aria-pressed="true" aria-controls="tripPanel">
+        <span class="trip-foto"><img src="img/abel.webp" width="600" height="600" loading="lazy" decoding="async" alt="Retrato en blanco y negro de Abel Oliva, cofundador de A2WD"></span>
+        <span class="trip-halo" aria-hidden="true"></span>
+        <span class="trip-nombre">Abel</span>
+        <span class="trip-datos" hidden><span class="d-nombre">Abel Oliva</span><span class="d-rol" data-i18n="abel.role">INGENIERÍA MECÁNICA</span><span class="d-bio" data-i18n="abel.bio">Cofundador de A2WD. Aporta la mirada de quien piensa en estructura y funcionamiento, aplicada ahora a interfaces y experiencia de usuario.</span></span>
+      </button>
+      <div class="trip-infinito" aria-hidden="true">
+        <svg viewBox="0 0 100 60"><path class="inf-trazo" d="M50,30 C50,19 41,10 30,10 C19,10 10,19 10,30 C10,41 19,50 30,50 C41,50 50,41 50,30 C50,19 59,10 70,10 C81,10 90,19 90,30 C90,41 81,50 70,50 C59,50 50,41 50,30 Z"/><circle class="inf-punto" r="2.6"/></svg>
+      </div>
+      <button type="button" class="trip-card" data-persona="ariel" aria-pressed="false" aria-controls="tripPanel">
+        <span class="trip-foto"><img src="img/ariel.webp" width="600" height="600" loading="lazy" decoding="async" alt="Retrato en blanco y negro de Ariel Occhietti, cofundador de A2WD"></span>
+        <span class="trip-halo" aria-hidden="true"></span>
+        <span class="trip-nombre">Ariel</span>
+        <span class="trip-datos" hidden><span class="d-nombre">Ariel Occhietti</span><span class="d-rol" data-i18n="ariel.role">INGENIERÍA INFORMÁTICA</span><span class="d-bio" data-i18n="ariel.bio">Cofundador de A2WD. Le apasiona programar y entender cómo hacer que una web sea rápida, clara y fácil de usar de principio a fin.</span></span>
+      </button>
+      <div class="trip-dato trip-dato-der" aria-hidden="true">
+        <span class="td-k" data-i18n="nos.trip2">Tripulante 02</span>
+        <span class="td-fila"><span data-i18n="nos.d2a">Lógica</span><span class="td-barras"><i></i><i></i><i></i><i></i><i></i><i></i></span></span>
+        <span class="td-fila"><span data-i18n="nos.d2b">Código</span><span class="td-barras"><i></i><i></i><i></i><i></i><i></i><i></i></span></span>
+        <span class="td-guia"></span>
+      </div>
     </div>
-    <div class="founders">
-      <div class="founder">
-        <img src="img/abel.webp" width="600" height="600" loading="lazy" decoding="async" alt="Retrato en blanco y negro de Abel Oliva, cofundador de A2WD">
-        <div>
-          <div class="role mono" data-i18n="abel.role">INGENIERÍA MECÁNICA</div>
-          <h3>Abel Oliva</h3>
-          <p class="bio" data-i18n="abel.bio">Cofundador de A2WD. Aporta la mirada de quien piensa en estructura y funcionamiento, aplicada ahora a interfaces y experiencia de usuario.</p>
-        </div>
-      </div>
-      <div class="founder-divider">
-        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <path d="M50,50 C50,35 38,22 24,22 C11,22 2,33 2,47 C2,61 11,72 24,72 C38,72 50,59 50,50 C50,35 62,22 76,22 C89,22 98,33 98,47 C98,61 89,72 76,72 C62,72 50,59 50,50 Z"
-            stroke="currentColor" stroke-width="5" fill="none"/>
-        </svg>
-      </div>
-      <div class="founder">
-        <img src="img/ariel.webp" width="600" height="600" loading="lazy" decoding="async" alt="Retrato en blanco y negro de Ariel Occhietti, cofundador de A2WD">
-        <div>
-          <div class="role mono" data-i18n="ariel.role">INGENIERÍA INFORMÁTICA</div>
-          <h3>Ariel Occhietti</h3>
-          <p class="bio" data-i18n="ariel.bio">Cofundador de A2WD. Le apasiona programar y entender cómo hacer que una web sea rápida, clara y fácil de usar de principio a fin.</p>
-        </div>
-      </div>
+    <div class="trip-linea" aria-hidden="true"><i class="trip-punto p-abel activo"></i><i class="trip-punto p-centro"></i><i class="trip-punto p-ariel"></i></div>
+    <div class="trip-panel" id="tripPanel" aria-live="polite">
+      <div class="trip-panel-id"><span class="trip-marca" aria-hidden="true"></span><h3 id="tripNombre">Abel Oliva</h3><span class="trip-rol mono" id="tripRol">INGENIERÍA MECÁNICA</span></div>
+      <p id="tripBio">Cofundador de A2WD. Aporta la mirada de quien piensa en estructura y funcionamiento, aplicada ahora a interfaces y experiencia de usuario.</p>
     </div>
+    <p class="trip-pista mono" data-i18n="nos.pista">Pasa el ratón o toca una tarjeta</p>
   </div>
 </section>
 
 <!-- ============ CONTACTO ============ -->
-<section class="contacto section-pad" id="contacto">
+<section class="contacto" id="contacto">
+  <div class="sec-bar mono">
+    <span data-i18n="cont.bar.l">(05 — Contacto)</span>
+    <span data-i18n="cont.bar.r">Houston, tenemos un proyecto</span>
+  </div>
   <div class="wrap">
     <div class="section-head">
-      <div class="tag mono" data-i18n="nav.contacto">Contacto</div>
-      <h2 data-i18n="cont.h2">Hablemos de tu proyecto</h2>
+      <h2 class="display-l" data-reveal="palabras" data-i18n="cont.h2">Hablemos de tu proyecto</h2>
       <p data-i18n="cont.p">Cuéntanos qué necesitas y te contestamos lo antes posible, o escríbenos directamente por WhatsApp o correo.</p>
     </div>
-    <div class="contact-grid">
+    <div class="contact-grid" data-reveal>
       <form class="contact-form" id="contactForm">
         <div class="field">
           <label for="cf-name" data-i18n="f.nombre">Nombre</label>
@@ -334,6 +515,8 @@
   </div>
 </section>
 
+</main>
+
 <!-- ============ FOOTER ============ -->
 <footer>
   <div class="wrap footer-top-line">
@@ -344,7 +527,8 @@
       </div>
       <div class="footer-links">
         <a href="#servicios" data-i18n="nav.servicios">Servicios</a>
-          <a href="#proyectos" data-i18n="nav.proyectos">Proyectos</a>
+        <a href="#metodo" data-i18n="nav.metodo">Método</a>
+        <a href="proyectos.html" data-i18n="nav.proyectos">Proyectos</a>
         <a href="#nosotros" data-i18n="nav.nosotros">Nosotros</a>
         <a href="#contacto" data-i18n="nav.contacto">Contacto</a>
         <a href="#" data-instalar data-i18n="nav.app">Añadir a mi móvil</a>
@@ -359,39 +543,7 @@
   </div>
 </footer>
 
-<script>
-/* ======== IDIOMAS: ES / FR / IT / EN ======== */
-(function(){
-  var I18N = {"es": {"meta.title": "A2WD — Diseño web para comercios", "nav.inicio": "Inicio", "nav.servicios": "Servicios", "nav.proyectos": "Proyectos", "nav.nosotros": "Nosotros", "nav.contacto": "Contacto", "nav.acceso": "Acceso clientes", "nav.app": "Añadir a mi móvil", "nav.cta": "Hablemos", "nav.menu": "Abrir menú", "hero.title": "Tu negocio, conectado.<br>Sin principio ni final.", "hero.lead": "Diseñamos y construimos páginas web para comercios y negocios locales: rápidas, claras y pensadas para que vendan también cuando la persiana está bajada.", "hero.ver": "Ver proyectos", "hero.escribe": "Escríbenos", "hero.foot": "A2WD — Estudio de diseño y desarrollo web · Fundado por Abel Oliva &amp; Ariel Occhietti", "man.mark": "A2WD<br>A·al·cuadrado<br>Web&nbsp;Designers", "man.p1": "Somos Abel y Ariel. Estudiamos ingeniería —informática y mecánica— y en algún punto entre planos técnicos y líneas de código descubrimos lo mismo: nos gusta trastear, entender cómo funcionan las cosas y construirlas con nuestras manos.", "man.p2": "De esa curiosidad nació A2WD, un estudio pequeño con ganas grandes. Ayudamos a comercios y negocios locales a tener una página web tan cuidada como su producto, porque hoy una buena web vende tanto —o más— que el propio local.", "man.firma": "— Abel &amp; Ariel, fundadores de A2WD", "serv.h2": "Todo lo que necesita tu negocio para tener presencia en internet", "serv.p": "Nos encargamos de diseñar, construir y dejar lista tu web, sin complicaciones y hablando en tu idioma, no en el nuestro.", "s1.h": "Diseño a medida", "s1.p": "Cada comercio es distinto, así que su web también lo es. Sin plantillas genéricas ni relleno.", "s2.h": "Desarrollo rápido", "s2.p": "Webs ligeras que cargan al instante, para que nadie se vaya antes de ver lo que ofreces.", "s3.h": "Presencia conectada", "s3.p": "Tu tienda física y tu web trabajando como un mismo negocio, sin fisuras entre una y otra.", "s4.h": "Acompañamiento", "s4.p": "Seguimos ahí después de publicar: ajustes, dudas y mejoras a medida que tu negocio crece.", "proy.h2": "Algunos de nuestros trabajos", "proy.p": "Estamos empezando, así que esta lista aún es corta — pero crece rápido. Aquí tienes algunos de nuestros proyectos.", "proy.id1": "PROYECTO — 01", "proy.id2": "PROYECTO — 02", "p1.p": "Web diseñada para comercio de guías de viajes reales y con mucha alma. Proyecto de guías cortas en la que se cuentan experiencias personales bien detalladas.", "p2.p": "Web diseñada para pequeño bed and breakfast en Francia, intentamos sacar todos los puntos fuertes del emplazamiento para darle visibilidad en las redes, seguimos con la ayuda de marketing y publicidad en google.", "proy.repo": "Ver web", "nos.h2": "Dos ingenieros con ganas de construir", "nos.p": "Nos conocemos bien y trabajamos igual de bien juntos: uno piensa en estructura y mecanismos, el otro en lógica y código. El resultado son webs sólidas por dentro y por fuera.", "abel.role": "INGENIERÍA MECÁNICA", "abel.bio": "Cofundador de A2WD. Aporta la mirada de quien piensa en estructura y funcionamiento, aplicada ahora a interfaces y experiencia de usuario.", "ariel.role": "INGENIERÍA INFORMÁTICA", "ariel.bio": "Cofundador de A2WD. Le apasiona programar y entender cómo hacer que una web sea rápida, clara y fácil de usar de principio a fin.", "cont.h2": "Hablemos de tu proyecto", "cont.p": "Cuéntanos qué necesitas y te contestamos lo antes posible, o escríbenos directamente por WhatsApp o correo.", "f.nombre": "Nombre", "f.email": "Correo electrónico", "f.asunto": "Asunto", "f.asunto.ph": "Ej. Quiero una web para mi negocio", "f.mensaje": "Mensaje", "f.enviar": "Enviar mensaje", "f.status": "Se abrirá tu gestor de correo con el mensaje ya redactado.", "f.abriendo": "Abriendo tu gestor de correo…", "f.asunto.def": "Contacto desde la web A2WD", "ct.correo": "CORREO", "footer.tag": "A2WD — Todo conectado: negocio, web y clientes.", "legal.aviso": "Aviso legal", "legal.priv": "Privacidad", "legal.cookies": "Cookies", "f.legal": "Usamos tus datos solo para responderte. Más información en nuestra <a href=\"legal.html#privacidad\">política de privacidad</a>."}, "fr": {"meta.title": "A2WD — Création de sites web pour commerces", "nav.inicio": "Accueil", "nav.servicios": "Services", "nav.proyectos": "Projets", "nav.nosotros": "À propos", "nav.contacto": "Contact", "nav.acceso": "Espace client", "nav.app": "Ajouter à mon téléphone", "nav.cta": "Parlons-en", "nav.menu": "Ouvrir le menu", "hero.title": "Votre commerce, connecté.<br>Sans début ni fin.", "hero.lead": "Nous concevons et développons des sites web pour les commerces et entreprises locales : rapides, clairs et pensés pour vendre même quand le rideau est baissé.", "hero.ver": "Voir les projets", "hero.escribe": "Écrivez-nous", "hero.foot": "A2WD — Studio de design et de développement web · Fondé par Abel Oliva &amp; Ariel Occhietti", "man.mark": "A2WD<br>A·au·carré<br>Web&nbsp;Designers", "man.p1": "Nous sommes Abel et Ariel. Nous avons étudié l'ingénierie — informatique et mécanique — et, quelque part entre les plans techniques et les lignes de code, nous avons découvert la même chose : nous aimons bricoler, comprendre comment les choses fonctionnent et les construire de nos propres mains.", "man.p2": "De cette curiosité est né A2WD, un petit studio aux grandes ambitions. Nous aidons les commerces et entreprises locales à avoir un site aussi soigné que leur produit, car aujourd'hui un bon site vend autant — voire plus — que la boutique elle-même.", "man.firma": "— Abel &amp; Ariel, fondateurs d'A2WD", "serv.h2": "Tout ce dont votre commerce a besoin pour être présent sur internet", "serv.p": "Nous nous occupons de concevoir, construire et mettre en ligne votre site, sans complications et en parlant votre langue, pas la nôtre.", "s1.h": "Design sur mesure", "s1.p": "Chaque commerce est unique, son site l'est aussi. Pas de modèles génériques ni de remplissage.", "s2.h": "Développement rapide", "s2.p": "Des sites légers qui se chargent instantanément, pour que personne ne parte avant d'avoir vu ce que vous proposez.", "s3.h": "Présence connectée", "s3.p": "Votre boutique physique et votre site fonctionnent comme une seule et même entreprise, sans rupture entre les deux.", "s4.h": "Accompagnement", "s4.p": "Nous restons là après la mise en ligne : ajustements, questions et améliorations au fil de la croissance de votre commerce.", "proy.h2": "Quelques-unes de nos réalisations", "proy.p": "Nous débutons, donc cette liste est encore courte — mais elle s'allonge vite. Voici quelques-uns de nos projets.", "proy.id1": "PROJET — 01", "proy.id2": "PROJET — 02", "p1.p": "Site conçu pour un commerce de guides de voyage authentiques et pleins d'âme. Un projet de guides courts qui racontent des expériences personnelles très détaillées.", "p2.p": "Site conçu pour un petit bed and breakfast en France. Nous avons mis en valeur tous les atouts du lieu pour lui donner de la visibilité sur les réseaux, et nous poursuivons avec du marketing et de la publicité sur Google.", "proy.repo": "Voir le site", "nos.h2": "Deux ingénieurs qui ont envie de construire", "nos.p": "Nous nous connaissons bien et travaillons tout aussi bien ensemble : l'un pense structure et mécanismes, l'autre logique et code. Le résultat : des sites solides, à l'intérieur comme à l'extérieur.", "abel.role": "INGÉNIERIE MÉCANIQUE", "abel.bio": "Cofondateur d'A2WD. Il apporte le regard de celui qui pense structure et fonctionnement, appliqué désormais aux interfaces et à l'expérience utilisateur.", "ariel.role": "INGÉNIERIE INFORMATIQUE", "ariel.bio": "Cofondateur d'A2WD. Passionné de programmation, il aime comprendre comment rendre un site rapide, clair et facile à utiliser du début à la fin.", "cont.h2": "Parlons de votre projet", "cont.p": "Dites-nous ce dont vous avez besoin et nous vous répondrons au plus vite, ou écrivez-nous directement par WhatsApp ou par e-mail.", "f.nombre": "Nom", "f.email": "E-mail", "f.asunto": "Objet", "f.asunto.ph": "Ex. : Je veux un site pour mon commerce", "f.mensaje": "Message", "f.enviar": "Envoyer le message", "f.status": "Votre messagerie s'ouvrira avec le message déjà rédigé.", "f.abriendo": "Ouverture de votre messagerie…", "f.asunto.def": "Contact depuis le site A2WD", "ct.correo": "E-MAIL", "footer.tag": "A2WD — Tout connecté : commerce, site et clients.", "legal.aviso": "Mentions légales", "legal.priv": "Confidentialité", "legal.cookies": "Cookies", "f.legal": "Nous utilisons vos données uniquement pour vous répondre. Plus d’informations dans notre <a href=\"legal.html?lang=fr#fr-confidentialite\">politique de confidentialité</a>."}, "it": {"meta.title": "A2WD — Web design per negozi e attività", "nav.inicio": "Home", "nav.servicios": "Servizi", "nav.proyectos": "Progetti", "nav.nosotros": "Chi siamo", "nav.contacto": "Contatti", "nav.acceso": "Area clienti", "nav.app": "Aggiungi al telefono", "nav.cta": "Parliamone", "nav.menu": "Apri il menu", "hero.title": "La tua attività, connessa.<br>Senza inizio né fine.", "hero.lead": "Progettiamo e realizziamo siti web per negozi e attività locali: veloci, chiari e pensati per vendere anche quando la saracinesca è abbassata.", "hero.ver": "Vedi i progetti", "hero.escribe": "Scrivici", "hero.foot": "A2WD — Studio di design e sviluppo web · Fondato da Abel Oliva &amp; Ariel Occhietti", "man.mark": "A2WD<br>A·al·quadrato<br>Web&nbsp;Designers", "man.p1": "Siamo Abel e Ariel. Abbiamo studiato ingegneria — informatica e meccanica — e, da qualche parte tra disegni tecnici e righe di codice, abbiamo scoperto la stessa cosa: ci piace smanettare, capire come funzionano le cose e costruirle con le nostre mani.", "man.p2": "Da questa curiosità è nato A2WD, uno studio piccolo con grandi ambizioni. Aiutiamo negozi e attività locali ad avere un sito curato quanto il loro prodotto, perché oggi un buon sito vende tanto — se non di più — del negozio stesso.", "man.firma": "— Abel &amp; Ariel, fondatori di A2WD", "serv.h2": "Tutto ciò che serve alla tua attività per essere presente online", "serv.p": "Ci occupiamo di progettare, costruire e lasciare pronto il tuo sito, senza complicazioni e parlando la tua lingua, non la nostra.", "s1.h": "Design su misura", "s1.p": "Ogni attività è diversa, quindi anche il suo sito lo è. Niente modelli generici né riempitivi.", "s2.h": "Sviluppo rapido", "s2.p": "Siti leggeri che si caricano all'istante, così nessuno se ne va prima di vedere cosa offri.", "s3.h": "Presenza connessa", "s3.p": "Il tuo negozio fisico e il tuo sito lavorano come un'unica attività, senza fratture tra l'uno e l'altro.", "s4.h": "Assistenza continua", "s4.p": "Restiamo al tuo fianco anche dopo la pubblicazione: modifiche, dubbi e miglioramenti man mano che la tua attività cresce.", "proy.h2": "Alcuni dei nostri lavori", "proy.p": "Siamo agli inizi, quindi questa lista è ancora breve — ma cresce in fretta. Ecco alcuni dei nostri progetti.", "proy.id1": "PROGETTO — 01", "proy.id2": "PROGETTO — 02", "p1.p": "Sito pensato per un'attività di guide di viaggio autentiche e piene di anima. Un progetto di guide brevi che raccontano esperienze personali molto dettagliate.", "p2.p": "Sito pensato per un piccolo bed and breakfast in Francia: abbiamo valorizzato tutti i punti di forza della struttura per darle visibilità sui social, e proseguiamo con marketing e pubblicità su Google.", "proy.repo": "Vedi il sito", "nos.h2": "Due ingegneri con la voglia di costruire", "nos.p": "Ci conosciamo bene e lavoriamo altrettanto bene insieme: uno pensa a struttura e meccanismi, l'altro a logica e codice. Il risultato sono siti solidi dentro e fuori.", "abel.role": "INGEGNERIA MECCANICA", "abel.bio": "Cofondatore di A2WD. Porta lo sguardo di chi pensa a struttura e funzionamento, applicato ora a interfacce ed esperienza utente.", "ariel.role": "INGEGNERIA INFORMATICA", "ariel.bio": "Cofondatore di A2WD. Appassionato di programmazione, ama capire come rendere un sito veloce, chiaro e facile da usare dall'inizio alla fine.", "cont.h2": "Parliamo del tuo progetto", "cont.p": "Raccontaci di cosa hai bisogno e ti risponderemo il prima possibile, oppure scrivici direttamente su WhatsApp o via email.", "f.nombre": "Nome", "f.email": "Email", "f.asunto": "Oggetto", "f.asunto.ph": "Es. Voglio un sito per la mia attività", "f.mensaje": "Messaggio", "f.enviar": "Invia messaggio", "f.status": "Si aprirà il tuo programma di posta con il messaggio già scritto.", "f.abriendo": "Apertura del programma di posta…", "f.asunto.def": "Contatto dal sito A2WD", "ct.correo": "EMAIL", "footer.tag": "A2WD — Tutto connesso: attività, sito e clienti.", "legal.aviso": "Note legali", "legal.priv": "Privacy", "legal.cookies": "Cookie", "f.legal": "Usiamo i tuoi dati solo per risponderti. Maggiori informazioni nella nostra <a href=\"legal.html#privacidad\">informativa sulla privacy</a> (in spagnolo e francese)."}, "en": {"meta.title": "A2WD — Web design for local businesses", "nav.inicio": "Home", "nav.servicios": "Services", "nav.proyectos": "Projects", "nav.nosotros": "About us", "nav.contacto": "Contact", "nav.acceso": "Client area", "nav.app": "Add to my phone", "nav.cta": "Let's talk", "nav.menu": "Open menu", "hero.title": "Your business, connected.<br>No beginning, no end.", "hero.lead": "We design and build websites for shops and local businesses: fast, clear and made to keep selling even when the shutters are down.", "hero.ver": "See projects", "hero.escribe": "Write to us", "hero.foot": "A2WD — Web design and development studio · Founded by Abel Oliva &amp; Ariel Occhietti", "man.mark": "A2WD<br>A·squared<br>Web&nbsp;Designers", "man.p1": "We're Abel and Ariel. We studied engineering — computer science and mechanical — and somewhere between technical drawings and lines of code we discovered the same thing: we love tinkering, understanding how things work and building them with our own hands.", "man.p2": "That curiosity gave birth to A2WD, a small studio with big ambitions. We help shops and local businesses get a website as polished as their product, because today a good website sells as much as — or more than — the shop itself.", "man.firma": "— Abel &amp; Ariel, founders of A2WD", "serv.h2": "Everything your business needs to have a presence online", "serv.p": "We design, build and launch your website, hassle-free and speaking your language, not ours.", "s1.h": "Custom design", "s1.p": "Every business is different, so its website is too. No generic templates, no filler.", "s2.h": "Fast development", "s2.p": "Lightweight sites that load instantly, so nobody leaves before seeing what you offer.", "s3.h": "Connected presence", "s3.p": "Your physical shop and your website working as one business, seamlessly.", "s4.h": "Ongoing support", "s4.p": "We stay with you after launch: tweaks, questions and improvements as your business grows.", "proy.h2": "Some of our work", "proy.p": "We're just getting started, so this list is still short — but it's growing fast. Here are some of our projects.", "proy.id1": "PROJECT — 01", "proy.id2": "PROJECT — 02", "p1.p": "Website designed for a business selling real travel guides with plenty of soul. A project of short guides telling detailed personal experiences.", "p2.p": "Website designed for a small bed and breakfast in France. We highlighted all the strengths of the location to give it visibility on social media, and we keep supporting it with marketing and Google ads.", "proy.repo": "View website", "nos.h2": "Two engineers eager to build", "nos.p": "We know each other well and work just as well together: one thinks in structures and mechanisms, the other in logic and code. The result is websites that are solid inside and out.", "abel.role": "MECHANICAL ENGINEERING", "abel.bio": "Co-founder of A2WD. He brings the eye of someone who thinks about structure and how things work, now applied to interfaces and user experience.", "ariel.role": "COMPUTER ENGINEERING", "ariel.bio": "Co-founder of A2WD. He loves programming and figuring out how to make a website fast, clear and easy to use from start to finish.", "cont.h2": "Let's talk about your project", "cont.p": "Tell us what you need and we'll get back to you as soon as possible, or message us directly on WhatsApp or by email.", "f.nombre": "Name", "f.email": "Email", "f.asunto": "Subject", "f.asunto.ph": "E.g. I want a website for my business", "f.mensaje": "Message", "f.enviar": "Send message", "f.status": "Your email app will open with the message ready to send.", "f.abriendo": "Opening your email app…", "f.asunto.def": "Contact from the A2WD website", "ct.correo": "EMAIL", "footer.tag": "A2WD — Everything connected: business, website and customers.", "legal.aviso": "Legal notice", "legal.priv": "Privacy", "legal.cookies": "Cookies", "f.legal": "We only use your data to reply to you. More in our <a href=\"legal.html#privacidad\">privacy policy</a> (in Spanish and French)."}};
-  var IDIOMAS = ['es','fr','it','en'];
-  var actual = 'es';
-  function elegirInicial(){
-    var q = new URLSearchParams(location.search).get('lang');
-    if (IDIOMAS.indexOf(q) > -1) return q;
-    try { var g = localStorage.getItem('a2wd_lang'); if (IDIOMAS.indexOf(g) > -1) return g; } catch(e){}
-    var nav = (navigator.languages || [navigator.language || 'es']);
-    for (var i = 0; i < nav.length; i++){ var c = String(nav[i]).slice(0,2).toLowerCase(); if (IDIOMAS.indexOf(c) > -1) return c; }
-    return 'es';
-  }
-  window.A2WD_t = function(k){ return (I18N[actual] && I18N[actual][k]) || I18N.es[k] || k; };
-  window.A2WD_setLang = function(lang){
-    if (IDIOMAS.indexOf(lang) < 0) lang = 'es';
-    actual = lang;
-    var d = I18N[lang];
-    document.documentElement.lang = lang;
-    document.querySelectorAll('[data-i18n]').forEach(function(el){ var v = d[el.getAttribute('data-i18n')]; if (v != null) el.innerHTML = v; });
-    document.querySelectorAll('[data-i18n-ph]').forEach(function(el){ el.placeholder = d[el.getAttribute('data-i18n-ph')]; });
-    document.querySelectorAll('[data-i18n-aria]').forEach(function(el){ el.setAttribute('aria-label', d[el.getAttribute('data-i18n-aria')]); });
-    document.querySelectorAll('#langSwitch button').forEach(function(b){ var on = b.getAttribute('data-lang') === lang; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
-    try { localStorage.setItem('a2wd_lang', lang); } catch(e){}
-    document.dispatchEvent(new CustomEvent('a2wd:idioma', { detail: lang }));
-  };
-  document.querySelectorAll('#langSwitch button').forEach(function(b){
-    b.addEventListener('click', function(){ window.A2WD_setLang(b.getAttribute('data-lang')); });
-  });
-  window.A2WD_setLang(elegirInicial());
-})();
-</script>
+<script src="assets/js/idiomas.js"></script>
 <script>
 (function(){
   // La librería 3D (~600 KB) se carga en segundo plano, sin frenar la web.
@@ -579,20 +731,24 @@ window.A2WD_mobius = function(){
   burger.addEventListener('click', function(){
     var abierto = mobileMenu.classList.toggle('open');
     burger.setAttribute('aria-expanded', abierto ? 'true' : 'false');
+    var lenis = window.A2WD_fx && window.A2WD_fx.lenis;
+    if (lenis) { abierto ? lenis.stop() : lenis.start(); }
   });
   mobileMenu.querySelectorAll('a').forEach(function(a){
-    a.addEventListener('click', function(){ mobileMenu.classList.remove('open'); burger.setAttribute('aria-expanded', 'false'); });
+    a.addEventListener('click', function(){ mobileMenu.classList.remove('open'); burger.setAttribute('aria-expanded', 'false'); var lenis = window.A2WD_fx && window.A2WD_fx.lenis; if (lenis) lenis.start(); });
   });
 
-  // Scrollspy simple para resaltar el enlace activo
-  const sections = ['inicio','servicios','proyectos','nosotros','contacto'].map(id => document.getElementById(id));
-  const navLinks = Array.from(document.querySelectorAll('#deskLinks a'));
+  // Scrollspy: resalta en la barra la sección visible
+  const sections = ['inicio','servicios','metodo','nosotros','contacto'].map(id => document.getElementById(id));
+  const navLinks = Array.from(document.querySelectorAll('#deskLinks a[data-nav]'));
   function onScroll(){
     let current = sections[0];
-    const y = window.scrollY + 120;
-    sections.forEach(function(sec){ if(sec && sec.offsetTop <= y) current = sec; });
+    const y = window.scrollY + window.innerHeight * 0.35;
+    sections.forEach(function(sec){ if(sec && sec.getBoundingClientRect().top + window.scrollY <= y) current = sec; });
     navLinks.forEach(function(a){
-      a.classList.toggle('active', current && a.getAttribute('href') === '#' + current.id);
+      var on = !!current && a.getAttribute('data-nav') === current.id;
+      a.classList.toggle('active', on);
+      if (on) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current');
     });
   }
   window.addEventListener('scroll', onScroll, {passive:true});
@@ -623,7 +779,7 @@ window.A2WD_mobius = function(){
 <button class="rod-fab" id="rodFab" type="button" aria-controls="rodPanel" aria-expanded="false">✦ <span>Rodolfo</span></button>
 <div class="rod-panel" id="rodPanel" role="dialog" aria-label="Rodolfo" hidden>
   <div class="rod-cab"><div><strong>✦ Rodolfo</strong><p id="rodSub"></p></div><button class="rod-x" id="rodX" type="button" aria-label="Cerrar">×</button></div>
-  <div class="rod-msgs" id="rodMsgs" aria-live="polite"></div>
+  <div class="rod-msgs" id="rodMsgs" aria-live="polite" data-lenis-prevent></div>
   <div class="rod-sug" id="rodSug"></div>
   <form class="rod-form" id="rodForm"><input id="rodInput" type="text" maxlength="500" autocomplete="off" required><button type="submit" id="rodEnviar"></button></form>
   <p class="rod-aviso" id="rodAviso"></p>
@@ -720,46 +876,6 @@ window.A2WD_mobius = function(){
 })();
 </script>
 <script src="instalar.js"></script>
-<script>
-/* =====================================================================
-   Portafolio: los proyectos se gestionan desde el panel de creadores
-   (pestaña «🌐 Web») y se leen de Supabase. Si no hay conexión con la
-   base de datos, se quedan los proyectos escritos en la página.
-   ===================================================================== */
-(function(){
-  var API = 'https://vsqxcxmsvsektvsceqpx.supabase.co/rest/v1/portfolio?select=titulo,descripcion,url,imagen,etiquetas&publicado=eq.true&order=orden.asc,created_at.desc';
-  var CLAVE = 'sb_publishable_W0nqmsiA9O9H3mgBxpQlNQ_UBlMH_kk';
-  var grid = document.getElementById('portfolioGrid'); if (!grid) return;
-  var datos = null;
-  function e(x){ return String(x == null ? '' : x).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
-  function seguro(u){ try { var x = new URL(u, location.href); return /^https?:$/.test(x.protocol) ? x.href : ''; } catch(_) { return ''; } }
-  var ICONO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>';
-  function pintar(){
-    if (!datos || !datos.length) return;
-    var lang = document.documentElement.lang || 'es';
-    var t = window.A2WD_t || function(k){ return k; };
-    var etiqueta = t('proy.id1');                         // «PROYECTO — 01» en el idioma actual
-    grid.innerHTML = datos.map(function(p, i){
-      var n = (i + 1 < 10 ? '0' : '') + (i + 1);
-      var desc = (p.descripcion && (p.descripcion[lang] || p.descripcion.es)) || '';
-      var img = p.imagen ? seguro(p.imagen) : '';
-      var url = p.url ? seguro(p.url) : '';
-      return '<div class="project-card">' +
-        (img ? '<div class="project-thumb"><img src="' + e(img) + '" alt="' + e(p.titulo) + '" width="1000" height="457" loading="lazy" decoding="async"></div>' : '') +
-        '<div class="project-body"><div class="pid mono">' + e(etiqueta.replace(/\d+\s*$/, n)) + '</div>' +
-        '<h3>' + e(p.titulo) + '</h3><p>' + e(desc) + '</p>' +
-        (p.etiquetas && p.etiquetas.length ? '<div class="chip-row">' + p.etiquetas.map(function(c){ return '<span class="chip">' + e(c) + '</span>'; }).join('') + '</div>' : '') +
-        (url ? '<a class="repo-link" href="' + e(url) + '" target="_blank" rel="noopener">' + ICONO + '<span>' + e(t('proy.repo')) + '</span></a>' : '') +
-        '</div></div>';
-    }).join('');
-  }
-  fetch(API, { headers: { apikey: CLAVE } })
-    .then(function(r){ return r.ok ? r.json() : null; })
-    .then(function(d){ if (Array.isArray(d) && d.length) { datos = d; pintar(); } })
-    .catch(function(){});
-  document.addEventListener('a2wd:idioma', pintar);
-})();
-</script>
 <script>
 /* Sección de precios: se pinta desde tarifas.js en el idioma elegido */
 (function(){
@@ -888,5 +1004,11 @@ window.A2WD_mobius = function(){
   requestAnimationFrame(bucle);
 })();
 </script>
+<script src="vendor/gsap-3.15.0.min.js" defer></script>
+<script src="vendor/ScrollTrigger-3.15.0.min.js" defer></script>
+<script src="vendor/lenis-1.3.26.js" defer></script>
+<script src="assets/js/cosmos.js" defer></script>
+<script src="assets/js/home.js" defer></script>
+<script src="assets/js/efectos.js" defer></script>
 </body>
 </html>
