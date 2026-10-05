@@ -6,7 +6,10 @@ export function crearFacturas({
 async function vFacturas() {
   const { data, error } = await sb.from('facturas').select('*, clientes(nombre,empresa)').order('fecha_emision', { ascending: false });
   if (fallo(error)) return;
-  const suma = (e) => data.filter((f) => f.tipo === 'factura' && e.includes(f.estado)).reduce((s, f) => s + Number(f.total), 0);
+  // Una factura pendiente cuyo vencimiento ya pasó cuenta y se muestra como vencida
+  const d = new Date(), hoy = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const estadoReal = (f) => (f.estado === 'pendiente' && f.fecha_vencimiento && f.fecha_vencimiento < hoy ? 'vencida' : f.estado);
+  const suma = (e) => data.filter((f) => f.tipo === 'factura' && e.includes(estadoReal(f))).reduce((s, f) => s + Number(f.total), 0);
   vista.innerHTML = `
     <div class="cabecera"><div><p class="eyebrow">Facturación</p><h1>Facturas y presupuestos</h1></div><button class="btn solid" id="nFac">+ Nueva</button></div>
     <div class="kpis" style="grid-template-columns:repeat(3,1fr)">
@@ -19,7 +22,7 @@ async function vFacturas() {
       <tbody>${data.length ? data.map((f) => `<tr>
         <td class="mono">${esc(f.numero || '—')}<br><span class="muted" style="font-size:11px">${f.tipo === 'presupuesto' ? 'Presupuesto' : 'Factura'}</span></td>
         <td><a href="#cliente/${f.cliente_id}">${esc(f.clientes?.nombre)}</a></td><td>${esc(f.concepto)}</td><td>${fecha(f.fecha_emision)}</td>
-        <td class="mono">${euros(f.base)}</td><td class="mono"><strong>${euros(f.total)}</strong></td><td>${tagFactura(f.estado)}</td>
+        <td class="mono">${euros(f.base)}</td><td class="mono"><strong>${euros(f.total)}</strong></td><td>${tagFactura(f.tipo === 'factura' ? estadoReal(f) : f.estado)}</td>
         <td><button class="btn small ghost" data-edit="${f.id}">Editar</button></td></tr>`).join('')
         : `<tr><td colspan="8"><div class="vacio" style="border:0">Aún no hay facturas.</div></td></tr>`}</tbody></table></div></div>`;
   document.getElementById('nFac').onclick = async () => abrirForm({ titulo: 'Nueva factura o presupuesto', campos: await camposFactura(), guardar: guardarEn('facturas') });

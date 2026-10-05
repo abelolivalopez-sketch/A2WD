@@ -2,50 +2,76 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'sha256-FKzjjWkqDYQGgNDfhwFB8ViMevuq8J9MNFTkDmKs0Es='; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' https: data: blob:; connect-src 'self' https://vsqxcxmsvsektvsceqpx.supabase.co wss://vsqxcxmsvsektvsceqpx.supabase.co https://cdn.jsdelivr.net; frame-src https:; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net ; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' https: data: blob:; connect-src 'self' https://vsqxcxmsvsektvsceqpx.supabase.co wss://vsqxcxmsvsektvsceqpx.supabase.co https://cdn.jsdelivr.net; frame-src https:; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
 <title>Panel creador · A2WD</title>
 <link href="../fonts/fonts.css" rel="stylesheet">
 <link rel="stylesheet" href="portal.css">
-<link rel="stylesheet" href="css/creador.css">
 <link rel="stylesheet" href="css/icons.css">
+<link rel="stylesheet" href="css/creador.css">
 <link rel="manifest" href="../manifest.webmanifest">
-<meta name="theme-color" content="#0B0B0A">
+<meta name="theme-color" content="#05060c">
 <link rel="icon" href="../img/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="../img/icono-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="A2WD">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <script src="../instalar.js" defer></script>
 <script src="../tarifas.js"></script>
-
-
-
-
 </head>
-<body>
-<header class="top">
-  <div class="top-inner">
-    <a class="brand" href="#resumen" id="logo">A²WD <small>/ creador</small></a>
-    <div class="user"><span id="avisos"></span><a class="btn small ghost" href="../index.html" title="Volver a la web de A2WD">Web</a><span id="quien"></span><button class="btn small ghost" id="cambiarPw">Contraseña</button><button class="btn small ghost" id="salir">Salir</button></div>
+<body class="cabina">
+<a class="saltar" href="#vista">Saltar al contenido</a>
+
+<header class="cab">
+  <div class="cab-in">
+    <a class="brand" href="#resumen" id="logo" aria-label="A2WD · panel de creador">A²WD <small>creador</small></a>
+
+    <button class="buscar" id="abrirBuscar" type="button" aria-label="Buscar (Ctrl K)">
+      <span class="i i-buscar" aria-hidden="true"></span>
+      <span class="buscar-txt">Buscar clientes, proyectos, facturas…</span>
+      <kbd id="atajo">Ctrl K</kbd>
+    </button>
+
+    <div class="cab-acc">
+      <div class="pop-wrap">
+        <button class="ib" id="bBandeja" type="button" aria-label="Bandeja de entrada" title="Bandeja de entrada" aria-expanded="false" aria-controls="pBandeja">
+          <span class="i i-campana" aria-hidden="true"></span><span class="cuenta-ib oculto" id="nBandeja"></span>
+        </button>
+        <div class="pop" id="pBandeja" hidden>
+          <div class="pop-cab"><h3>Bandeja</h3><span class="muted" id="bandejaResumen"></span></div>
+          <a class="pop-fila" href="#mensajes" data-cerrar-pop><span class="i i-mensajes" aria-hidden="true"></span><span><b>Mensajes de clientes</b><small id="bMsjTxt">Al día</small></span><span class="pop-n" id="bMsj"></span></a>
+          <a class="pop-fila" href="#equipo" data-cerrar-pop><span class="i i-equipo" aria-hidden="true"></span><span><b>Chat de equipo</b><small id="bEqTxt">Al día</small></span><span class="pop-n" id="bEq"></span></a>
+          <a class="pop-fila" href="#asistente/preguntas" data-cerrar-pop><span class="i i-asistente" aria-hidden="true"></span><span><b>Rodolfo</b><small id="bAsisTxt">Sabe responder todo lo que le preguntan</small></span><span class="pop-n" id="bAsis"></span></a>
+          <div class="pop-pie"><p>Avisos en este dispositivo</p><span id="avisos"></span></div>
+        </div>
+      </div>
+      <a class="ib ocultar-movil" href="../index.html" target="_blank" rel="noopener" aria-label="Ver la web (se abre en otra pestaña)" title="Ver la web"><span class="i i-web" aria-hidden="true"></span></a>
+      <a class="ib" href="#ajustes" aria-label="Ajustes" title="Ajustes" data-s="ajustes"><span class="i i-ajustes" aria-hidden="true"></span></a>
+      <span class="sep" aria-hidden="true"></span>
+      <a class="yo" href="#ajustes" title="Tu perfil y ajustes"><span class="avatar" id="avatar" aria-hidden="true"></span><span class="yo-txt"><b id="quien"></b><small>Creador</small></span></a>
+      <button class="ib" id="salir" type="button" aria-label="Cerrar sesión" title="Cerrar sesión"><span class="i i-salir" aria-hidden="true"></span></button>
+    </div>
   </div>
 </header>
 
 <div class="shell">
-  <nav class="side" id="side">
-    <a href="#resumen" data-s="resumen">Resumen</a>
-    <a href="#clientes" data-s="clientes">Clientes</a>
-    <a href="#proyectos" data-s="proyectos">Proyectos</a>
-    <a href="#mensajes" data-s="mensajes">Mensajes <span class="num oculto" id="nSinLeer"></span></a>
-    <a href="#equipo" data-s="equipo">Equipo <span class="num oculto" id="nEquipo"></span></a>
-    <a href="#facturas" data-s="facturas">Facturas</a>
-    <a href="#web" data-s="web">Web</a>
-    <a href="#tarifas" data-s="tarifas">Tarifas</a>
-    <a href="#asistente" data-s="asistente">Rodolfo IA <span class="num oculto" id="nAsis"></span></a>
+  <nav class="side" id="side" aria-label="Secciones del panel">
+    <p class="side-grupo">Negocio</p>
+    <a href="#resumen" data-s="resumen"><span class="i i-resumen" aria-hidden="true"></span><span>Resumen</span></a>
+    <a href="#clientes" data-s="clientes"><span class="i i-clientes" aria-hidden="true"></span><span>Clientes</span></a>
+    <a href="#proyectos" data-s="proyectos"><span class="i i-proyectos" aria-hidden="true"></span><span>Proyectos</span></a>
+    <a href="#facturas" data-s="facturas"><span class="i i-facturas" aria-hidden="true"></span><span>Facturas</span></a>
+    <p class="side-grupo">Comunicación</p>
+    <a href="#mensajes" data-s="mensajes"><span class="i i-mensajes" aria-hidden="true"></span><span>Mensajes</span><span class="num oculto" id="nSinLeer"></span></a>
+    <a href="#equipo" data-s="equipo"><span class="i i-equipo" aria-hidden="true"></span><span>Equipo</span><span class="num oculto" id="nEquipo"></span></a>
+    <a href="#asistente" data-s="asistente"><span class="i i-asistente" aria-hidden="true"></span><span>Rodolfo IA</span><span class="num oculto" id="nAsis"></span></a>
+    <p class="side-grupo">Web y precios</p>
+    <a href="#web" data-s="web"><span class="i i-web" aria-hidden="true"></span><span>Web</span></a>
+    <a href="#tarifas" data-s="tarifas"><span class="i i-tarifas" aria-hidden="true"></span><span>Tarifas</span></a>
   </nav>
-  <main id="vista"><p class="muted">Cargando…</p></main>
+  <main id="vista" tabindex="-1"><p class="muted">Cargando…</p></main>
 </div>
 
 <dialog id="dlg">
@@ -54,6 +80,14 @@
     <div class="dlg-body" id="dlgCampos"></div>
     <div class="dlg-foot"><button type="button" class="btn ghost" id="dlgCancelar">Cancelar</button><button type="submit" class="btn solid">Guardar</button></div>
   </form>
+</dialog>
+
+<dialog id="paleta" class="paleta" aria-label="Buscar">
+  <div class="paleta-in">
+    <div class="paleta-campo"><span class="i i-buscar" aria-hidden="true"></span><input id="paletaQ" type="search" placeholder="Busca un cliente, proyecto o factura…" autocomplete="off" spellcheck="false" aria-controls="paletaRes" aria-autocomplete="list"><kbd>Esc</kbd></div>
+    <div class="paleta-res" id="paletaRes" role="listbox" aria-label="Resultados"></div>
+    <div class="paleta-pie"><span><kbd>↑</kbd><kbd>↓</kbd> moverse</span><span><kbd>Intro</kbd> abrir</span></div>
+  </div>
 </dialog>
 
 <script type="module" src="js/creador.js"></script>
