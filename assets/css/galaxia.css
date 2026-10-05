@@ -104,7 +104,10 @@ html.con-cursor input,html.con-cursor textarea,html.con-cursor select,html.con-c
   position:absolute;left:50%;top:50%;width:100%!important;height:100%!important;
   transform:translate(-50%,-50%) scale(1.14);display:block;
 }
-.mobius-capa svg{width:min(88vw,1100px)!important;height:auto!important;opacity:.6;}
+/* El dibujo de reserva queda oculto mientras carga la cinta 3D (así no se ve un ∞ gigante
+   un instante al entrar). Solo aparece si el 3D no va a cargar (clase .sin-3d) o sin JavaScript. */
+.mobius-capa svg{width:min(88vw,1100px)!important;height:auto!important;opacity:0;transition:opacity .8s ease;}
+.mobius-capa.sin-3d svg{opacity:.6;}
 .hero-intro{
   position:relative;z-index:2;min-height:100vh;min-height:100svh;
   display:flex;align-items:center;justify-content:center;
