@@ -5,7 +5,20 @@ import { SUPABASE_URL } from './config.js';
 document.querySelectorAll('[data-t]').forEach((el) => (el.textContent = t(el.dataset.t)));
 selectorIdioma(document.getElementById('idioma'));
 
-document.getElementById('logo').insertAdjacentHTML('afterbegin', LOGO);
+document.getElementById('logo')?.insertAdjacentHTML('afterbegin', LOGO);
+
+// Botón del ojo: mostrar u ocultar la contraseña
+document.querySelectorAll('[data-ver]').forEach((b) => {
+  const campo = document.getElementById(b.dataset.ver);
+  const pintar = () => {
+    const visible = campo.type === 'text';
+    b.setAttribute('aria-label', t(visible ? 'pw_ocultar' : 'pw_mostrar'));
+    b.setAttribute('aria-pressed', String(visible));
+    b.title = b.getAttribute('aria-label');
+  };
+  b.addEventListener('click', () => { campo.type = campo.type === 'password' ? 'text' : 'password'; pintar(); campo.focus(); });
+  pintar();
+});
 if (!configurado) { avisoSinConfigurar(); throw new Error('Sin configurar'); }
 
 const $ = (id) => document.getElementById(id);

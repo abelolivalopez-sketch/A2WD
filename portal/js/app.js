@@ -82,12 +82,14 @@ export async function salir() {
 
 export const LOGO = `<svg viewBox="0 0 100 100" fill="none" aria-hidden="true"><path d="M50,50 C50,35 38,22 24,22 C11,22 2,33 2,47 C2,61 11,72 24,72 C38,72 50,59 50,50 C50,35 62,22 76,22 C89,22 98,33 98,47 C98,61 89,72 76,72 C62,72 50,59 50,50 Z" stroke="currentColor" stroke-width="7"/></svg>`;
 
-// Botón "Contraseña": cambiarla estando conectado, sin correos
-export function activarCambioPassword() {
-  const btn = document.getElementById('cambiarPw');
+// Botón "Contraseña": cambiarla estando conectado, sin correos.
+// Se puede llamar varias veces (p. ej. cada vez que se pinta Ajustes): el diálogo se crea una sola vez.
+let dlgPw = null;
+export function activarCambioPassword(btn = document.getElementById('cambiarPw')) {
   if (!btn) return;
-  const dlg = document.createElement('dialog');
-  dlg.innerHTML = `
+  if (!dlgPw) {
+    dlgPw = document.createElement('dialog');
+    dlgPw.innerHTML = `
     <form method="dialog" id="fPw">
       <div class="dlg-head"><h3>${t('cambiar_pw')}</h3><button type="button" class="x" data-cerrar aria-label="${t('cerrar')}">×</button></div>
       <div class="dlg-body">
@@ -98,21 +100,23 @@ export function activarCambioPassword() {
       </div>
       <div class="dlg-foot"><button type="button" class="btn ghost" data-cerrar>${t('cancelar')}</button><button type="submit" class="btn solid">${t('guardar')}</button></div>
     </form>`;
-  document.body.appendChild(dlg);
-  dlg.querySelectorAll('[data-cerrar]').forEach((b) => (b.onclick = () => dlg.close()));
-  btn.onclick = () => { dlg.querySelector('form').reset(); dlg.querySelector('#pwErr').textContent = ''; dlg.showModal(); };
-  dlg.querySelector('form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const p1 = dlg.querySelector('#pwN1').value, p2 = dlg.querySelector('#pwN2').value;
-    const err = dlg.querySelector('#pwErr');
-    if (p1 !== p2) { err.textContent = t('no_coinciden'); return; }
-    const b = e.target.querySelector('[type=submit]'); b.disabled = true;
-    const { error } = await sb.auth.updateUser({ password: p1 });
-    b.disabled = false;
-    if (error) { err.textContent = t('err_guardar_pw', { e: error.message }); return; }
-    dlg.close();
-    toast(t('pw_ok'));
-  });
+    document.body.appendChild(dlgPw);
+    const dlg = dlgPw;
+    dlg.querySelectorAll('[data-cerrar]').forEach((b) => (b.onclick = () => dlg.close()));
+    dlg.querySelector('form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const p1 = dlg.querySelector('#pwN1').value, p2 = dlg.querySelector('#pwN2').value;
+      const err = dlg.querySelector('#pwErr');
+      if (p1 !== p2) { err.textContent = t('no_coinciden'); return; }
+      const b = e.target.querySelector('[type=submit]'); b.disabled = true;
+      const { error } = await sb.auth.updateUser({ password: p1 });
+      b.disabled = false;
+      if (error) { err.textContent = t('err_guardar_pw', { e: error.message }); return; }
+      dlg.close();
+      toast(t('pw_ok'));
+    });
+  }
+  btn.onclick = () => { dlgPw.querySelector('form').reset(); dlgPw.querySelector('#pwErr').textContent = ''; dlgPw.showModal(); };
 }
 
 // =====================================================================

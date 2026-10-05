@@ -166,3 +166,13 @@ Las páginas `portal/login.html`, `portal/cliente.html` y `portal/creador.html` 
 **Si cambias un `<script>` escrito dentro de una de esas páginas**, ejecuta `node herramientas/actualizar-csp.mjs` (o pídeselo a Claude) antes de subirlo. Si no, esa página se quedará en blanco.
 
 La librería de Supabase va fijada a una versión exacta (`portal/app.js` y `sw.js`). Para actualizarla, cambia el número en los dos archivos y sube `VERSION` en `sw.js`.
+
+## Diseño del portal y panel de creador (octubre 2026)
+- **Estilo común:** `portal/portal.css` define colores, botones, campos, paneles y el fondo de estrellas (`portal/img/cielo.webp`) para el acceso, el panel de creador y el panel de cliente. Si cambias una variable de `:root`, cambia en todo el sistema.
+- **Cabecera del panel:** buscador global (botón o **Ctrl K / ⌘ K**, también la tecla **/**), bandeja con lo pendiente (mensajes de clientes, chat de equipo, preguntas de Rodolfo y el estado de los avisos en este dispositivo), ver la web, Ajustes, perfil y cerrar sesión. Código: `portal/js/creador/barra.js`.
+- **Resumen** (`portal/js/creador/resumen.js`), todo calculado con los datos que ya hay:
+  - *Facturado este mes*: base sin IVA de las facturas emitidas (no cuenta borradores ni anuladas), comparado con el mismo punto del mes anterior, y gráfico de los últimos 12 meses.
+  - *Dinero pendiente*: por cobrar (facturas pendientes o vencidas; una pendiente con el vencimiento pasado cuenta como vencida), presupuestos esperando respuesta e IVA del trimestre. Del día 1 al 20 del mes siguiente a cada trimestre (hasta el 30 en enero) enseña el IVA del trimestre que hay que presentar en el modelo 303.
+  - *Requiere atención*: facturas vencidas, entregas atrasadas o en los próximos 7 días, clientes cuyo último mensaje no tiene respuesta, facturas que vencen en 7 días, proyectos sin avances publicados en más de 14 días, presupuestos sin respuesta en más de 14 días y preguntas que Rodolfo no supo responder.
+  - *Clientes* por estado, nuevos del mes y activos sin proyecto en marcha; *Producción* por fase y próximas entregas.
+- **Ajustes** (`portal/js/creador/ajustes.js`): nombre visible, contraseña, cerrar todas las sesiones, avisos de este dispositivo, pantalla con la que se abre el panel, fondo de estrellas y animaciones (se guardan en este navegador), instalar la app, versión del portal y descargar clientes o facturas en CSV para la gestoría.
