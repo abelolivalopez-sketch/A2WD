@@ -66,6 +66,7 @@
 <link rel="stylesheet" href="assets/css/main.css">
 <link rel="stylesheet" href="assets/css/nav.css">
 <link rel="stylesheet" href="assets/css/galaxia.css">
+<noscript><style>.mobius-capa svg{opacity:.6}</style></noscript>
 </head>
 <body class="home">
 <a class="saltar" href="#servicios" data-i18n="nav.saltar">Saltar al contenido</a>
@@ -545,22 +546,28 @@
 
 <script src="assets/js/idiomas.js"></script>
 <script>
+// El dibujo SVG del hero está oculto de entrada; solo se enseña cuando el 3D no va a cargar.
+window.A2WD_reservaMobius = function(){
+  var c = document.getElementById('mobiusContainer');
+  if (c) c.classList.add('sin-3d');
+};
 (function(){
   // La librería 3D (~600 KB) se carga en segundo plano, sin frenar la web.
-  // Si falla o el móvil pide ahorrar datos, se queda el dibujo SVG.
+  // Si falla o el móvil pide ahorrar datos, se muestra el dibujo SVG.
   var conexion = navigator.connection || {};
-  if (conexion.saveData) return;
+  if (conexion.saveData) { window.A2WD_reservaMobius(); return; }
   var s3 = document.createElement('script');
   s3.src = 'vendor/three-r128.min.js';
   s3.async = true;
   s3.onload = function(){ window.A2WD_mobius && window.A2WD_mobius(); };
+  s3.onerror = function(){ window.A2WD_reservaMobius(); };
   (window.requestIdleCallback || function(f){ setTimeout(f, 300); })(function(){ document.head.appendChild(s3); });
 })();
 window.A2WD_mobius = function(){
   // Cinta de Möbius 3D del hero. Se anima lentamente y se pausa cuando no está visible.
-  // Si WebGL falla o el usuario prefiere menos movimiento, permanece la reserva SVG.
+  // Si WebGL falla, se muestra la reserva SVG.
   try {
-    if (typeof THREE === 'undefined') return;
+    if (typeof THREE === 'undefined') { window.A2WD_reservaMobius(); return; }
 
     var container = document.getElementById('mobiusContainer');
     var fallback = document.getElementById('mobiusFallbackSvg');
@@ -706,7 +713,8 @@ window.A2WD_mobius = function(){
     requestAnimationFrame(animar);
 
   } catch (err) {
-    // Si algo falla, el SVG de reserva permanece visible.
+    // Si algo falla (por ejemplo, el navegador no tiene WebGL), se enseña el SVG de reserva.
+    window.A2WD_reservaMobius();
   }
 };
 </script>
