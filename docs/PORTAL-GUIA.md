@@ -148,7 +148,7 @@ Cada vez que el cliente abre su panel con internet, la app guarda en su móvil u
 - Ojo: cualquier cuenta de creador lo ve, incluida una cuenta temporal como la de la abogada mientras exista.
 
 ## Gestión de la web (portafolio)
-- Pestaña **🌐 Web** del panel de creador: añade, edita, ordena (↑ ↓), oculta o borra los proyectos que salen en la sección «Proyectos» de la página principal.
+- Pestaña **🌐 Portafolio** del panel de creador: añade, edita, ordena (↑ ↓), oculta o borra los proyectos que salen en la sección «Proyectos» de la página principal.
 - Cada proyecto: título, descripción en español (y opcionalmente francés, italiano e inglés; si faltan se muestra el español), enlace, etiquetas y una captura. La foto se reduce y se convierte a WebP sola antes de subirla.
 - «Partir de un proyecto de cliente» rellena título, enlace y descripción desde un proyecto del portal.
 - Los cambios se ven en la web al momento, sin tocar código. Datos en la tabla `portfolio` y fotos en el bucket `portfolio` de Supabase (`supabase/portfolio.sql`). Si la base de datos no respondiera, la web muestra los dos proyectos escritos en la página.

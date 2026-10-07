@@ -4,10 +4,14 @@ import { esFalloRed, guardarCopia, leerCopia, franjaSinConexion, textoSinRedEnvi
 // Textos fijos de la cabecera en el idioma del cliente
 document.getElementById('cargando').textContent = t('cargando');
 document.getElementById('subMarca').textContent = '/ ' + t('mi_proyecto');
-document.getElementById('irWeb').textContent = t('web');
-document.getElementById('irWeb').title = t('web_title');
+const irWeb = document.getElementById('irWeb');   // botón «Volver a la web» (texto largo en ordenador, corto en móvil)
+irWeb.querySelector('.largo').textContent = t('volver_web2');
+irWeb.querySelector('.corto').textContent = t('web').replace(/^←\s*/, '');
+irWeb.title = t('web_title');
 document.getElementById('cambiarPw').textContent = t('contrasena');
+document.getElementById('cambiarPw').title = t('contrasena');
 document.getElementById('salir').textContent = t('salir');
+document.getElementById('salir').title = t('salir');
 selectorIdioma(document.getElementById('idioma'));
 
 document.getElementById('logo').insertAdjacentHTML('afterbegin', LOGO);
