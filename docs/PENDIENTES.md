@@ -9,6 +9,17 @@ Lista viva de lo que queda por hacer. Marca `[x]` al terminar y borra lo que ya 
 - [ ] Revisar los proyectos del portafolio y dar visibilidad a la web (Search Console, perfil de Google, enlaces desde redes).
 - [ ] Añadir nuestros idiomas de trabajo y las redes sociales.
 
+## Demo Boulangerie des Ducs (Gary)
+Su web principal es **lareinemathilde.fr** (la pâtisserie, hecha en Drupal 9 por studio911.fr) y no menciona la boulangerie. Propuesta: no tocar su web; la boulangerie tiene su propio sitio y se enlaza desde el menú.
+
+- [x] Presentación en francés para Gary (artifact «Boulangerie des Ducs · Proposition A2WD»).
+- [ ] Recoger sus comentarios sobre la demo.
+- [ ] Sustituir las fotos de ilustración (Unsplash) por fotos reales del fournil, la vitrine y los productos.
+- [ ] Que el formulario de pedido envíe cada demanda por e-mail a la boutique (ahora solo es visual).
+- [ ] Revisar con ellos los avisos de Google que salen en la demo.
+- [ ] Subdominio `boulangerie.lareinemathilde.fr`: preparar la línea DNS (CNAME) y el archivo `CNAME` del sitio.
+- [ ] Enlace «La Boulangerie» en el menú de lareinemathilde.fr (lo hacen ellos o su proveedor).
+
 ## Portal: puesta en marcha (de `PORTAL-GUIA.md`)
 Comprobar en Supabase que están hechos:
 

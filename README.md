@@ -48,12 +48,24 @@ No hay empaquetador ni `npm install`: se edita el archivo y se sube. Para verlo 
 - Al cambiar algo del portal, sube `VERSION` en `sw.js` para que las apps instaladas se actualicen.
 - Si cambias un `<script>` escrito dentro de `portal/*.html`, ejecuta `node herramientas/actualizar-csp.mjs` antes de subirlo.
 
+### Con GitKraken
+
+1. Abre el repositorio `A2WD` y, en el panel izquierdo, haz doble clic en la rama **`abel`** (local) para trabajar en ella.
+2. Pulsa **Pull** antes de empezar: trae lo último que se haya subido a `abel` (también lo que suba Claude).
+3. Haz clic en un commit del gráfico para ver qué archivos cambió; al pulsar un archivo ves el antes (rojo) y el después (verde).
+4. Tras editar: en el panel derecho, **Stage all changes**, escribe el mensaje del commit y **Commit**; luego **Push**.
+5. Para enseñárselo al otro basta con que haga **Pull** de `abel`. Cuando los dos estéis de acuerdo, botón derecho sobre `abel` y la opción de crear un *pull request* hacia `main` (la web publicada).
+
+### Supabase
+
+Los cambios de base de datos se guardan como archivos `.sql` en `supabase/` (y las funciones en `supabase/functions/`), para que GitKraken también los muestre. Primero se prueban en Supabase y después se sube el archivo a la rama.
+
 ### Estado de las ramas (7 oct 2026)
 
 | Rama | Estado |
 |---|---|
 | `main` | Publicada. Incluye todo lo de las demás ramas. |
-| `abel` | Al día con `main` + esta reorganización. |
+| `abel` | `main` + reorganización, botón «Volver a la web» del portal y arreglos de imágenes. Pendiente de enseñar a Ariel. |
 | `ariel` | Atrasada; sus 2 últimos commits se anulan entre sí (nebulosa añadida y revertida). Ariel puede ponerla al día con `git pull origin main`. |
 | `contacto-gmail-a2wd`, `legal`, `demo-boulangerie-vida`, `rediseno-galaxia` | Ya fusionadas en `main`; se pueden borrar sin perder nada. |
 
