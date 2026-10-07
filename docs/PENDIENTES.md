@@ -20,6 +20,14 @@ Su web principal es **lareinemathilde.fr** (la pâtisserie, hecha en Drupal 9 po
 - [ ] Subdominio `boulangerie.lareinemathilde.fr`: preparar la línea DNS (CNAME) y el archivo `CNAME` del sitio.
 - [ ] Enlace «La Boulangerie» en el menú de lareinemathilde.fr (lo hacen ellos o su proveedor).
 
+## Rodolfo en varios idiomas
+- [x] Columnas `idioma` y `traduccion_de` en `conocimiento` (aplicado en Supabase el 7 oct).
+- [x] 38 traducciones FR/EN cargadas en pausa (`supabase/traducciones-rodolfo.sql`).
+- [ ] Revisar las traducciones y activarlas (consulta 7 de `supabase/consultas-idiomas.sql`).
+- [ ] Al fusionar `abel` en `main`: desplegar la función `asistente-chat` actualizada.
+- [ ] Corregir la respuesta de «Que tiempo tardáis en hacer una web?» (faltas y «deadline»).
+- [ ] Borrar el duplicado «por cuanto pueden diseñar una pagina web para mi» (repite la de precios para visitantes).
+
 ## Portal: puesta en marcha (de `PORTAL-GUIA.md`)
 Comprobar en Supabase que están hechos:
 
