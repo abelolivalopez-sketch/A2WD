@@ -99,7 +99,7 @@ si no sabe algo, lo dice y ofrece el botón **«Pasar la pregunta al equipo»**,
 - **Conocimiento**: preguntas típicas y su respuesta. Podéis pausarlas sin borrarlas.
 - **Idiomas**: cada respuesta tiene su idioma (ES, FR, EN, IT). Con **+ FR**, **+ EN**… se añade la traducción de una respuesta, que hereda su categoría y su público y sale debajo de la original. Si existe la versión en el idioma de quien pregunta, Rodolfo usa esa; si no, traduce la que haya. Los filtros «Todos los idiomas» de Conocimiento y de Preguntas recibidas enseñan solo un idioma.
   - Base de datos: columnas `idioma` y `traduccion_de` de `conocimiento` y vista `conocimiento_idiomas` (`supabase/idiomas-rodolfo.sql`). Consultas listas para el SQL Editor en `supabase/consultas-idiomas.sql`.
-  - Las traducciones al francés e inglés de las respuestas de octubre de 2026 están en `supabase/traducciones-rodolfo.sql` y entraron **pausadas**: revisadlas y activadlas.
+  - Las traducciones al francés e inglés de las respuestas de octubre de 2026 están en `supabase/traducciones-rodolfo.sql` ; se cargaron en pausa y se activaron el 7 de octubre de 2026.
   - Para que Rodolfo prefiera la versión en el idioma de quien pregunta hay que desplegar la función `asistente-chat` actualizada (Edge Functions › asistente-chat › pegar `supabase/functions/asistente-chat/index.ts` › Deploy). Hasta entonces sigue funcionando como antes.
 - **Preguntas de clientes**: todo lo que le preguntan. Las que **no sabía** salen marcadas (y con contador en el menú): pulsa
   **Enseñar respuesta**, escribe la respuesta y a partir de ese momento ya la sabe.

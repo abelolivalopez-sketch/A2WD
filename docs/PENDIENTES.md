@@ -22,8 +22,8 @@ Su web principal es **lareinemathilde.fr** (la pâtisserie, hecha en Drupal 9 po
 
 ## Rodolfo en varios idiomas
 - [x] Columnas `idioma` y `traduccion_de` en `conocimiento` (aplicado en Supabase el 7 oct).
-- [x] 38 traducciones FR/EN cargadas en pausa (`supabase/traducciones-rodolfo.sql`).
-- [ ] Revisar las traducciones y activarlas (consulta 7 de `supabase/consultas-idiomas.sql`).
+- [x] 38 traducciones FR/EN cargadas (`supabase/traducciones-rodolfo.sql`).
+- [x] Traducciones activadas (7 oct): Rodolfo ya las usa. Si alguna suena rara, se edita en el panel o en Supabase.
 - [ ] Al fusionar `abel` en `main`: desplegar la función `asistente-chat` actualizada.
 - [ ] Corregir la respuesta de «Que tiempo tardáis en hacer una web?» (faltas y «deadline»).
 - [ ] Borrar el duplicado «por cuanto pueden diseñar una pagina web para mi» (repite la de precios para visitantes).
