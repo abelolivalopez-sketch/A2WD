@@ -2,4 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://abelolivalopez-sketch.github.io/A2WD/</loc><changefreq>monthly</changefreq><priority>1.0</priority></url>
   <url><loc>https://abelolivalopez-sketch.github.io/A2WD/proyectos.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://abelolivalopez-sketch.github.io/A2WD/web.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://abelolivalopez-sketch.github.io/A2WD/software-a-medida.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://abelolivalopez-sketch.github.io/A2WD/integracion-de-sistemas.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://abelolivalopez-sketch.github.io/A2WD/automatizacion.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://abelolivalopez-sketch.github.io/A2WD/inteligencia-artificial.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://abelolivalopez-sketch.github.io/A2WD/datos-y-bi.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://abelolivalopez-sketch.github.io/A2WD/cloud-y-seguridad.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
 </urlset>
