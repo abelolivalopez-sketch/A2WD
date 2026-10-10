@@ -63,12 +63,14 @@
     (function recorrer(nodo){
       Array.prototype.slice.call(nodo.childNodes).forEach(function(h){
         if (h.nodeType === 3) {
-          var trozos = h.textContent.split(/(\s+)/);
+          // Solo se corta en espacios normales: el espacio duro (\u00a0) une palabras
+          // que no deben separarse, como «objectif ?» en francés.
+          var trozos = h.textContent.split(/([ \t\n\r\f]+)/);
           if (trozos.length === 1 && !trozos[0]) return;
           var frag = document.createDocumentFragment();
           trozos.forEach(function(tr){
             if (!tr) return;
-            if (/^\s+$/.test(tr)) { frag.appendChild(document.createTextNode(tr)); return; }
+            if (/^[ \t\n\r\f]+$/.test(tr)) { frag.appendChild(document.createTextNode(tr)); return; }
             var s = document.createElement('span');
             s.className = 'w'; s.textContent = tr; s.style.setProperty('--i', n++);
             frag.appendChild(s);

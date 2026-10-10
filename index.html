@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="A2WD, estudio de diseño y desarrollo web para comercios y negocios locales. Webs a medida, rápidas y claras, en español, francés, italiano e inglés.">
+<meta name="description" content="A2WD, estudio de ingeniería web y de sistemas: webs a medida, tiendas online, software de gestión, integración de sistemas, automatización, inteligencia artificial y ciberseguridad para empresas y comercios.">
 <meta name="theme-color" content="#0A0A0B">
 <meta name="color-scheme" content="dark">
 <link rel="canonical" href="https://abelolivalopez-sketch.github.io/A2WD/">
@@ -55,7 +55,13 @@
  "serviceType": [
   "Diseño web",
   "Desarrollo web",
-  "Mantenimiento web"
+  "Mantenimiento web",
+  "Software de gestión a medida",
+  "Integración de sistemas",
+  "Automatización de procesos",
+  "Inteligencia artificial aplicada",
+  "Análisis de datos y cuadros de mando",
+  "Cloud y ciberseguridad"
  ]
 }
 </script>
@@ -159,7 +165,7 @@
     </div>
     <div class="sv-grid">
       <div class="sv-copy">
-        <h2 class="display-xl" data-reveal="palabras" data-i18n="sv.h2">¿Nuestro objetivo? Que superes a la competencia</h2>
+        <h2 class="display-xl" data-reveal="palabras" data-i18n="sv.h2">¿Nuestro objetivo?<br>Que superes a la competencia</h2>
         <p class="sv-p" data-reveal data-reveal-delay="0.2" data-i18n="sv.p">Con una buena web, tu negocio sale del barrio y entra en órbita: clientes que te encuentran en Google, reservas a las tres de la mañana y pedidos desde la otra punta del país.</p>
         <ul class="sv-hitos mono" id="svHitos">
           <li><span class="hito-n">01</span><span data-i18n="sv.hito1">Abierta 24 horas, 365 días</span></li>
@@ -208,16 +214,23 @@
     </div>
   </div>
 
-  <!-- Pantalla 2: tarjetas de servicios -->
+  <!-- Pantalla 2: «Lo que hacemos». Doce tarjetas iguales en dos bloques (web y sistemas);
+       cada una lleva a su página de servicio. Generado: textos en assets/js/idiomas.js -->
   <div class="sv-cap" id="svCap">
     <div class="sec-bar mono">
       <span data-i18n="cap.bar.l">(02.B — Lo que hacemos)</span>
       <span data-i18n="cap.bar.r">Todo, bajo un mismo cielo</span>
     </div>
-    <h2 class="visualmente-oculto" data-i18n="cap.h2">Lo que hacemos</h2>
-    <ul class="cap-grid" data-reveal="escalonado">
-      <li class="cap cap-ancha" data-anim>
-        <div class="cap-vis" aria-hidden="true">
+    <div class="cap-cab">
+      <h2 class="cap-titulo" data-reveal="palabras" data-i18n="cap.h2">Lo que hacemos</h2>
+      <p class="cap-sub" data-reveal data-reveal-delay="0.15" data-i18n="cap.sub">De la web que te da a conocer a los sistemas que hacen funcionar tu empresa por dentro. Entra en cada tarjeta para ver los detalles.</p>
+    </div>
+    <section class="cap-bloque" aria-labelledby="capG1">
+      <h3 class="cap-grupo" id="capG1"><span class="cap-grupo-n">01</span><span data-i18n="cap.g1">Presencia digital</span><span class="cap-grupo-s" data-i18n="cap.g1.s">— Webs que trabajan por ti</span></h3>
+      <ul class="cap-grid" data-reveal="escalonado">
+      <li class="cap" data-anim>
+        <a class="cap-in" href="web.html#diseno">
+          <div class="cap-vis" aria-hidden="true">
           <svg viewBox="0 0 600 340" preserveAspectRatio="xMidYMid slice" class="v1">
             <defs><pattern id="v1cuad" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none"/></pattern></defs>
             <rect class="v1-cuad" width="600" height="340" fill="url(#v1cuad)"/>
@@ -234,12 +247,14 @@
               <g class="v1-cursor"><path d="M0 0 L0 22 L6 16 L10 26 L14 24 L10 14 L18 14 Z"/></g>
             </g>
           </svg>
-        </div>
-        <span class="cap-n mono">01</span>
-        <div class="cap-txt"><h3 data-i18n="c1.h">Diseño web a medida</h3><p data-i18n="c1.p">Cada comercio es distinto, así que su web también. Sin plantillas ni relleno.</p></div>
+          </div>
+          <div class="cap-top"><span class="cap-n mono">01</span><span class="cap-ir" aria-hidden="true"><svg class="flecha" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></span></div>
+          <div class="cap-txt"><h4 data-i18n="c1.h">Diseño web a medida</h4><p data-i18n="c1.p">Cada comercio es distinto, así que su web también. Sin plantillas ni relleno.</p></div>
+        </a>
       </li>
       <li class="cap" data-anim>
-        <div class="cap-vis" aria-hidden="true">
+        <a class="cap-in" href="web.html#velocidad">
+          <div class="cap-vis" aria-hidden="true">
           <svg viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice" class="v2">
             <g class="v2-rayos" transform="translate(200 190)">
               <g transform="rotate(0)"><line style="--d:-.1s" x1="40" x2="70"/></g><g transform="rotate(13)"><line style="--d:-.9s" x1="40" x2="70"/></g><g transform="rotate(26)"><line style="--d:-.4s" x1="40" x2="70"/></g><g transform="rotate(39)"><line style="--d:-1.3s" x1="40" x2="70"/></g><g transform="rotate(52)"><line style="--d:-.7s" x1="40" x2="70"/></g><g transform="rotate(65)"><line style="--d:-.2s" x1="40" x2="70"/></g><g transform="rotate(78)"><line style="--d:-1.1s" x1="40" x2="70"/></g><g transform="rotate(91)"><line style="--d:-.5s" x1="40" x2="70"/></g><g transform="rotate(104)"><line style="--d:-1.5s" x1="40" x2="70"/></g><g transform="rotate(117)"><line style="--d:-.8s" x1="40" x2="70"/></g><g transform="rotate(130)"><line style="--d:-.3s" x1="40" x2="70"/></g><g transform="rotate(143)"><line style="--d:-1.2s" x1="40" x2="70"/></g><g transform="rotate(156)"><line style="--d:-.6s" x1="40" x2="70"/></g><g transform="rotate(169)"><line style="--d:-1.4s" x1="40" x2="70"/></g><g transform="rotate(182)"><line style="--d:-1s" x1="40" x2="70"/></g><g transform="rotate(195)"><line style="--d:-.15s" x1="40" x2="70"/></g><g transform="rotate(208)"><line style="--d:-.95s" x1="40" x2="70"/></g><g transform="rotate(221)"><line style="--d:-.45s" x1="40" x2="70"/></g><g transform="rotate(234)"><line style="--d:-1.35s" x1="40" x2="70"/></g><g transform="rotate(247)"><line style="--d:-.75s" x1="40" x2="70"/></g><g transform="rotate(260)"><line style="--d:-.25s" x1="40" x2="70"/></g><g transform="rotate(273)"><line style="--d:-1.15s" x1="40" x2="70"/></g><g transform="rotate(286)"><line style="--d:-.55s" x1="40" x2="70"/></g><g transform="rotate(299)"><line style="--d:-1.45s" x1="40" x2="70"/></g><g transform="rotate(312)"><line style="--d:-.85s" x1="40" x2="70"/></g><g transform="rotate(325)"><line style="--d:-.35s" x1="40" x2="70"/></g><g transform="rotate(338)"><line style="--d:-1.25s" x1="40" x2="70"/></g><g transform="rotate(351)"><line style="--d:-.65s" x1="40" x2="70"/></g>
@@ -248,12 +263,14 @@
             <circle class="v2-progreso" cx="200" cy="190" r="58" transform="rotate(-90 200 190)"/>
             <text class="v2-num" x="200" y="198" text-anchor="middle" data-i18n="c.carga">0,8 s</text>
           </svg>
-        </div>
-        <span class="cap-n mono">02</span>
-        <div class="cap-txt"><h3 data-i18n="c2.h">Desarrollo veloz</h3><p data-i18n="c2.p">Webs ligeras que cargan al instante, incluso con poca cobertura.</p></div>
+          </div>
+          <div class="cap-top"><span class="cap-n mono">02</span><span class="cap-ir" aria-hidden="true"><svg class="flecha" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></span></div>
+          <div class="cap-txt"><h4 data-i18n="c2.h">Desarrollo veloz</h4><p data-i18n="c2.p">Webs ligeras que cargan al instante, incluso con poca cobertura.</p></div>
+        </a>
       </li>
       <li class="cap" data-anim>
-        <div class="cap-vis" aria-hidden="true">
+        <a class="cap-in" href="web.html#tiendas">
+          <div class="cap-vis" aria-hidden="true">
           <svg viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice" class="v3">
             <g transform="rotate(-12 200 196)">
               <ellipse class="v3-orbita" cx="200" cy="196" rx="150" ry="50"/>
@@ -269,14 +286,16 @@
               <g class="v3-item" style="--d:-3s"><path d="M-9 -4 H9 L7 10 H-7 Z M-4 -4 V-8 A4 4 0 0 1 4 -8 V-4"/></g>
               <g class="v3-item" style="--d:-6s"><rect x="-10" y="-9" width="20" height="18" rx="2"/><path d="M-10 -3 H10 M-5 -12 V-6 M5 -12 V-6"/></g>
             </g>
-            <g class="v3-aviso"><rect x="238" y="78" width="104" height="28" rx="14"/><text x="290" y="97" text-anchor="middle" data-i18n="c.pedido">+1 pedido</text></g>
+            <g class="v3-aviso"><rect x="238" y="104" width="104" height="28" rx="14"/><text x="290" y="123" text-anchor="middle" data-i18n="c.pedido">+1 pedido</text></g>
           </svg>
-        </div>
-        <span class="cap-n mono">03</span>
-        <div class="cap-txt"><h3 data-i18n="c3.h">Tiendas y reservas online</h3><p data-i18n="c3.p">Catálogo, reservas y pago con tarjeta para vender mientras duermes.</p></div>
+          </div>
+          <div class="cap-top"><span class="cap-n mono">03</span><span class="cap-ir" aria-hidden="true"><svg class="flecha" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></span></div>
+          <div class="cap-txt"><h4 data-i18n="c3.h">Tiendas y reservas online</h4><p data-i18n="c3.p">Catálogo, reservas y pago con tarjeta para vender mientras duermes.</p></div>
+        </a>
       </li>
-      <li class="cap cap-ancha" data-anim>
-        <div class="cap-vis" aria-hidden="true">
+      <li class="cap" data-anim>
+        <a class="cap-in" href="web.html#google">
+          <div class="cap-vis" aria-hidden="true">
           <svg viewBox="0 0 600 340" preserveAspectRatio="xMidYMid slice" class="v4">
             <defs>
               <linearGradient id="v4barrido" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9cc0ff" stop-opacity="0"/><stop offset="1" stop-color="#9cc0ff" stop-opacity=".38"/></linearGradient>
@@ -294,12 +313,36 @@
             <g class="v4-tu" style="--d:3.65s"><circle cx="326" cy="70" r="7"/><circle class="v4-onda" cx="326" cy="70" r="7"/></g>
             <g class="v4-etiqueta"><path d="M336 62 L362 40 H470"/><text x="370" y="34" data-i18n="c.resultado">Resultado 01</text></g>
           </svg>
-        </div>
-        <span class="cap-n mono">04</span>
-        <div class="cap-txt"><h3 data-i18n="c4.h">Visibilidad en Google</h3><p data-i18n="c4.p">SEO desde la primera línea de código y ficha de Google optimizada.</p></div>
+          </div>
+          <div class="cap-top"><span class="cap-n mono">04</span><span class="cap-ir" aria-hidden="true"><svg class="flecha" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></span></div>
+          <div class="cap-txt"><h4 data-i18n="c4.h">Visibilidad en Google</h4><p data-i18n="c4.p">SEO desde la primera línea de código y ficha de Google optimizada.</p></div>
+        </a>
       </li>
       <li class="cap" data-anim>
-        <div class="cap-vis" aria-hidden="true">
+        <a class="cap-in" href="web.html#apps">
+          <div class="cap-vis" aria-hidden="true">
+          <svg viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice" class="v6">
+            <circle class="v6-orbita" cx="200" cy="200" r="138"/>
+            <path class="v6-enlace" d="M106 176 C128 176 130 196 152 196"/>
+            <path class="v6-enlace" d="M248 196 C268 196 272 160 280 160"/>
+            <g class="v6-usuario"><circle class="v6-disco" cx="84" cy="176" r="22"/><circle cx="84" cy="170" r="7"/><path d="M71 190 A13 11 0 0 1 97 190"/></g>
+            <g class="v6-movil"><rect x="152" y="106" width="96" height="190" rx="16"/><path d="M188 118 H212"/><rect class="v6-pant" x="161" y="128" width="78" height="150" rx="5"/></g>
+            <g class="v6-apps">
+              <rect style="--d:0s" x="169" y="170" width="18" height="18" rx="5"/><rect style="--d:.2s" x="191" y="170" width="18" height="18" rx="5"/><rect style="--d:.4s" x="213" y="170" width="18" height="18" rx="5"/>
+              <rect style="--d:.6s" x="169" y="194" width="18" height="18" rx="5"/><rect style="--d:.8s" x="191" y="194" width="18" height="18" rx="5"/><rect style="--d:1s" x="213" y="194" width="18" height="18" rx="5"/>
+              <rect class="v6-fila" x="169" y="222" width="62" height="6" rx="3"/><rect class="v6-fila" x="169" y="234" width="44" height="6" rx="3"/>
+            </g>
+            <g class="v6-aviso"><rect x="165" y="134" width="70" height="26" rx="8"/><circle cx="178" cy="147" r="5"/><path d="M188 143 H226 M188 151 H214"/></g>
+            <g transform="translate(302 160)"><circle class="v6-disco" r="22"/><path class="v6-bell" d="M-8 5 V-2 A8 8 0 0 1 8 -2 V5 L11 8 H-11 Z M-3 11 A3 3 0 0 0 3 11"/><circle class="v6-punto" cx="9" cy="-9" r="4"/></g>
+          </svg>
+          </div>
+          <div class="cap-top"><span class="cap-n mono">05</span><span class="cap-ir" aria-hidden="true"><svg class="flecha" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></span></div>
+          <div class="cap-txt"><h4 data-i18n="cw6.h">Apps y área de clientes</h4><p data-i18n="cw6.p">Tu web, instalable en el móvil como una app, con acceso privado y avisos para tus clientes.</p></div>
+        </a>
+      </li>
+      <li class="cap" data-anim>
+        <a class="cap-in" href="web.html#mantenimiento">
+          <div class="cap-vis" aria-hidden="true">
           <svg viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice" class="v5">
             <g class="v5-globo">
               <circle cx="200" cy="216" r="78"/>
@@ -316,17 +359,138 @@
               <g transform="translate(200 80)"><rect x="-7" y="-5" width="14" height="10" rx="1.5"/><rect class="v5-panel" x="-30" y="-4" width="19" height="8"/><rect class="v5-panel" x="11" y="-4" width="19" height="8"/><path d="M-11 0 H-7 M7 0 H11 M0 5 V11"/></g>
             </g>
           </svg>
-        </div>
-        <span class="cap-n mono">05</span>
-        <div class="cap-txt"><h3 data-i18n="c5.h">Mantenimiento y soporte</h3><p data-i18n="c5.p">Seguimos en órbita después del lanzamiento: cambios, dudas y mejoras.</p></div>
-      </li>
-      <li class="cap cap-cta">
-        <a href="#contacto" class="cap-cta-link" data-cursor>
-          <span class="cap-k" data-i18n="c6.k">Todo, en casa —</span>
-          <span class="cap-cta-txt" data-magnetic="0.2"><span class="iman-in"><span data-i18n="c6.cta">Despega con nosotros</span> <svg class="flecha" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></span></span>
+          </div>
+          <div class="cap-top"><span class="cap-n mono">06</span><span class="cap-ir" aria-hidden="true"><svg class="flecha" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></span></div>
+          <div class="cap-txt"><h4 data-i18n="c5.h">Mantenimiento y soporte</h4><p data-i18n="c5.p">Seguimos en órbita después del lanzamiento: cambios, dudas y mejoras.</p></div>
         </a>
       </li>
-    </ul>
+      </ul>
+    </section>
+    <section class="cap-bloque" aria-labelledby="capG2">
+      <h3 class="cap-grupo" id="capG2"><span class="cap-grupo-n">02</span><span data-i18n="cap.g2">Sistemas y procesos</span><span class="cap-grupo-s" data-i18n="cap.g2.s">— La tecnología que mueve tu empresa</span></h3>
+      <ul class="cap-grid" data-reveal="escalonado">
+      <li class="cap" data-anim>
+        <a class="cap-in" href="software-a-medida.html">
+          <div class="cap-vis" aria-hidden="true">
+          <svg viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice" class="v7">
+            <defs><pattern id="v7cuad" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none"/></pattern></defs>
+            <rect class="v7-cuad" width="400" height="400" fill="url(#v7cuad)"/>
+            <g class="v7-app">
+              <rect class="v7-marco" x="64" y="104" width="272" height="196" rx="6"/>
+              <path d="M64 124 H336"/><circle cx="78" cy="114" r="3"/><circle cx="89" cy="114" r="3"/><circle cx="100" cy="114" r="3"/>
+              <rect class="v7-col" x="76" y="136" width="76" height="152" rx="3"/><rect class="v7-col" x="162" y="136" width="76" height="152" rx="3"/><rect class="v7-col" x="248" y="136" width="76" height="152" rx="3"/>
+              <rect class="v7-cab" x="84" y="144" width="34" height="5" rx="2"/><rect class="v7-cab" x="170" y="144" width="40" height="5" rx="2"/><rect class="v7-cab" x="256" y="144" width="28" height="5" rx="2"/>
+              <circle class="v7-ok" cx="314" cy="146.5" r="4"/>
+            </g>
+            <g class="v7-t"><rect x="84" y="158" width="60" height="26" rx="3"/><path d="M91 167 H128 M91 175 H116"/></g>
+            <g class="v7-t"><rect x="84" y="190" width="60" height="26" rx="3"/><path d="M91 199 H134 M91 207 H110"/></g>
+            <g class="v7-t"><rect x="170" y="158" width="60" height="26" rx="3"/><path d="M177 167 H220 M177 175 H200"/></g>
+            <g class="v7-t"><rect x="256" y="158" width="60" height="26" rx="3"/><path d="M263 167 H300 M263 175 H290"/></g>
+            <g class="v7-t"><rect x="256" y="190" width="60" height="26" rx="3"/><path d="M263 199 H306 M263 207 H284"/></g>
+            <g class="v7-mueve">
+              <rect x="84" y="222" width="60" height="26" rx="3"/><path d="M91 231 H120 M91 239 H110"/><path class="v7-check" d="M125 235 l4 4 l8 -9"/>
+              <path class="v7-mano" d="M132 242 L132 260 L137 255 L140 263 L143 262 L140 254 L146 254 Z"/>
+            </g>
+          </svg>
+          </div>
+          <div class="cap-top"><span class="cap-n mono">07</span><span class="cap-ir" aria-hidden="true"><svg class="flecha" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></span></div>
+          <div class="cap-txt"><h4 data-i18n="cs1.h">Software de gestión a medida</h4><p data-i18n="cs1.p">Clientes, pedidos, stock, turnos o facturas en un solo sistema hecho para tu forma de trabajar.</p></div>
+        </a>
+      </li>
+      <li class="cap" data-anim>
+        <a class="cap-in" href="integracion-de-sistemas.html">
+          <div class="cap-vis" aria-hidden="true">
+          <svg viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice" class="v8">
+            <ellipse class="v8-orbita" cx="200" cy="200" rx="160" ry="112"/>
+            <g class="v8-lineas"><path d="M200 200 L200 112"/><path d="M200 200 L321 156"/><path d="M200 200 L321 244"/><path d="M200 200 L200 288"/><path d="M200 200 L79 244"/><path d="M200 200 L79 156"/></g>
+            <circle class="v8-paq" r="3.2" style="offset-path:path('M200 200 L200 112');--d:-0.0s"/><circle class="v8-paq" r="3.2" style="offset-path:path('M321 156 L200 200');--d:-0.5s"/><circle class="v8-paq" r="3.2" style="offset-path:path('M200 200 L321 244');--d:-1.0s"/><circle class="v8-paq" r="3.2" style="offset-path:path('M200 288 L200 200');--d:-1.5s"/><circle class="v8-paq" r="3.2" style="offset-path:path('M200 200 L79 244');--d:-2.0s"/><circle class="v8-paq" r="3.2" style="offset-path:path('M79 156 L200 200');--d:-2.5s"/>
+            <g class="v8-hub"><circle class="v8-anillo" cx="200" cy="200" r="44"/><circle cx="200" cy="200" r="30"/><text x="200" y="205" text-anchor="middle">API</text></g>
+            <g class="v8-nodo" transform="translate(200 112)"><rect x="-22" y="-16" width="44" height="32" rx="6"/><rect x="-11" y="-8" width="22" height="16" rx="2"/><path d="M-11 -3 H11"/></g><g class="v8-nodo" transform="translate(321 156)"><rect x="-22" y="-16" width="44" height="32" rx="6"/><path d="M-8 -3 H8 L6 9 H-6 Z M-4 -3 V-6 A4 4 0 0 1 4 -6 V-3"/></g><g class="v8-nodo" transform="translate(321 244)"><rect x="-22" y="-16" width="44" height="32" rx="6"/><rect x="-7" y="-10" width="14" height="20" rx="2"/><rect x="-4" y="-7" width="8" height="5"/><path d="M-4 3 H-2 M1 3 H3 M-4 6 H-2 M1 6 H3"/></g><g class="v8-nodo" transform="translate(200 288)"><rect x="-22" y="-16" width="44" height="32" rx="6"/><path d="M-7 -10 H4 L8 -6 V10 H-7 Z M-3 -3 H4 M-3 1 H4 M-3 5 H2"/></g><g class="v8-nodo" transform="translate(79 244)"><rect x="-22" y="-16" width="44" height="32" rx="6"/><rect x="-10" y="-7" width="20" height="14" rx="1"/><path d="M-10 -6 L0 2 L10 -6"/></g><g class="v8-nodo" transform="translate(79 156)"><rect x="-22" y="-16" width="44" height="32" rx="6"/><circle cx="-4" cy="-4" r="3.5"/><path d="M-11 8 A7 6 0 0 1 3 8"/><circle cx="6" cy="-3" r="3"/><path d="M4 3 A6 5 0 0 1 12 8"/></g>
+          </svg>
+          </div>
+          <div class="cap-top"><span class="cap-n mono">08</span><span class="cap-ir" aria-hidden="true"><svg class="flecha" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></span></div>
+          <div class="cap-txt"><h4 data-i18n="cs2.h">Integración de sistemas</h4><p data-i18n="cs2.p">Conectamos tu tienda, tu TPV, la contabilidad y tus herramientas para que los datos viajen solos.</p></div>
+        </a>
+      </li>
+      <li class="cap" data-anim>
+        <a class="cap-in" href="automatizacion.html">
+          <div class="cap-vis" aria-hidden="true">
+          <svg viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice" class="v9">
+            <defs><pattern id="v9cuad" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none"/></pattern></defs>
+            <rect class="v9-cuad" width="400" height="400" fill="url(#v9cuad)"/>
+            <g class="v9-cables"><path d="M94 200 H160"/><path d="M224 200 C252 200 252 154 280 154"/><path d="M224 200 C252 200 252 246 280 246"/></g>
+            <circle class="v9-token" r="4" style="offset-path:path('M94 200 H224 C252 200 252 154 280 154')"/>
+            <circle class="v9-token" r="4" style="offset-path:path('M94 200 H224 C252 200 252 246 280 246')"/>
+            <g class="v9-nodo v9-n1"><rect x="30" y="178" width="64" height="44" rx="10"/><path class="ic" d="M65 187 L55 202 H63 L59 213 L71 197 H63 Z"/></g>
+            <g class="v9-nodo v9-n2"><rect x="160" y="178" width="64" height="44" rx="10"/><g class="v9-engranaje"><circle class="v9-dientes" cx="192" cy="200" r="10"/><circle class="ic" cx="192" cy="200" r="5"/></g></g>
+            <g class="v9-nodo v9-n3"><rect x="280" y="132" width="64" height="44" rx="10"/><path class="ic" d="M300 146 H324 V162 H300 Z M300 147 L312 156 L324 147"/></g>
+            <g class="v9-nodo v9-n3"><rect x="280" y="224" width="64" height="44" rx="10"/><path class="ic" d="M304 235 H317 L322 240 V257 H304 Z M308 244 H318 M308 249 H318 M308 254 H314"/></g>
+            <g class="v9-ok"><path d="M352 154 l5 5 l10 -11"/><path d="M352 246 l5 5 l10 -11"/></g>
+          </svg>
+          </div>
+          <div class="cap-top"><span class="cap-n mono">09</span><span class="cap-ir" aria-hidden="true"><svg class="flecha" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></span></div>
+          <div class="cap-txt"><h4 data-i18n="cs3.h">Automatización de procesos</h4><p data-i18n="cs3.p">Facturas, avisos, informes y tareas repetitivas en piloto automático.</p></div>
+        </a>
+      </li>
+      <li class="cap" data-anim>
+        <a class="cap-in" href="inteligencia-artificial.html">
+          <div class="cap-vis" aria-hidden="true">
+          <svg viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice" class="v10">
+            <g class="v10-conex"><path d="M96 165 L190 145 M96 165 L190 190 M96 165 L190 235 M96 165 L190 280 M96 215 L190 145 M96 215 L190 190 M96 215 L190 235 M96 215 L190 280 M96 265 L190 145 M96 265 L190 190 M96 265 L190 235 M96 265 L190 280 M190 145 L284 190 M190 145 L284 250 M190 190 L284 190 M190 190 L284 250 M190 235 L284 190 M190 235 L284 250 M190 280 L284 190 M190 280 L284 250"/></g>
+            <g class="v10-senal"><path style="--d:0s" d="M96 215 L190 190 L284 190"/><path style="--d:-1.2s" d="M96 165 L190 235 L284 250"/><path style="--d:-2.4s" d="M96 265 L190 145 L284 190"/></g>
+            <path class="v10-salida" d="M284 183 C284 168 278 160 274 154"/>
+            <g class="v10-nodos"><circle style="--d:0s" cx="96" cy="165" r="7"/><circle style="--d:0s" cx="96" cy="215" r="7"/><circle style="--d:0s" cx="96" cy="265" r="7"/><circle style="--d:.5s" cx="190" cy="145" r="7"/><circle style="--d:.5s" cx="190" cy="190" r="7"/><circle style="--d:.5s" cx="190" cy="235" r="7"/><circle style="--d:.5s" cx="190" cy="280" r="7"/><circle style="--d:1s" cx="284" cy="190" r="7"/><circle style="--d:1s" cx="284" cy="250" r="7"/></g>
+            <g class="v10-globo"><path d="M236 110 H320 A10 10 0 0 1 330 120 V132 A10 10 0 0 1 320 142 H282 L274 152 L274 142 H236 A10 10 0 0 1 226 132 V120 A10 10 0 0 1 236 110 Z"/><circle style="--d:0s" cx="262" cy="126" r="3.5"/><circle style="--d:.18s" cx="278" cy="126" r="3.5"/><circle style="--d:.36s" cx="294" cy="126" r="3.5"/></g>
+            <path class="v10-chispa" d="M0 -10 C1 -3 3 -1 10 0 C3 1 1 3 0 10 C-1 3 -3 1 -10 0 C-3 -1 -1 -3 0 -10 Z" transform="translate(346 176)"/>
+          </svg>
+          </div>
+          <div class="cap-top"><span class="cap-n mono">10</span><span class="cap-ir" aria-hidden="true"><svg class="flecha" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></span></div>
+          <div class="cap-txt"><h4 data-i18n="cs4.h">Inteligencia artificial aplicada</h4><p data-i18n="cs4.p">Asistentes que atienden a tus clientes, leen documentos y te ahorran horas cada semana.</p></div>
+        </a>
+      </li>
+      <li class="cap" data-anim>
+        <a class="cap-in" href="datos-y-bi.html">
+          <div class="cap-vis" aria-hidden="true">
+          <svg viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice" class="v11">
+            <g class="v11-ejes"><path class="v11-guia" d="M74 248 H336 M74 204 H336 M74 160 H336"/><path d="M74 292 H336 M74 292 V116"/></g>
+            <g class="v11-barras">
+              <rect style="--d:0s" x="92" y="236" width="22" height="56"/><rect style="--d:.1s" x="132" y="214" width="22" height="78"/><rect style="--d:.2s" x="172" y="226" width="22" height="66"/>
+              <rect style="--d:.3s" x="212" y="190" width="22" height="102"/><rect style="--d:.4s" x="252" y="174" width="22" height="118"/><rect class="v11-ultima" style="--d:.5s" x="292" y="146" width="22" height="146"/>
+            </g>
+            <path class="v11-linea" d="M103 216 L143 190 L183 198 L223 160 L263 146 L303 120"/>
+            <circle class="v11-onda" cx="303" cy="120" r="5"/><circle class="v11-punto" cx="303" cy="120" r="5"/>
+            <g class="v11-kpi"><rect x="88" y="110" width="80" height="28" rx="14"/><text x="120" y="129" text-anchor="middle">KPI</text><path d="M144 128 L150 119 L156 128 Z"/></g>
+          </svg>
+          </div>
+          <div class="cap-top"><span class="cap-n mono">11</span><span class="cap-ir" aria-hidden="true"><svg class="flecha" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></span></div>
+          <div class="cap-txt"><h4 data-i18n="cs5.h">Datos y cuadros de mando</h4><p data-i18n="cs5.p">Todos tus números en un panel claro que se actualiza solo, para decidir con datos.</p></div>
+        </a>
+      </li>
+      <li class="cap" data-anim>
+        <a class="cap-in" href="cloud-y-seguridad.html">
+          <div class="cap-vis" aria-hidden="true">
+          <svg viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice" class="v12">
+            <defs><clipPath id="v12recorte"><path d="M200 116 L262 140 V194 C262 236 236 264 200 282 C164 264 138 236 138 194 V140 Z"/></clipPath></defs>
+            <circle class="v12-anillo" cx="200" cy="200" r="104"/><circle class="v12-anillo v12-anillo-2" cx="200" cy="200" r="132"/>
+            <circle class="v12-amenaza" r="3" style="offset-path:path('M400 200 L338 200');--d:-0.0s"/><circle class="v12-amenaza" r="3" style="offset-path:path('M373 300 L320 269');--d:-0.8s"/><circle class="v12-amenaza" r="3" style="offset-path:path('M0 200 L62 200');--d:-1.6s"/><circle class="v12-amenaza" r="3" style="offset-path:path('M47 329 L94 289');--d:-2.4s"/><circle class="v12-amenaza" r="3" style="offset-path:path('M30 120 L82 152');--d:-3.2s"/>
+            <path class="v12-escudo" d="M200 116 L262 140 V194 C262 236 236 264 200 282 C164 264 138 236 138 194 V140 Z"/>
+            <g clip-path="url(#v12recorte)"><rect class="v12-scan" x="130" y="112" width="140" height="3"/></g>
+            <g class="v12-candado"><rect x="184" y="196" width="32" height="26" rx="4"/><path d="M190 196 V186 A10 10 0 0 1 210 186 V196"/><path d="M200 205 V213"/></g>
+            <g class="v12-nube" transform="translate(304 120)"><path d="M-16 10 H15 A10 10 0 0 0 13 -9 A13 13 0 0 0 -11 -7 A9 9 0 0 0 -16 10 Z"/><path class="v12-sube" d="M0 6 V-4 M-4 0 L0 -4 L4 0"/></g>
+          </svg>
+          </div>
+          <div class="cap-top"><span class="cap-n mono">12</span><span class="cap-ir" aria-hidden="true"><svg class="flecha" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></span></div>
+          <div class="cap-txt"><h4 data-i18n="cs6.h">Cloud y ciberseguridad</h4><p data-i18n="cs6.p">Servidores en la nube, copias de seguridad y protección para que tu empresa no se pare.</p></div>
+        </a>
+      </li>
+      </ul>
+    </section>
+    <div class="cap-pie">
+      <a href="#contacto" class="cap-cta" data-cursor>
+        <span class="cap-k" data-i18n="c6.k">Todo, en casa —</span>
+        <span class="cap-cta-txt" data-magnetic="0.2"><span class="iman-in"><span data-i18n="c6.cta">Despega con nosotros</span> <svg class="flecha" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></span></span>
+      </a>
+    </div>
   </div>
 </section>
 
