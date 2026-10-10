@@ -29,7 +29,6 @@
 /* ---------- Botones de la cabecera del panel de cliente ---------- */
 .user .btn::before{content:"";width:15px;height:15px;flex:0 0 15px;background:currentColor;opacity:.8;
   -webkit-mask:var(--i) center/contain no-repeat;mask:var(--i) center/contain no-repeat;}
-.user #irWeb::before{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='M3.5 12h17M12 3.5c2.4 2.4 3.5 5.2 3.5 8.5s-1.1 6.1-3.5 8.5c-2.4-2.4-3.5-5.2-3.5-8.5s1.1-6.1 3.5-8.5Z'/%3E%3C/svg%3E");}
 .user #cambiarPw::before{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='10.5' width='14' height='10' rx='2.5'/%3E%3Cpath d='M8 10.5V7.5a4 4 0 0 1 8 0v3'/%3E%3C/svg%3E");}
 .user #salir::before{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 4.5H6.5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2H14'/%3E%3Cpath d='M10 12h10M16.5 8.5 20 12l-3.5 3.5'/%3E%3C/svg%3E");}
 .user .btn:hover::before{opacity:1;}

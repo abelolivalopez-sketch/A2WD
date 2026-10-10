@@ -1,7 +1,7 @@
 // Utilidades compartidas del portal A2WD
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/+esm';
 import { SUPABASE_URL, SUPABASE_KEY } from './config.js';
-import { t, LOCALE } from './i18n.js';
+import { t, LOCALE, LANG } from './i18n.js';
 import { esFalloRed, guardarCopia, leerCopia, borrarCopias, quitarAvisosDispositivo, sesionGuardada } from './movil.js';
 export { t, LANG, selectorIdioma } from './i18n.js';
 
@@ -179,7 +179,7 @@ export function chatAsistente({ destino = null, proyecto = () => null, modo = ()
     const pensando = burbuja('…', 'bot pensando');
     form.querySelector('button').disabled = true;
     const { data, error } = await sb.functions.invoke('asistente-chat', {
-      body: { pregunta: texto, historial: historial.slice(-6), proyecto_id: proyecto(), modo: modo(), prueba },
+      body: { pregunta: texto, historial: historial.slice(-6), proyecto_id: proyecto(), modo: modo(), prueba, idioma_web: LANG },
     });
     form.querySelector('button').disabled = false;
     pensando.remove();

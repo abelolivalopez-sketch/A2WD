@@ -11,7 +11,7 @@ Tiempo estimado: 10 minutos. Todo se hace desde el panel web de Supabase, sin in
 | `portal/login.html` | Acceso para creadores y clientes, recuperar contraseña y crear contraseña al aceptar la invitación |
 | `portal/creador.html` | Tu panel: resumen, clientes (CRM), proyectos, avances, mensajes y facturas |
 | `portal/cliente.html` | Panel del cliente: estado del proyecto, vista previa de su web, avances y chat contigo |
-| `portal/config.js` | Donde pegas la URL y la clave pública de Supabase |
+| `portal/js/config.js` | Donde pegas la URL y la clave pública de Supabase |
 | `supabase/schema.sql` | Tablas y reglas de seguridad de la base de datos |
 | `supabase/functions/invitar-cliente/` | Función en servidor que envía las invitaciones por correo |
 
@@ -45,7 +45,7 @@ Así solo entra quien tú invites. Las invitaciones siguen funcionando.
 La clave secreta la pone Supabase automáticamente dentro de la función; no tienes que copiarla en ningún sitio.
 
 ### 6. Conectar la web ✅ hecho
-En `portal/config.js` pega la **Project URL** y la **clave pública** (`anon` / `publishable`). Sube los cambios a GitHub.
+En `portal/js/config.js` pega la **Project URL** y la **clave pública** (`anon` / `publishable`). Sube los cambios a GitHub.
 
 ### 7. Correos (recomendado antes de invitar a clientes reales)
 - **Authentication → Emails → Templates**: traduce al español la plantilla *Invite user* y *Reset password*.
@@ -96,7 +96,11 @@ usando **solo** lo que le enseñáis y los datos del proyecto de ese cliente (fa
 si no sabe algo, lo dice y ofrece el botón **«Pasar la pregunta al equipo»**, que la envía a vuestro chat del proyecto (y el Agente 1 la analiza).
 
 ### Entrenarlo (solo creadores) → panel · **✦ Asistente IA**
-- **Conocimiento**: preguntas típicas y su respuesta. Escribidlas en español; el asistente las traduce solo. Podéis pausarlas sin borrarlas.
+- **Conocimiento**: preguntas típicas y su respuesta. Podéis pausarlas sin borrarlas.
+- **Idiomas**: cada respuesta tiene su idioma (ES, FR, EN, IT). Con **+ FR**, **+ EN**… se añade la traducción de una respuesta, que hereda su categoría y su público y sale debajo de la original. Si existe la versión en el idioma de quien pregunta, Rodolfo usa esa; si no, traduce la que haya. Los filtros «Todos los idiomas» de Conocimiento y de Preguntas recibidas enseñan solo un idioma.
+  - Base de datos: columnas `idioma` y `traduccion_de` de `conocimiento` y vista `conocimiento_idiomas` (`supabase/idiomas-rodolfo.sql`). Consultas listas para el SQL Editor en `supabase/consultas-idiomas.sql`.
+  - Las traducciones al francés e inglés de las respuestas de octubre de 2026 están en `supabase/traducciones-rodolfo.sql` ; se cargaron en pausa y se activaron el 7 de octubre de 2026.
+  - Para que Rodolfo prefiera la versión en el idioma de quien pregunta hay que desplegar la función `asistente-chat` actualizada (Edge Functions › asistente-chat › pegar `supabase/functions/asistente-chat/index.ts` › Deploy). Hasta entonces sigue funcionando como antes.
 - **Preguntas de clientes**: todo lo que le preguntan. Las que **no sabía** salen marcadas (y con contador en el menú): pulsa
   **Enseñar respuesta**, escribe la respuesta y a partir de ese momento ya la sabe.
 - **Probar**: chatea con él como si fueras un cliente (elige un proyecto para que use sus datos). Las pruebas no se guardan.
@@ -134,7 +138,7 @@ Cada vez que el cliente abre su panel con internet, la app guarda en su móvil u
 - Al abrir la app (creadores siempre; clientes cuando la tienen instalada) aparece una ventana **«Activa los avisos»** con un solo botón. Si ya dieron permiso, el móvil se registra solo, sin preguntar. Si pulsan «Ahora no», se vuelve a preguntar a los 3 días.
 - También se pueden activar con el botón **🔔 Activar avisos** (en el panel del cliente bajo el nombre del proyecto; en tu panel, arriba). En iPhone hace falta tener la app instalada en la pantalla de inicio (iOS 16.4 o superior).
 - Cómo funciona: la base de datos (`supabase/notificaciones.sql`) llama a la función `enviar-notificacion`, que manda el aviso a los móviles guardados en `push_suscripciones`. Los móviles que ya no aceptan avisos se borran solos.
-- Las claves (`VAPID_PRIVATE_KEY`, `NOTIF_SECRET`…) están en `privado.ajustes` de Supabase, no en GitHub. En `portal/config.js` solo va la clave pública.
+- Las claves (`VAPID_PRIVATE_KEY`, `NOTIF_SECRET`…) están en `privado.ajustes` de Supabase, no en GitHub. En `portal/js/config.js` solo va la clave pública.
 
 ## Tarifas
 - **Cambiar un precio:** edita `tarifas.js` (raíz de la web). Cambia a la vez el bloque «Nuestros precios» del panel de cada cliente (4 idiomas) y la pestaña **€ Tarifas** del panel de creadores. Los precios **no** aparecen en la web pública. Recuerda subir `VERSION` en `sw.js`.
@@ -148,7 +152,7 @@ Cada vez que el cliente abre su panel con internet, la app guarda en su móvil u
 - Ojo: cualquier cuenta de creador lo ve, incluida una cuenta temporal como la de la abogada mientras exista.
 
 ## Gestión de la web (portafolio)
-- Pestaña **🌐 Web** del panel de creador: añade, edita, ordena (↑ ↓), oculta o borra los proyectos que salen en la sección «Proyectos» de la página principal.
+- Pestaña **🌐 Portafolio** del panel de creador: añade, edita, ordena (↑ ↓), oculta o borra los proyectos que salen en la sección «Proyectos» de la página principal.
 - Cada proyecto: título, descripción en español (y opcionalmente francés, italiano e inglés; si faltan se muestra el español), enlace, etiquetas y una captura. La foto se reduce y se convierte a WebP sola antes de subirla.
 - «Partir de un proyecto de cliente» rellena título, enlace y descripción desde un proyecto del portal.
 - Los cambios se ven en la web al momento, sin tocar código. Datos en la tabla `portfolio` y fotos en el bucket `portfolio` de Supabase (`supabase/portfolio.sql`). Si la base de datos no respondiera, la web muestra los dos proyectos escritos en la página.
@@ -165,7 +169,7 @@ Las páginas `portal/login.html`, `portal/cliente.html` y `portal/creador.html` 
 
 **Si cambias un `<script>` escrito dentro de una de esas páginas**, ejecuta `node herramientas/actualizar-csp.mjs` (o pídeselo a Claude) antes de subirlo. Si no, esa página se quedará en blanco.
 
-La librería de Supabase va fijada a una versión exacta (`portal/app.js` y `sw.js`). Para actualizarla, cambia el número en los dos archivos y sube `VERSION` en `sw.js`.
+La librería de Supabase va fijada a una versión exacta (`portal/js/app.js` y `sw.js`). Para actualizarla, cambia el número en los dos archivos y sube `VERSION` en `sw.js`.
 
 ## Diseño del portal y panel de creador (octubre 2026)
 - **Estilo común:** `portal/portal.css` define colores, botones, campos, paneles y el fondo de estrellas (`portal/img/cielo.webp`) para el acceso, el panel de creador y el panel de cliente. Si cambias una variable de `:root`, cambia en todo el sistema.

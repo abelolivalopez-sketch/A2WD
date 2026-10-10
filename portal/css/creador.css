@@ -7,7 +7,7 @@ body.cabina::before{opacity:.55;}
 
 /* ---------- Cabecera ---------- */
 .cab{position:sticky;top:0;z-index:50;background:rgba(5,7,13,.74);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px);}
-.cab-in{max-width:1380px;margin:0 auto;height:64px;padding:0 24px;display:grid;grid-template-columns:220px minmax(0,1fr) auto;align-items:center;gap:28px;}
+.cab-in{max-width:1380px;margin:0 auto;height:64px;padding:0 24px;display:grid;grid-template-columns:minmax(220px,auto) minmax(0,1fr) auto;align-items:center;gap:28px;}
 .cab .brand small{font-size:12.5px;padding:2px 9px;border:1px solid var(--line);border-radius:999px;margin-left:2px;}
 .buscar{
   display:flex;align-items:center;gap:10px;width:min(480px,100%);height:40px;padding:0 8px 0 14px;

@@ -170,6 +170,7 @@
       var activo = !campo && t.closest('a,button,[role="button"],[data-cursor],label,summary');
       c.classList.toggle('sobre-campo', !!campo);
       c.classList.toggle('sobre-enlace', !!activo);
+      c.classList.toggle('sobre-foto', !!t.closest('.trip-card,.mision-img,[data-cursor-foto]'));   // sin anillo encima de las fotos
       var etiqueta = activo && activo.getAttribute('data-cursor');
       txt.textContent = etiqueta || '';
       c.classList.toggle('con-texto', !!etiqueta);
