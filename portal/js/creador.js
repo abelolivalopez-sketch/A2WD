@@ -15,10 +15,13 @@ import { crearGestionTarifas } from './creador/gestion-tarifas.js';
 import { crearEquipo } from './creador/equipo.js';
 import { crearPortfolio } from './creador/portfolio.js';
 import { crearAsistente } from './creador/asistente.js';
+import { crearBarra } from './creador/barra.js';
+import { crearAjustes, aplicarPreferencias } from './creador/ajustes.js';
 
 // ---------------------------------------------------------------------
 // Arranque del panel creador
 // ---------------------------------------------------------------------
+aplicarPreferencias();
 document.getElementById('logo').insertAdjacentHTML('afterbegin', LOGO);
 
 const ctx = await exigirSesion('creador');
@@ -27,13 +30,14 @@ if (!ctx) throw new Error('Sin sesión');
 const { perfil } = ctx;
 const vista = document.getElementById('vista');
 
-document.getElementById('quien').textContent = perfil.nombre || perfil.email;
 document.getElementById('salir').onclick = salir;
 
 idiomaMovil('es');
 botonAvisos(document.getElementById('avisos'), sb);
 avisosAlAbrir(sb, { creador: true });
-activarCambioPassword();
+
+// Pantalla con la que se abre el panel (se elige en Ajustes)
+const INICIO = (() => { try { return localStorage.getItem('a2wd_inicio') || 'resumen'; } catch { return 'resumen'; } })();
 
 // Los módulos reciben solo las dependencias que necesitan.
 // refrescar() conserva el comportamiento anterior: volver a ejecutar el router.
@@ -62,11 +66,11 @@ const {
   actualizarSinLeer,
 } = crearComentarios({ sb, esc, toast, refrescar });
 
-const { vResumen } = crearResumen({
-  sb, vista, perfil, esc, fecha, euros,
-  tagEstado, tagsIA, iaDe,
-  abrirForm, camposCliente, camposProyecto, guardarEn,
-});
+const { pintarPerfil } = crearBarra({ sb, esc, euros, perfil, ESTADOS });
+
+const { vResumen } = crearResumen({ sb, vista, perfil, esc, euros, ESTADOS, iaDe });
+
+const { vAjustes } = crearAjustes({ sb, vista, perfil, esc, toast, fallo, salir, botonAvisos, activarCambioPassword, pintarPerfil });
 
 const { vClientes, vCliente } = crearClientes({
   sb, vista, esc, fecha, euros,
@@ -114,7 +118,7 @@ const { vAsistente, actualizarAsis } = crearAsistente({
 // Router
 // ---------------------------------------------------------------------
 async function router() {
-  const [seccion, id] = (location.hash.slice(1) || 'resumen').split('/');
+  const [seccion, id] = (location.hash.slice(1) || INICIO).split('/');
   const menu = { cliente: 'clientes', proyecto: 'proyectos' }[seccion] || seccion;
 
   document.querySelectorAll('#side a')
@@ -132,6 +136,7 @@ async function router() {
     equipo: vEquipo,
     web: vWeb,
     asistente: vAsistente,
+    ajustes: vAjustes,
   };
 
   await (vistas[seccion] || vResumen)(id);
@@ -150,6 +155,7 @@ vista.addEventListener('click', (e) => {
 window.addEventListener('hashchange', () => {
   router();
   window.scrollTo(0, 0);
+  vista.focus({ preventScroll: true });
 });
 
 router();

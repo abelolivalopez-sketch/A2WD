@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'sha256-3p/6fFeeJpzL3mPJO3eG+sdOQJlqgPulg6Exy2zHTyc='; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' https: data: blob:; connect-src 'self' https://vsqxcxmsvsektvsceqpx.supabase.co wss://vsqxcxmsvsektvsceqpx.supabase.co https://cdn.jsdelivr.net; frame-src https:; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net ; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' https: data: blob:; connect-src 'self' https://vsqxcxmsvsektvsceqpx.supabase.co wss://vsqxcxmsvsektvsceqpx.supabase.co https://cdn.jsdelivr.net; frame-src https:; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
 <title>Mi proyecto · A2WD</title>
@@ -11,21 +11,24 @@
 <link rel="stylesheet" href="css/cliente.css">
 <link rel="stylesheet" href="css/icons.css">
 <link rel="manifest" href="../manifest.webmanifest">
-<meta name="theme-color" content="#0B0B0A">
+<meta name="theme-color" content="#05060c">
 <link rel="icon" href="../img/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="../img/icono-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="A2WD">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <script src="../instalar.js" defer></script>
 <script src="../tarifas.js"></script>
 </head>
 <body>
 <header class="top">
   <div class="top-inner">
-    <a class="brand" href="cliente.html" id="logo">A²WD <small id="subMarca">/ mi proyecto</small></a>
-    <div class="user"><div id="idioma"></div><a class="btn small ghost" href="../index.html" id="irWeb">Web</a><span id="quien"></span><button class="btn small ghost" id="cambiarPw">Contraseña</button><button class="btn small ghost" id="salir">Salir</button></div>
+    <div class="cab-izq">
+      <a class="brand" href="cliente.html" id="logo">A²WD <small id="subMarca">/ mi proyecto</small></a>
+      <a class="volver-web" href="../index.html" id="irWeb" title="Volver a la web de A2WD"><span class="i i-flecha" aria-hidden="true"></span><span class="largo">Volver a la web</span><span class="corto">Web</span></a>
+    </div>
+    <div class="user"><div id="idioma"></div><span id="quien"></span><button class="btn small ghost" id="cambiarPw">Contraseña</button><button class="btn small ghost" id="salir">Salir</button></div>
   </div>
 </header>
 

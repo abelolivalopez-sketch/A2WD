@@ -27,7 +27,8 @@ const json = (body: unknown, status = 200) =>
 const ESTADOS: Record<string, string> = { diseno: 'Diseño', desarrollo: 'Desarrollo', revision: 'Revisión', entregado: 'Entregado' };
 
 const REGLAS_COMUNES = `- Te llamas Rodolfo y eres el asistente virtual de A2WD, un pequeño estudio de diseño web fundado por Abel Oliva y Ariel Occhietti. Si te preguntan, di que eres un asistente virtual (una IA), no una persona.
-- PRIMERO detecta el idioma de <pregunta> y escribe TODA la respuesta en ese idioma (fr → francés, it → italiano, en → inglés, es → español). El conocimiento está en español: tradúcelo.
+- PRIMERO detecta el idioma de <pregunta> y escribe TODA la respuesta en ese idioma (fr → francés, it → italiano, en → inglés, es → español). Si la pregunta no deja claro el idioma (un saludo, una palabra suelta), usa el de <idioma_pagina>.
+- Cada entrada de <conocimiento> puede tener versiones en varios idiomas, marcadas [es], [fr], [en] o [it]: son la misma respuesta aprobada por el equipo. Si existe la versión en el idioma de la persona, úsala con sus mismas palabras; si no, traduce la que haya.
 - Responde SOLO con la información de <conocimiento>[[EXTRA]]. No uses conocimiento general para dar datos sobre A2WD.
 - Sé breve, claro y cercano: 1–4 frases. Sin listas largas ni formato complicado.
 - Preséntate como Rodolfo SOLO si no hay <conversacion_previa>; si ya estáis hablando, responde directamente.
@@ -115,8 +116,12 @@ Deno.serve(async (req) => {
 
   // Conocimiento según el público
   const audiencias = visitante ? ['todos', 'visitantes'] : ['todos', 'clientes'];
-  const { data: conocimiento } = await admin.from('conocimiento').select('pregunta, respuesta, categoria')
-    .eq('activo', true).in('audiencia', audiencias).order('categoria').limit(300);
+  const { data: conocimiento } = await admin.from('conocimiento').select('id, pregunta, respuesta, categoria, idioma, traduccion_de')
+    .eq('activo', true).in('audiencia', audiencias).order('categoria').order('created_at').limit(300);
+
+  // Idioma de la página (web pública o portal): solo una pista por si la pregunta es ambigua
+  const IDIOMAS = ['es', 'fr', 'it', 'en'];
+  const idiomaPagina = IDIOMAS.includes(String(body.idioma_web || '').slice(0, 2)) ? String(body.idioma_web).slice(0, 2) : 'es';
 
   // Datos del proyecto (solo clientes, y solo el suyo)
   let proyecto: Record<string, any> | null = null;
@@ -138,8 +143,16 @@ Deno.serve(async (req) => {
       .order('created_at', { ascending: false }).limit(5)).data || [];
   }
 
-  const bloqueConocimiento = (conocimiento || [])
-    .map((k, i) => `#${i + 1} [${k.categoria}]\nP: ${k.pregunta}\nR: ${k.respuesta}`).join('\n\n') || '(vacío)';
+  // Conocimiento agrupado: cada respuesta con sus traducciones debajo ([es], [fr]…)
+  const grupos = new Map<string, { categoria: string; versiones: { idioma: string; pregunta: string; respuesta: string }[] }>();
+  for (const k of conocimiento || []) {
+    const clave = k.traduccion_de || k.id;
+    if (!grupos.has(clave)) grupos.set(clave, { categoria: k.categoria, versiones: [] });
+    grupos.get(clave)!.versiones.push({ idioma: k.idioma || 'es', pregunta: k.pregunta, respuesta: k.respuesta });
+  }
+  const bloqueConocimiento = [...grupos.values()]
+    .map((g, i) => `#${i + 1} [${g.categoria}]\n` + g.versiones.map((v) => `[${v.idioma}] P: ${v.pregunta}\n[${v.idioma}] R: ${v.respuesta}`).join('\n'))
+    .join('\n\n') || '(vacío)';
   const bloqueProyecto = proyecto ? [
     `Proyecto: ${proyecto.nombre}`,
     `Fase: ${ESTADOS[proyecto.estado] || proyecto.estado} · Progreso: ${proyecto.progreso}%`,
@@ -153,7 +166,7 @@ Deno.serve(async (req) => {
   const conversacion = historial.map((m: { rol: string; texto: string }) =>
     `${m.rol === 'asistente' ? 'Rodolfo' : 'Persona'}: ${String(m.texto || '').slice(0, 800)}`).join('\n');
 
-  const entrada = `<conocimiento>\n${bloqueConocimiento}\n</conocimiento>\n\n`
+  const entrada = `<idioma_pagina>${idiomaPagina}</idioma_pagina>\n\n<conocimiento>\n${bloqueConocimiento}\n</conocimiento>\n\n`
     + (visitante ? '' : `<datos_del_proyecto>\n${bloqueProyecto}\n</datos_del_proyecto>\n\n`)
     + (conversacion ? `<conversacion_previa>\n${conversacion}\n</conversacion_previa>\n\n` : '')
     + `<pregunta>\n${pregunta}\n</pregunta>`;
@@ -172,7 +185,7 @@ Deno.serve(async (req) => {
   if (!prueba) {
     const { data: fila } = await admin.from('asistente_preguntas').insert({
       usuario_id: usuario?.id || null, proyecto_id: proyecto?.id || null, pregunta,
-      respuesta: r.respuesta, sabia: !!r.sabe, idioma: r.idioma || null,
+      respuesta: r.respuesta, sabia: !!r.sabe, idioma: String(r.idioma || '').toLowerCase().slice(0, 2) || null,   // siempre 'es', 'fr', 'en'…
       origen: usuario ? 'portal' : 'web', ip_hash: ipHash,
     }).select('id').single();
     pregunta_id = fila?.id || null;
