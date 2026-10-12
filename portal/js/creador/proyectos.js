@@ -1,4 +1,6 @@
 // Gestión de proyectos, avances y conversación asociada al proyecto.
+import { pintarHilo, alFondo, prepararEscritura, pistaTeclado } from '../chat.js';
+
 export function crearProyectos({
   sb, vista, esc, urlSegura, fecha, toast, ESTADOS, ORDEN_ESTADOS,
   tagEstado, fallo, abrirForm, camposProyecto, guardarEn, borrar,
@@ -61,14 +63,22 @@ async function vProyecto(id) {
       <div class="card">
         <h3>Conversación con el cliente</h3>
         <p class="muted" style="font-size:13.5px;margin:4px 0 16px">Lo que escribas aquí lo verá ${esc(p.clientes.nombre)}.</p>
-        <div class="hilo" id="hilo">${comentarios?.length ? comentarios.map((c) => `
-          <div class="msg ${c.autor_rol === 'creador' ? 'mio' : ''}"><p class="meta">${esc(c.autor_nombre)} · ${fecha(c.created_at, true)}</p><p>${esc(c.mensaje)}</p>${c.autor_rol === 'creador' ? '' : bloqueIA(c)}</div>`).join('')
-          : `<p class="muted" style="font-size:13.5px">Sin mensajes todavía.</p>`}</div>
-        <form id="fCom" style="margin-top:16px"><textarea id="txt" maxlength="4000" placeholder="Responder…" required></textarea>
-          <button class="btn solid" style="margin-top:10px;width:100%">Enviar</button></form>
+        <div class="chat-hilo proy-hilo" id="hilo">${pintarHilo(comentarios || [], {
+          esMio: (c) => c.autor_rol === 'creador',
+          autor: (c) => c.autor_nombre || '',
+          extra: (c) => (c.autor_rol === 'creador' ? '' : bloqueIA(c)),
+          textos: { hoy: 'Hoy', ayer: 'Ayer', nuevos: 'Nuevos', vacio: 'Sin mensajes todavía.' },
+        })}</div>
+        <form class="chat-escribir" id="fCom">
+          <div class="chat-caja">
+            <textarea id="txt" rows="1" maxlength="4000" placeholder="Responder…" aria-label="Mensaje"></textarea>
+            <button class="chat-enviar" type="submit" aria-label="Enviar"><span class="i i-enviar" aria-hidden="true"></span></button>
+          </div>
+          ${pistaTeclado()}
+        </form>
       </div>
     </div>`;
-  const hilo = document.getElementById('hilo'); hilo.scrollTop = hilo.scrollHeight;
+  alFondo(document.getElementById('hilo'));
 
   // Al abrir el proyecto, se marcan sus mensajes como leídos
   if (comentarios?.some((c) => !c.leido)) { await sb.from('comentarios').update({ leido: true }).eq('proyecto_id', id).eq('leido', false); actualizarSinLeer(); }
@@ -85,20 +95,20 @@ async function vProyecto(id) {
   });
   vista.querySelectorAll('[data-del-av]').forEach((b) => (b.onclick = () => borrar('avances', b.dataset.delAv, 'este avance')));
   vista.querySelectorAll('[data-analizar]').forEach((b) => (b.onclick = () => analizar(b.dataset.analizar, !!b.dataset.forzar, b)));
+  const escritura = prepararEscritura(document.getElementById('fCom'), {
+    alEnviar: async (mensaje) => {
+      const { error } = await sb.from('comentarios').insert({ proyecto_id: id, mensaje });
+      if (fallo(error, 'No se pudo enviar')) return false;
+      refrescar();
+      return true;
+    },
+  });
   vista.querySelectorAll('[data-usar]').forEach((b) => (b.onclick = () => {
     const a = iaDe(comentarios.find((x) => x.id === b.dataset.usar));
-    const t = document.getElementById('txt');
-    t.value = a?.respuesta || ''; t.focus(); t.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    escritura.poner(a?.respuesta || '');
+    escritura.txt.scrollIntoView({ behavior: 'smooth', block: 'center' });
     toast('Respuesta copiada al cuadro. Revísala y pulsa Enviar.');
   }));
-  document.getElementById('fCom').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const txt = document.getElementById('txt').value.trim(); if (!txt) return;
-    e.target.querySelector('button').disabled = true;
-    const { error } = await sb.from('comentarios').insert({ proyecto_id: id, mensaje: txt });
-    if (fallo(error, 'No se pudo enviar')) { e.target.querySelector('button').disabled = false; return; }
-    refrescar();
-  });
 }
 
 

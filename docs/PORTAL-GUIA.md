@@ -159,7 +159,9 @@ Cada vez que el cliente abre su panel con internet, la app guarda en su móvil u
 
 ## Chat con clientes (en tiempo real)
 - **Cada cliente tiene una conversación con A2WD**, aunque todavía no tenga proyecto. Los mensajes aparecen al momento en los dos lados, sin recargar.
-- **Pestaña Mensajes (creadores):** lista de conversaciones (las más recientes arriba, con contador de no leídos) y el chat al lado para responder. Al elegir «Sobre: …» se indica de qué proyecto habla la respuesta.
+- **Pestaña Mensajes (creadores):** lista de conversaciones con buscador, iniciales de cada cliente, hora del último mensaje y contador de no leídos (las más recientes arriba), y el chat al lado para responder. Al elegir «Sobre: …» se indica de qué proyecto habla la respuesta.
+- **Cómo se ve el hilo** (igual para cliente y creadores): separadores por día («Hoy», «Ayer», «lunes, 6 de octubre»), mensajes seguidos de la misma persona agrupados, la hora dentro de cada burbuja, el proyecto solo cuando cambia, una marca «Nuevos» antes de lo que no habías leído y los enlaces se pueden pulsar. La caja de escribir crece sola; en el ordenador Intro envía y Mayús + Intro hace salto de línea.
+- **Código:** `portal/js/chat.js` pinta el hilo y prepara la caja de escribir para los dos paneles; `portal/js/creador/mensajes.js` es la bandeja de creadores y `portal/js/cliente.js` el chat del cliente. Estilos compartidos en `portal/portal.css` (bloque «Chat»); la bandeja en `portal/css/creador.css`.
 - **Asistente IA:** en el último mensaje del cliente aparece su resumen y un borrador de respuesta en el idioma del cliente; «Usar respuesta» lo copia al cuadro para revisarlo y enviarlo.
 - Avisos en el móvil: a los creadores cuando escribe un cliente (al tocar el aviso se abre esa conversación) y al cliente cuando le respondéis.
 - Base de datos: `supabase/chat-clientes.sql` (los mensajes llevan `cliente_id`; el proyecto es opcional).
