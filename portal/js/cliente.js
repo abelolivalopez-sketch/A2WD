@@ -1,5 +1,7 @@
 import { sb, exigirSesion, salir, esc, urlSegura, fecha, toast, ORDEN_ESTADOS, LOGO, activarCambioPassword, chatAsistente, t, LANG, selectorIdioma } from './app.js';
 import { esFalloRed, guardarCopia, leerCopia, franjaSinConexion, textoSinRedEnviar, botonAvisos, avisosAlAbrir } from './movil.js';
+import { LOCALE } from './i18n.js';
+import { pintarHilo, repintar, alFondo, prepararEscritura, pistaTeclado } from './chat.js';
 
 // Textos fijos de la cabecera en el idioma del cliente
 document.getElementById('cargando').textContent = t('cargando');
@@ -58,53 +60,58 @@ avisosAlAbrir(sb, { creador: false });   // pide activar avisos al abrir la app 
 })();
 
 // ---------- Chat con A2WD: una conversación por cliente, en tiempo real ----------
+// El hilo y la caja de escribir los pinta js/chat.js (el mismo que usa el panel de creadores).
 let chatMensajes = [];
 let proyectoChat = () => null;          // proyecto al que se asocian los mensajes nuevos (si hay)
-const burbujaCli = (c) => `<div class="msg ${c.autor_id === perfil.id ? 'mio' : ''}" data-id="${c.id}">
-  <p class="meta">${esc(c.autor_rol === 'creador' ? 'A2WD · ' + (c.autor_nombre || '') : t('tu'))} · ${fecha(c.created_at, true)}</p>
-  <p>${esc(c.mensaje)}</p></div>`;
+
+const opcionesHilo = () => ({
+  esMio: (m) => m.autor_id === perfil.id,
+  autor: (m) => (m.autor_rol === 'creador' ? `A2WD · ${m.autor_nombre || ''}` : ''),
+  locale: LOCALE,
+  textos: { hoy: t('hoy'), ayer: t('ayer'), nuevos: t('nuevos'), vacio: t('sin_mensajes') },
+});
+
 async function cargarChat() {
   const { data, error } = await sb.from('comentarios').select('*').order('created_at').limit(300);
   if (error && esFalloRed(error)) { chatMensajes = leerCopia(uid, 'chat')?.datos ?? []; return true; }
   chatMensajes = data || []; guardarCopia(uid, 'chat', chatMensajes); return false;
 }
+
 function montarChat(caja, sinRed) {
+  caja.classList.add('chat-cli');
   caja.innerHTML = `
     <h3>${t('dudas')}</h3>
-    <p class="muted" style="font-size:13.5px;margin:4px 0 16px">${t('dudas_sub')}</p>
-    <div class="hilo" id="hilo">${chatMensajes.length ? chatMensajes.map(burbujaCli).join('') : `<p class="muted" id="chatVacio" style="font-size:13.5px">${t('sin_mensajes')}</p>`}</div>
-    <form id="fComentario" style="margin-top:16px">
-      <textarea id="txt" maxlength="4000" placeholder="${t('escribe_msg')}" required></textarea>
-      <button class="btn solid" style="margin-top:10px;width:100%" type="submit" ${sinRed ? 'disabled' : ''}>${t('enviar')}</button>
-      ${sinRed ? `<p class="muted" style="font-size:13px;margin-top:8px">${textoSinRedEnviar()}</p>` : ''}
+    <p class="muted chat-cli-sub">${t('dudas_sub')}</p>
+    <div class="chat-hilo" id="hilo" aria-live="polite">${pintarHilo(chatMensajes, opcionesHilo())}</div>
+    <form class="chat-escribir" id="fComentario">
+      <div class="chat-caja">
+        <textarea id="txt" rows="1" maxlength="4000" placeholder="${t('escribe_msg')}" aria-label="${t('escribe_msg')}"></textarea>
+        <button class="chat-enviar" type="submit" aria-label="${t('enviar')}"><span class="i i-enviar" aria-hidden="true"></span></button>
+      </div>
+      ${sinRed ? `<p class="chat-pista">${textoSinRedEnviar()}</p>` : pistaTeclado(t('chat_pista'))}
     </form>`;
-  const hilo = caja.querySelector('#hilo');
-  hilo.scrollTop = hilo.scrollHeight;
-  const txt = caja.querySelector('#txt');
-  txt.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey && !('ontouchstart' in window)) { e.preventDefault(); caja.querySelector('#fComentario').requestSubmit(); }
-  });
-  caja.querySelector('#fComentario').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const mensaje = txt.value.trim(); if (!mensaje) return;
-    const b = e.target.querySelector('button'); b.disabled = true;
-    const { data: nuevo, error } = await sb.from('comentarios').insert({ proyecto_id: proyectoChat(), mensaje }).select('*').single();
-    b.disabled = false;
-    if (error) { toast(esFalloRed(error) ? textoSinRedEnviar() : t('msg_error'), 'bad'); return; }
-    txt.value = ''; txt.focus();
-    anadirAlChat(nuevo);
-    // El asistente de A2WD analiza el mensaje en segundo plano (el cliente no ve el resultado)
-    sb.functions.invoke('analizar-comentario', { body: { comentario_id: nuevo.id } }).catch(() => {});
+  alFondo(caja.querySelector('#hilo'));
+
+  prepararEscritura(caja.querySelector('#fComentario'), {
+    puedeEnviar: () => !sinRed && navigator.onLine,
+    alEnviar: async (mensaje) => {
+      const { data: nuevo, error } = await sb.from('comentarios').insert({ proyecto_id: proyectoChat(), mensaje }).select('*').single();
+      if (error) { toast(esFalloRed(error) ? textoSinRedEnviar() : t('msg_error'), 'bad'); return false; }
+      anadirAlChat(nuevo, { forzarFondo: true });
+      // El asistente de A2WD analiza el mensaje en segundo plano (el cliente no ve el resultado)
+      sb.functions.invoke('analizar-comentario', { body: { comentario_id: nuevo.id } }).catch(() => {});
+      return true;
+    },
   });
 }
-function anadirAlChat(c) {
+
+function anadirAlChat(c, { forzarFondo = false } = {}) {
   if (chatMensajes.some((x) => x.id === c.id)) return;
   chatMensajes.push(c); guardarCopia(uid, 'chat', chatMensajes);
-  const hilo = document.getElementById('hilo'); if (!hilo) return;
-  document.getElementById('chatVacio')?.remove();
-  hilo.insertAdjacentHTML('beforeend', burbujaCli(c));
-  hilo.scrollTop = hilo.scrollHeight;
+  const hilo = document.getElementById('hilo');
+  if (hilo) repintar(hilo, pintarHilo(chatMensajes, opcionesHilo()), { forzarFondo });
 }
+
 // Las respuestas de A2WD aparecen solas, sin recargar
 sb.channel('chat-cliente')
   .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'comentarios' }, ({ new: c }) => anadirAlChat(c))

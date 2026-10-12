@@ -34,3 +34,7 @@
   .fila-c small{display:block;font-size:12px;color:var(--muted);}
   .fila-c b{font-family:var(--f-display);font-weight:600;white-space:nowrap;}
   @media (max-width:860px){.planes-c,.listas-c{grid-template-columns:1fr;}}
+
+  /* Chat con A2WD (el hilo y la caja comparten estilos en portal.css) */
+  .chat-cli-sub{margin:4px 0 14px;font-size:13.5px;}
+  .chat-cli .chat-hilo{min-height:140px;max-height:460px;margin-bottom:12px;}

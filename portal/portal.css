@@ -155,12 +155,63 @@ textarea{resize:vertical;min-height:90px;}
 .fase.hecha{border-color:#6f95e6;color:var(--ink-soft);}
 .fase.actual{border-color:var(--luz);color:var(--ink);font-weight:600;}
 
-/* Hilo de mensajes */
-.hilo{display:flex;flex-direction:column;gap:12px;max-height:460px;overflow-y:auto;padding-right:4px;}
-.msg{max-width:85%;padding:12px 14px;border:1px solid var(--line);border-radius:14px 14px 14px 4px;background:rgba(20,25,40,.7);}
-.msg.mio{align-self:flex-end;border-radius:14px 14px 4px 14px;background:rgba(156,192,255,.12);border-color:rgba(156,192,255,.3);}
-.msg .meta{font-size:12px;color:var(--muted);margin-bottom:4px;}
-.msg p{white-space:pre-wrap;word-wrap:break-word;}
+/* ---------- Chat (cliente y creadores) · js/chat.js ----------
+   Hilo:  .chat-sep (día / «Nuevos») → .chat-grupo[.mio] → .chat-autor + .chat-msg > .chat-texto
+   Caja:  form.chat-escribir > .chat-caja > textarea + button.chat-enviar */
+.chat-hilo{display:flex;flex-direction:column;gap:14px;overflow-y:auto;overscroll-behavior:contain;padding:4px 2px 8px;}
+.chat-vacio{margin:auto;padding:24px 12px;text-align:center;font-size:13.5px;color:var(--muted);}
+
+.chat-sep{display:flex;align-items:center;gap:12px;margin:4px 0 -4px;font-size:11.5px;color:var(--muted);}
+.chat-sep::before,.chat-sep::after{content:"";flex:1;height:1px;background:var(--line);}
+.chat-sep span{display:inline-block;padding:2px 10px;border:1px solid var(--line);border-radius:999px;background:rgba(8,10,18,.7);}
+.chat-sep span::first-letter{text-transform:uppercase;}
+.chat-sep-nuevos{color:var(--luz);}
+.chat-sep-nuevos::before,.chat-sep-nuevos::after{background:rgba(156,192,255,.35);}
+.chat-sep-nuevos span{border-color:rgba(156,192,255,.4);}
+
+.chat-grupo{display:flex;flex-direction:column;align-items:flex-start;gap:3px;max-width:min(80%,580px);}
+.chat-grupo.mio{align-self:flex-end;align-items:flex-end;}
+.chat-autor{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 6px 2px;font-size:12px;color:var(--muted);}
+.chat-tema{padding:1px 8px;border:1px solid var(--line);border-radius:999px;font-size:11px;color:var(--ink-soft);}
+.chat-msg{max-width:100%;}
+.chat-texto{
+  display:flow-root;padding:8px 12px 7px;border:1px solid var(--line);border-radius:14px;background:rgba(20,25,40,.8);
+  font-size:14px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;
+}
+.chat-grupo.mio .chat-texto{background:rgba(156,192,255,.12);border-color:rgba(156,192,255,.3);}
+/* Burbujas seguidas del mismo autor: esquinas pegadas por su lado */
+.chat-grupo:not(.mio) .chat-msg:not(:first-of-type) .chat-texto{border-top-left-radius:4px;}
+.chat-grupo:not(.mio) .chat-msg:not(:last-child) .chat-texto{border-bottom-left-radius:4px;}
+.chat-grupo.mio .chat-msg:not(:first-of-type) .chat-texto{border-top-right-radius:4px;}
+.chat-grupo.mio .chat-msg:not(:last-child) .chat-texto{border-bottom-right-radius:4px;}
+.chat-texto a{color:var(--luz-fuerte);text-underline-offset:2px;}
+.chat-hora{float:right;margin:7px 0 -3px 12px;font-family:var(--f-mono);font-size:10.5px;line-height:1;color:var(--muted);white-space:nowrap;}
+
+.chat-escribir{display:flex;flex-direction:column;gap:6px;}
+.chat-caja{
+  display:flex;align-items:flex-end;gap:8px;padding:5px 5px 5px 16px;
+  border:1px solid var(--line-strong);border-radius:22px;background:rgba(4,6,12,.62);
+  transition:border-color .18s ease,box-shadow .18s ease;
+}
+.chat-caja:focus-within{border-color:var(--luz);box-shadow:0 0 0 3px rgba(156,192,255,.16);}
+.chat-caja textarea,.chat-caja textarea:focus,.chat-caja textarea:hover{
+  flex:1;min-height:0;max-height:160px;padding:8px 0;resize:none;
+  border:0;background:transparent;box-shadow:none;font-size:14.5px;line-height:1.45;
+}
+.chat-enviar{
+  flex:0 0 auto;display:grid;place-items:center;width:36px;height:36px;border:0;border-radius:50%;
+  background:var(--boton);color:var(--on-luz);cursor:pointer;transition:opacity .15s ease,transform .15s ease;
+}
+.chat-enviar:not(:disabled):hover{transform:scale(1.06);}
+.chat-enviar:disabled{opacity:.3;cursor:default;}
+.chat-enviar .i{width:18px;height:18px;}
+.chat-pista{padding-left:16px;font-size:11.5px;color:var(--muted);}
+
+.chat-avatar{
+  flex:0 0 auto;display:grid;place-items:center;width:38px;height:38px;border-radius:50%;
+  font:600 13px/1 var(--f-display);color:hsl(var(--tono,220) 85% 86%);
+  background:hsl(var(--tono,220) 55% 60% / .16);border:1px solid hsl(var(--tono,220) 60% 72% / .3);
+}
 
 /* Tablas */
 .tabla-wrap{overflow-x:auto;}
