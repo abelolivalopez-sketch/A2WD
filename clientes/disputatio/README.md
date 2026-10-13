@@ -19,7 +19,7 @@ Para verla en local, desde la raíz del repositorio: `python -m http.server` y a
 | `css/disputatio.css` | Solo la página de publicación |
 | `css/creacion.css` | Solo el espacio de creación: lista, pasos, formulario, botones, avisos |
 | `js/idiomas.js` | Todos los textos en francés e inglés y el cambio de idioma |
-| `js/ejemplos.js` | Las siete disputatio de ejemplo |
+| `js/ejemplos.js` | Los disputatio de ejemplo (París y Dakar) |
 | `js/almacen.js` | Leer, guardar y borrar disputatio. Hoy usa el navegador; mañana, la base de datos |
 | `js/articulo.js` | Pinta una disputatio (página de publicación y vista previa) y convierte los enlaces del texto |
 | `js/globo.js` | El globo 3D: sombreado de grabado, giro, zoom, puntos y punto nuevo |
@@ -29,6 +29,7 @@ Para verla en local, desde la raíz del repositorio: `python -m http.server` y a
 | `img/tierra-2k.jpg`, `img/tierra-4k.jpg` | Mapa del globo (el 4k solo en pantallas grandes) |
 | `img/papel.jpg` | Textura del papel de fondo (se repite) |
 | `img/logo.svg` | Logo provisional, a sustituir por el de Disputatio |
+| `img/redes/` | Iconos de Instagram, Facebook y TikTok (ahora provisionales, con la inicial) |
 | `fuentes/` | IM Fell English (rótulos) y EB Garamond (texto), licencia OFL |
 | `vendor/three-r128.min.js` | three.js |
 | `herramientas/generar-mapa.py` | Genera el mapa y el papel |
@@ -70,5 +71,6 @@ Al principio del script están los colores (`COLORES`) y los rótulos latinos de
 
 - Cuentas de autores (solo las que demos de alta) y base de datos.
 - Logo real de Disputatio y enlaces de Instagram, Facebook y TikTok (ahora apuntan a `#`).
-- Disputatio reales: las siete actuales son de ejemplo.
+- Iconos oficiales de las redes: descargar la versión monocroma (SVG o PNG con fondo transparente) de cada marca y guardarla en `img/redes/` con el mismo nombre (`instagram.svg`, `facebook.svg`, `tiktok.svg`; si es PNG, cambiar la extensión en `css/estilos.css`). El CSS solo usa la silueta y la pinta en blanco translúcido.
+- Disputatio reales: los dos actuales (París y Dakar) son de ejemplo.
 - Dominio donde se publicará.
