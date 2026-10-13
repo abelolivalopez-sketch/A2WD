@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#e8dcc2">
+  <meta name="description" content="Les disputatio dans le monde : sélectionnez un point du globe pour découvrir ce qui s'y est passé.">
+  <title>Disputatio</title>
+  <link rel="icon" href="img/logo.svg" type="image/svg+xml">
+  <link rel="preload" href="fuentes/im-fell-english-sc-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fuentes/eb-garamond-latin-400-italic.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="img/tierra-2k.jpg" as="image" crossorigin>
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body class="cargando">
+  <header class="marca">
+    <a class="marca__enlace" href="index.html">
+      <img class="marca__logo" src="img/logo.svg" alt="" width="42" height="42">
+      <span class="marca__nombre">Disputatio</span>
+    </a>
+    <p class="marca__entrada" data-t="entrada">Chaque point marque une disputatio. Sélectionnez-en un pour découvrir ce qui s'y est passé.</p>
+  </header>
+
+  <main class="escenario" aria-label="Globe des disputatio" data-t-aria="escena">
+    <canvas class="escenario__lienzo"></canvas>
+    <div class="escenario__marcadores"></div>
+    <ol class="lista-disputatios" hidden></ol>
+  </main>
+
+  <footer class="pie">
+    <nav class="redes" aria-label="Réseaux sociaux" data-t-aria="redes">
+      <a href="#" target="_blank" rel="noopener">Instagram</a>
+      <a href="#" target="_blank" rel="noopener">Facebook</a>
+      <a href="#" target="_blank" rel="noopener">TikTok</a>
+    </nav>
+    <div class="idiomas" role="group" aria-label="Langue" data-t-aria="idioma">
+      <button type="button" data-idioma="fr" lang="fr" aria-label="Français">FR</button>
+      <button type="button" data-idioma="en" lang="en" aria-label="English">EN</button>
+    </div>
+    <a class="pie__crear" href="creation.html" data-t="espacioCreacion">Espace de création</a>
+  </footer>
+
+  <script src="vendor/three-r128.min.js"></script>
+  <script type="module" src="js/sitio.js"></script>
+</body>
+</html>
