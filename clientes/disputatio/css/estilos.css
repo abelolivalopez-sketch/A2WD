@@ -561,16 +561,6 @@ button {
   line-height: 1.4;
 }
 
-.pie__credito a {
-  color: inherit;
-  text-decoration-color: rgba(255, 255, 193, 0.3);
-}
-
-.pie__credito a:hover {
-  color: var(--verde);
-  text-decoration-color: currentColor;
-}
-
 .idiomas {
   display: inline-flex;
   gap: 2px;
