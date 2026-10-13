@@ -1,10 +1,10 @@
 # Disputatio · globo de disputatio
 
-Tres páginas, en francés e inglés, con aspecto de mapa antiguo grabado sobre papel envejecido:
+Tres páginas, en francés e inglés, con la identidad de Disputatio: fondo negro, verde flúor `#00FA5A`, crema `#FFFFC1`, el logo del círculo verde y fotos en blanco y negro.
 
-- `index.html`: el globo. Cada punto es una disputatio; al pulsarlo, el globo gira hasta él y se pasa a su página.
-- `disputatio.html#id`: la página de cada publicación, como una hoja de libro antiguo (lugar, título, fecha, coordenadas, imagen, texto con letra capital y enlaces), con la anterior y la siguiente y «Retour au globe», que vuelve al globo centrado en ese punto.
-- `creation.html`: el espacio de creación. Se pulsa «Ajouter une disputatio», se planta el punto en el globo y se escribe el artículo (idioma, título, ciudad, país, fecha, imagen, texto con enlaces y lista de enlaces). Se puede guardar como borrador, publicar, editar y borrar. Se llega desde el enlace «Espace de création» del pie del globo.
+- `index.html`: el globo (verde con continentes negros y sombra de semitono). Cada ciudad es un punto con su nombre; si en una ciudad hay varios disputatio, el punto lleva el número y al pulsarlo se abre una tarjeta con la lista. Si solo hay uno, se pasa directamente a su página.
+- `disputatio.html#id`: la página de cada publicación. Cabecera negra con el título grande en verde (si hay foto, la foto en blanco y negro detrás, como en los carteles de Instagram), intervenientes, lugar, fecha y coordenadas; debajo el texto sobre crema, los enlaces, el anterior y el siguiente y «Retour au globe», que vuelve al globo centrado en esa ciudad.
+- `creation.html`: el espacio de creación. **No está enlazado desde la web pública**: se entra escribiendo la dirección (`.../creation.html`). Se pulsa «Ajouter un disputatio», se planta el punto en el globo y se escribe el artículo (idioma, título, intervenientes, ciudad, país, fecha, imagen, texto con enlaces y lista de enlaces). Se puede guardar como borrador, publicar, editar y borrar.
 
 **Todavía no hay cuentas ni base de datos.** Lo que se crea se guarda solo en el navegador de quien lo crea (modo demo). Cuando haya base de datos, solo cambia `js/almacen.js`.
 
@@ -15,62 +15,63 @@ Para verla en local, desde la raíz del repositorio: `python -m http.server` y a
 | Archivo | Qué contiene |
 |---|---|
 | `index.html`, `disputatio.html`, `creation.html` | Estructura de cada página |
-| `css/estilos.css` | Tipografías, colores (en `:root`) y todo lo común: papel, marco, globo, puntos, pie, idiomas, artículo |
+| `css/estilos.css` | Tipografías, colores (en `:root`) y todo lo común: globo, puntos, tarjeta de ciudad, pie, idiomas, artículo |
 | `css/disputatio.css` | Solo la página de publicación |
 | `css/creacion.css` | Solo el espacio de creación: lista, pasos, formulario, botones, avisos |
 | `js/idiomas.js` | Todos los textos en francés e inglés y el cambio de idioma |
-| `js/ejemplos.js` | Los disputatio de ejemplo (París y Dakar) |
+| `js/ejemplos.js` | Los disputatio de ejemplo (dos en París y uno en Dakar) |
 | `js/almacen.js` | Leer, guardar y borrar disputatio. Hoy usa el navegador; mañana, la base de datos |
-| `js/articulo.js` | Pinta una disputatio (página de publicación y vista previa) y convierte los enlaces del texto |
-| `js/globo.js` | El globo 3D: sombreado de grabado, giro, zoom, puntos y punto nuevo |
-| `js/sitio.js` | El globo público |
+| `js/articulo.js` | Pinta un disputatio (página de publicación y vista previa) y convierte los enlaces del texto |
+| `js/globo.js` | El globo 3D: colores, semitono, giro, zoom, puntos y punto nuevo |
+| `js/sitio.js` | El globo público: agrupa por ciudad y abre la tarjeta |
 | `js/disputatio.js` | La página de publicación |
 | `js/creacion.js` | El espacio de creación |
-| `img/tierra-2k.jpg`, `img/tierra-4k.jpg` | Mapa del globo (el 4k solo en pantallas grandes) |
-| `img/papel.jpg` | Textura del papel de fondo (se repite) |
-| `img/logo.svg` | Logo provisional, a sustituir por el de Disputatio |
+| `img/logo.png` | Logo de Disputatio (512 px). Si llega el original en SVG, sustituirlo |
+| `img/tierra-2k.png`, `img/tierra-4k.png` | Máscara del mapa: blanco el mar, negro la tierra (el 4k solo en pantallas grandes). Los colores se ponen en `js/globo.js` |
 | `img/redes/` | Iconos de Instagram, Facebook y TikTok (ahora provisionales, con la inicial) |
-| `fuentes/` | IM Fell English (rótulos) y EB Garamond (texto), licencia OFL |
+| `fuentes/` | Archivo (rótulos y texto) e Instrument Serif (títulos), licencia OFL |
 | `vendor/three-r128.min.js` | three.js |
-| `herramientas/generar-mapa.py` | Genera el mapa y el papel |
+| `herramientas/generar-mapa.py` | Genera la máscara del mapa |
 
 En cada archivo JS van primero las importaciones y lo que se declara (ajustes, elementos de la página, estado), después las funciones y al final el arranque.
 
-## Una disputatio
+## Un disputatio
 
 ```js
 {
-  id: "paris-2025",
+  id: "paris-mythe-2026",
   idioma: "fr",
   estado: "publicado",
-  titulo: "Première disputatio à la Sorbonne",
+  titulo: "Le mythe est-il encore un outil de compréhension du monde ?",
+  participantes: "Avec Julien d'Huy, docteur en histoire et spécialiste de mythologie comparée",
   ciudad: "Paris",
   pais: "France",
-  fecha: "2025-02-21",
-  lat: 48.857,
-  lng: 2.352,
+  fecha: "2026-06-14",
+  lat: 48.8836,
+  lng: 2.3492,
   texto: "Primer párrafo.\n\nSegundo párrafo con un [enlace](https://...).",
-  enlaces: [{ texto: "Vidéo du débat", url: "https://..." }],
+  enlaces: [{ texto: "Disputatio sur Instagram", url: "https://www.instagram.com/_disputatio/" }],
   imagen: { src: "...", descripcion: "..." }
 }
 ```
 
-`estado` es `publicado` o `borrador` (los borradores solo se ven en el espacio de creación). `imagen` es opcional. La página de cada disputatio publicada es `disputatio.html#` más su `id`.
+`estado` es `publicado` o `borrador` (los borradores solo se ven en el espacio de creación). `participantes` e `imagen` son opcionales; la imagen se muestra siempre en blanco y negro. La página de cada disputatio publicado es `disputatio.html#` más su `id`. En el globo, los disputatio con la misma ciudad y el mismo país comparten punto.
 
-## Regenerar el mapa
+## Colores y mapa
 
-Necesita los contornos de Natural Earth (`ne_50m_land.geojson` y `ne_50m_admin_0_countries.geojson`, dominio público) en una carpeta:
+Los colores de la web están en `:root` de `css/estilos.css`; los del globo, en `CONFIG` de `js/globo.js` (`colorTierra`, `colorMar`, `pasoSemitono`, `coberturaSemitono`).
+
+Para regenerar la máscara del mapa hacen falta los contornos de Natural Earth (`ne_50m_land.geojson` y `ne_50m_admin_0_countries.geojson`, dominio público) en una carpeta:
 
 ```bash
 python herramientas/generar-mapa.py ruta/a/geojson
 ```
 
-Al principio del script están los colores (`COLORES`) y los rótulos latinos del globo (`ROTULOS`: texto, longitud, latitud y estilo). Usa las fuentes de `fuentes/` y deja los archivos en `img/`.
-
 ## Pendiente
 
-- Cuentas de autores (solo las que demos de alta) y base de datos.
-- Logo real de Disputatio y enlaces de Instagram, Facebook y TikTok (ahora apuntan a `#`).
+- Cuentas de autores (solo las que demos de alta) y base de datos, para que Disputatio publique sin pasar por nosotros.
+- Logo original en SVG y enlaces de Facebook y TikTok (ahora apuntan a `#`; Instagram ya apunta a `_disputatio`).
 - Iconos oficiales de las redes: descargar la versión monocroma (SVG o PNG con fondo transparente) de cada marca y guardarla en `img/redes/` con el mismo nombre (`instagram.svg`, `facebook.svg`, `tiktok.svg`; si es PNG, cambiar la extensión en `css/estilos.css`). El CSS solo usa la silueta y la pinta en blanco translúcido.
-- Disputatio reales: los dos actuales (París y Dakar) son de ejemplo.
+- Fotos en blanco y negro de cada disputatio.
+- Textos: el de «Le mythe…» está redactado a partir del post de Instagram; los de Château Rouge y Dakar son de ejemplo.
 - Dominio donde se publicará.

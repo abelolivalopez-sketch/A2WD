@@ -48,11 +48,16 @@ function crearImagen(imagen) {
   return figura;
 }
 
-function crearOrnamento() {
-  const ornamento = crearElemento("div", "ornamento articulo__ornamento");
-  ornamento.setAttribute("aria-hidden", "true");
-  ornamento.append(document.createElement("span"));
-  return ornamento;
+function crearDatos(disputatio) {
+  const datos = crearElemento("p", "articulo__datos");
+  const fecha = crearElemento("time", "articulo__fecha", formatearFecha(disputatio.fecha));
+  fecha.dateTime = disputatio.fecha || "";
+  datos.lang = idioma();
+  datos.append(crearElemento("span", "articulo__lugar", [disputatio.ciudad, disputatio.pais].filter(Boolean).join(", ")), fecha);
+  if (Number.isFinite(disputatio.lat) && Number.isFinite(disputatio.lng)) {
+    datos.append(crearElemento("span", "articulo__coordenadas", t("coordenadasGrados", disputatio.lat, disputatio.lng)));
+  }
+  return datos;
 }
 
 function crearListaEnlaces(enlaces) {
@@ -86,27 +91,25 @@ export function textoEnParrafos(texto) {
 }
 
 export function pintarArticulo(contenedor, disputatio, { idTitulo = "", nivelTitulo = "h2" } = {}) {
-  const lugar = crearElemento("p", "articulo__lugar", [disputatio.ciudad, disputatio.pais].filter(Boolean).join(", "));
+  const cabecera = crearElemento("header", "articulo__cabecera");
+  const rotulo = crearElemento("div", "articulo__rotulo");
   const titulo = crearElemento(nivelTitulo, "articulo__titulo", disputatio.titulo);
-  const fecha = crearElemento("time", "articulo__fecha", formatearFecha(disputatio.fecha));
+  const cuerpo = crearElemento("div", "articulo__cuerpo");
   const texto = crearElemento("div", "articulo__texto");
   const enlaces = (disputatio.enlaces || []).filter((enlace) => enlace.texto && urlValida(enlace.url));
-  const partes = [lugar, titulo, fecha];
+  const conImagen = Boolean(disputatio.imagen?.src);
   if (idTitulo) titulo.id = idTitulo;
   titulo.tabIndex = -1;
-  fecha.dateTime = disputatio.fecha || "";
-  fecha.lang = idioma();
-  if (Number.isFinite(disputatio.lat) && Number.isFinite(disputatio.lng)) {
-    const coordenadas = crearElemento("span", "articulo__coordenadas", t("coordenadasAntiguas", disputatio.lat, disputatio.lng));
-    coordenadas.lang = idioma();
-    partes.push(coordenadas);
-  }
-  partes.push(crearOrnamento());
+  rotulo.append(titulo);
+  if (disputatio.participantes) rotulo.append(crearElemento("p", "articulo__participantes", disputatio.participantes));
+  rotulo.append(crearDatos(disputatio));
+  if (conImagen) cabecera.append(crearImagen(disputatio.imagen));
+  cabecera.append(rotulo);
   texto.append(...textoEnParrafos(disputatio.texto));
-  if (disputatio.imagen?.src) partes.push(crearImagen(disputatio.imagen));
-  partes.push(texto);
-  if (enlaces.length) partes.push(crearListaEnlaces(enlaces));
+  cuerpo.append(texto);
+  if (enlaces.length) cuerpo.append(crearListaEnlaces(enlaces));
   contenedor.lang = disputatio.idioma || idioma();
-  contenedor.replaceChildren(...partes);
+  contenedor.classList.toggle("articulo--con-imagen", conImagen);
+  contenedor.replaceChildren(cabecera, cuerpo);
   return titulo;
 }

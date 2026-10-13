@@ -4,20 +4,23 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex">
-  <meta name="theme-color" content="#e8dcc2">
+  <meta name="theme-color" content="#000000">
   <title>Disputatio, espace de création</title>
-  <link rel="icon" href="img/logo.svg" type="image/svg+xml">
-  <link rel="preload" href="fuentes/im-fell-english-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="fuentes/eb-garamond-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="img/tierra-2k.jpg" as="image" crossorigin>
+  <link rel="icon" href="img/logo.png" type="image/png">
+  <link rel="preload" href="fuentes/archivo-latin-standard-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fuentes/archivo-latin-standard-italic.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="img/tierra-2k.png" as="image" crossorigin>
   <link rel="stylesheet" href="css/estilos.css">
   <link rel="stylesheet" href="css/creacion.css">
 </head>
 <body class="cargando creacion" data-vista="lista">
   <header class="marca">
     <a class="marca__enlace" href="index.html">
-      <img class="marca__logo" src="img/logo.svg" alt="" width="42" height="42">
-      <span class="marca__nombre">Disputatio</span>
+      <img class="marca__logo" src="img/logo.png" alt="" width="56" height="56">
+      <span class="marca__textos">
+        <span class="marca__antetitulo" data-t="cafePhilo">Café philo</span>
+        <span class="marca__nombre">Disputatio</span>
+      </span>
     </a>
     <p class="marca__seccion" data-t="espacioCreacion">Espace de création</p>
   </header>
@@ -96,6 +99,12 @@
           <label for="campo-titulo" data-t="campoTitulo">Titre</label>
           <input id="campo-titulo" name="titulo" type="text" maxlength="120" autocomplete="off" aria-describedby="error-titulo">
           <p class="campo__error" id="error-titulo" hidden></p>
+        </div>
+
+        <div class="campo">
+          <label for="campo-participantes" data-t="campoParticipantes">Intervenants (facultatif)</label>
+          <input id="campo-participantes" name="participantes" type="text" maxlength="160" autocomplete="off" aria-describedby="ayuda-participantes">
+          <p class="campo__ayuda" id="ayuda-participantes" data-t="ayudaParticipantes">Tel qu'il apparaîtra sous le titre.</p>
         </div>
 
         <div class="campo-fila">

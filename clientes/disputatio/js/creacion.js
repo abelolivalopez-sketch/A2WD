@@ -33,6 +33,7 @@ const dom = {
   previa: document.querySelector(".articulo--previa"),
   campos: {
     titulo: document.getElementById("campo-titulo"),
+    participantes: document.getElementById("campo-participantes"),
     ciudad: document.getElementById("campo-ciudad"),
     pais: document.getElementById("campo-pais"),
     fecha: document.getElementById("campo-fecha"),
@@ -94,9 +95,9 @@ function esEscritorio() {
 }
 
 function calcularHueco() {
-  if (!esEscritorio()) return { x: 0, y: dom.panel.offsetHeight / 2 };
+  if (!esEscritorio()) return { abajo: dom.panel.offsetHeight };
   const margen = parseFloat(getComputedStyle(dom.panel).right) || 0;
-  return { x: (dom.panel.offsetWidth + margen) / 2, y: 0 };
+  return { derecha: dom.panel.offsetWidth + margen };
 }
 
 function actualizarHueco() {
@@ -330,6 +331,7 @@ function rellenarFormulario(disputatio) {
   limpiarFormulario();
   dom.formulario.elements.idioma.value = disputatio.idioma || idioma();
   dom.campos.titulo.value = disputatio.titulo || "";
+  dom.campos.participantes.value = disputatio.participantes || "";
   dom.campos.ciudad.value = disputatio.ciudad || "";
   dom.campos.pais.value = disputatio.pais || "";
   dom.campos.fecha.value = disputatio.fecha || "";
@@ -345,6 +347,7 @@ function leerFormulario() {
     idioma: dom.formulario.elements.idioma.value,
     estado: estado.editando?.estado || "borrador",
     titulo: dom.campos.titulo.value.trim(),
+    participantes: dom.campos.participantes.value.trim(),
     ciudad: dom.campos.ciudad.value.trim(),
     pais: dom.campos.pais.value.trim(),
     fecha: dom.campos.fecha.value,

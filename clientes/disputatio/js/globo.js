@@ -17,12 +17,13 @@ const CONFIG = {
   frenadoInercia: 3.2,
   umbralToque: 6,
   pixelesDetalle: 1600,
-  mapaBase: "img/tierra-2k.jpg",
-  mapaDetalle: "img/tierra-4k.jpg",
-  colorTinta: 0x34261a,
+  mapaBase: "img/tierra-2k.png",
+  mapaDetalle: "img/tierra-4k.png",
+  colorTierra: 0x000000,
+  colorMar: 0x00fa5a,
   direccionLuz: [-0.55, 0.6, 0.6],
-  separacionRayado: 4.2,
-  grosorRayado: 0.9
+  pasoSemitono: 5.5,
+  coberturaSemitono: 0.5
 };
 
 const SOMBREADO = {
@@ -40,27 +41,27 @@ const SOMBREADO = {
   ].join("\n"),
   fragmento: [
     "uniform sampler2D mapa;",
-    "uniform vec3 tinta;",
+    "uniform vec3 tierra;",
+    "uniform vec3 mar;",
     "uniform vec3 luz;",
-    "uniform float separacion;",
-    "uniform float grosor;",
+    "uniform float paso;",
+    "uniform float cobertura;",
     "varying vec2 vUv;",
     "varying vec3 vNormal;",
     "varying vec3 vVista;",
-    "float trama(float coordenada) {",
-    "  float paso = separacion * 1.4142;",
-    "  float distancia = abs(fract(coordenada / paso) - 0.5) * paso / 1.4142;",
-    "  return 1.0 - smoothstep(grosor * 0.5, grosor * 0.5 + 0.9, distancia);",
+    "float semitono(float cantidad) {",
+    "  vec2 celda = fract(mat2(0.7071, 0.7071, -0.7071, 0.7071) * gl_FragCoord.xy / paso) - 0.5;",
+    "  float radio = sqrt(cantidad / 3.14159);",
+    "  float suave = 0.8 / paso;",
+    "  return 1.0 - smoothstep(radio - suave, radio + suave, length(celda));",
     "}",
     "void main() {",
     "  vec3 normal = normalize(vNormal);",
     "  float sombra = 1.0 - max(dot(normal, normalize(luz)), 0.0);",
-    "  vec3 color = texture2D(mapa, vUv).rgb * (1.0 - 0.1 * sombra);",
-    "  float primera = trama(gl_FragCoord.x + gl_FragCoord.y) * smoothstep(0.56, 0.88, sombra);",
-    "  float segunda = trama(gl_FragCoord.x - gl_FragCoord.y) * smoothstep(0.82, 0.99, sombra);",
-    "  color = mix(color, tinta, max(primera, segunda) * 0.42);",
+    "  vec3 color = mix(tierra, mar, texture2D(mapa, vUv).r);",
+    "  color = mix(color, tierra, semitono(smoothstep(0.4, 1.0, sombra) * cobertura));",
     "  float borde = 1.0 - max(dot(normal, normalize(vVista)), 0.0);",
-    "  color = mix(color, tinta, smoothstep(0.9, 0.975, borde));",
+    "  color = mix(color, mar, smoothstep(0.86, 0.95, borde));",
     "  gl_FragColor = vec4(color, 1.0);",
     "}"
   ].join("\n")
@@ -84,7 +85,7 @@ const estado = {
   destino: { ...CONFIG.vistaInicial, distancia: CONFIG.distanciaInicial },
   inercia: { lat: 0, lng: 0 },
   desplazamiento: { x: 0, y: 0 },
-  hueco: { x: 0, y: 0 },
+  hueco: { arriba: 0, derecha: 0, abajo: 0, izquierda: 0 },
   enfoque: "inicio",
   punteros: new Map(),
   arrastre: null,
@@ -137,8 +138,8 @@ function vectorALatLng(vector) {
 
 function areaUtil() {
   return {
-    ancho: Math.max(estado.ancho - 2 * estado.hueco.x, estado.ancho * 0.3),
-    alto: Math.max(estado.alto - 2 * estado.hueco.y, estado.alto * 0.3)
+    ancho: Math.max(estado.ancho - estado.hueco.izquierda - estado.hueco.derecha, estado.ancho * 0.3),
+    alto: Math.max(estado.alto - estado.hueco.arriba - estado.hueco.abajo, estado.alto * 0.3)
   };
 }
 
@@ -195,10 +196,11 @@ function crearEsfera() {
   const material = new THREE.ShaderMaterial({
     uniforms: {
       mapa: { value: null },
-      tinta: { value: new THREE.Color(CONFIG.colorTinta) },
+      tierra: { value: new THREE.Color(CONFIG.colorTierra) },
+      mar: { value: new THREE.Color(CONFIG.colorMar) },
       luz: { value: new THREE.Vector3(...CONFIG.direccionLuz) },
-      separacion: { value: CONFIG.separacionRayado * escala },
-      grosor: { value: CONFIG.grosorRayado * escala }
+      paso: { value: CONFIG.pasoSemitono * escala },
+      cobertura: { value: CONFIG.coberturaSemitono }
     },
     vertexShader: SOMBREADO.vertice,
     fragmentShader: SOMBREADO.fragmento
@@ -223,7 +225,7 @@ function necesitaDetalle() {
   return pixeles > CONFIG.pixelesDetalle && tres.renderer.capabilities.maxTextureSize >= 4096;
 }
 
-function crearBotonMarcador(nombre, etiqueta, clase) {
+function crearBotonMarcador(nombre, etiqueta, clase, cantidad = 0) {
   const boton = document.createElement("button");
   const punto = document.createElement("span");
   const texto = document.createElement("span");
@@ -234,6 +236,12 @@ function crearBotonMarcador(nombre, etiqueta, clase) {
   texto.className = "marcador__nombre";
   texto.textContent = nombre;
   texto.setAttribute("aria-hidden", "true");
+  if (cantidad > 1) {
+    const numero = document.createElement("span");
+    numero.className = "marcador__cantidad";
+    numero.textContent = String(cantidad);
+    texto.append(numero);
+  }
   boton.append(punto, texto);
   estado.capa.append(boton);
   return boton;
@@ -374,8 +382,8 @@ function actualizarVista(segundos) {
   estado.vista.lat = seguir(estado.vista.lat, estado.destino.lat, factor);
   estado.vista.lng = normalizarLongitud(estado.vista.lng + normalizarLongitud(estado.destino.lng - estado.vista.lng) * factor);
   estado.vista.distancia = seguir(estado.vista.distancia, estado.destino.distancia, factor);
-  estado.desplazamiento.x = seguir(estado.desplazamiento.x, estado.hueco.x, factor);
-  estado.desplazamiento.y = seguir(estado.desplazamiento.y, estado.hueco.y, factor);
+  estado.desplazamiento.x = seguir(estado.desplazamiento.x, (estado.hueco.derecha - estado.hueco.izquierda) / 2, factor);
+  estado.desplazamiento.y = seguir(estado.desplazamiento.y, (estado.hueco.abajo - estado.hueco.arriba) / 2, factor);
 }
 
 function colocarCamara() {
@@ -431,10 +439,10 @@ export function iniciarGlobo({ lienzo, capa, alTocar = null, giroAutomatico = fa
   return cargarMapa(CONFIG.mapaBase).then(alCargarMapa);
 }
 
-export function ponerMarcadores(lista, { alPulsar, etiqueta, clase = () => "" }) {
+export function ponerMarcadores(lista, { alPulsar, etiqueta, clase = () => "", cantidad = () => 0 }) {
   estado.marcadores.forEach((marcador) => marcador.boton.remove());
   estado.marcadores = lista.map((lugar) => {
-    const boton = crearBotonMarcador(lugar.ciudad, etiqueta(lugar), clase(lugar));
+    const boton = crearBotonMarcador(lugar.ciudad, etiqueta(lugar), clase(lugar), cantidad(lugar));
     boton.dataset.id = lugar.id;
     boton.addEventListener("click", () => alPulsar(lugar.id));
     boton.addEventListener("focus", () => {
@@ -477,9 +485,16 @@ export function reposar() {
   marcarInteraccion();
 }
 
+export function fijarGiroAutomatico(activo) {
+  estado.giroAutomatico = activo;
+  marcarInteraccion();
+}
+
 export function fijarHueco(hueco) {
-  estado.hueco.x = hueco.x || 0;
-  estado.hueco.y = hueco.y || 0;
+  estado.hueco.arriba = hueco.arriba || 0;
+  estado.hueco.derecha = hueco.derecha || 0;
+  estado.hueco.abajo = hueco.abajo || 0;
+  estado.hueco.izquierda = hueco.izquierda || 0;
   if (tres.renderer && estado.enfoque !== "inicio" && !estado.zoomManual) estado.destino.distancia = distanciaDelEnfoque();
 }
 
