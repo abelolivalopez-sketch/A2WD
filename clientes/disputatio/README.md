@@ -60,6 +60,8 @@ En cada archivo JS van primero las importaciones y lo que se declara (ajustes, e
 
 En el pie van los nombres «Instagram», «Facebook» y «TikTok» escritos en verde, sin los logos de las marcas, para no depender de sus normas de uso de marca.
 
+Debajo va el crédito «Site conçu par A2WD Studio», en letra de 10 px, con enlace a la web de A2WD. Cuando funcione a2wdstudio.com, hay que cambiar ese enlace en `index.html` y `disputatio.html`.
+
 ## Colores y mapa
 
 Los colores de la web están en `:root` de `css/estilos.css`; los del globo, en `CONFIG` de `js/globo.js` (`colorTierra`, `colorMar`, `pasoSemitono`, `coberturaSemitono`).

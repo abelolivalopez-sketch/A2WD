@@ -552,6 +552,25 @@ button {
   text-shadow: none;
 }
 
+.pie__credito {
+  flex-basis: 100%;
+  margin: 0;
+  color: rgba(255, 255, 193, 0.5);
+  font-size: 0.625rem;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+}
+
+.pie__credito a {
+  color: inherit;
+  text-decoration-color: rgba(255, 255, 193, 0.3);
+}
+
+.pie__credito a:hover {
+  color: var(--verde);
+  text-decoration-color: currentColor;
+}
+
 .idiomas {
   display: inline-flex;
   gap: 2px;
@@ -775,7 +794,7 @@ button {
   .ciudad {
     top: auto;
     right: 12px;
-    bottom: calc(var(--margen) + 56px + env(safe-area-inset-bottom));
+    bottom: calc(var(--margen) + 76px + env(safe-area-inset-bottom));
     left: 12px;
     width: auto;
     max-height: 48dvh;
