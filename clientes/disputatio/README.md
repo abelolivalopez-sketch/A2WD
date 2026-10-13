@@ -28,7 +28,6 @@ Para verla en local, desde la raíz del repositorio: `python -m http.server` y a
 | `js/creacion.js` | El espacio de creación |
 | `img/logo.png` | Logo de Disputatio (512 px). Si llega el original en SVG, sustituirlo |
 | `img/tierra-2k.png`, `img/tierra-4k.png` | Máscara del mapa: blanco el mar, negro la tierra (el 4k solo en pantallas grandes). Los colores se ponen en `js/globo.js` |
-| `img/redes/` | Iconos de Instagram, Facebook y TikTok (ahora provisionales, con la inicial) |
 | `fuentes/` | Archivo (rótulos y texto) e Instrument Serif (títulos), licencia OFL |
 | `vendor/three-r128.min.js` | three.js |
 | `herramientas/generar-mapa.py` | Genera la máscara del mapa |
@@ -57,6 +56,10 @@ En cada archivo JS van primero las importaciones y lo que se declara (ajustes, e
 
 `estado` es `publicado` o `borrador` (los borradores solo se ven en el espacio de creación). `participantes` e `imagen` son opcionales; la imagen se muestra siempre en blanco y negro. La página de cada disputatio publicado es `disputatio.html#` más su `id`. En el globo, los disputatio con la misma ciudad y el mismo país comparten punto.
 
+## Redes sociales
+
+En el pie van los nombres «Instagram», «Facebook» y «TikTok» escritos en verde, sin los logos de las marcas, para no depender de sus normas de uso de marca.
+
 ## Colores y mapa
 
 Los colores de la web están en `:root` de `css/estilos.css`; los del globo, en `CONFIG` de `js/globo.js` (`colorTierra`, `colorMar`, `pasoSemitono`, `coberturaSemitono`).
@@ -70,8 +73,8 @@ python herramientas/generar-mapa.py ruta/a/geojson
 ## Pendiente
 
 - Cuentas de autores (solo las que demos de alta) y base de datos, para que Disputatio publique sin pasar por nosotros.
-- Logo original en SVG y enlaces de Facebook y TikTok (ahora apuntan a `#`; Instagram ya apunta a `_disputatio`).
-- Iconos oficiales de las redes: descargar la versión monocroma (SVG o PNG con fondo transparente) de cada marca y guardarla en `img/redes/` con el mismo nombre (`instagram.svg`, `facebook.svg`, `tiktok.svg`; si es PNG, cambiar la extensión en `css/estilos.css`). El CSS solo usa la silueta y la pinta en blanco translúcido.
+- Logo original en SVG.
+- Enlaces de Facebook y TikTok: ahora apuntan a `#`. Se cambia el `href` de los enlaces «Facebook» y «TikTok» del pie en `index.html` y `disputatio.html`. Instagram ya apunta a `_disputatio`.
 - Fotos en blanco y negro de cada disputatio.
 - Textos: el de «Le mythe…» está redactado a partir del post de Instagram; los de Château Rouge y Dakar son de ejemplo.
 - Dominio donde se publicará.

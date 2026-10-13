@@ -525,50 +525,31 @@ button {
 }
 
 .redes {
+  margin-left: -8px;
   display: flex;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 0 4px;
 }
 
 .red {
-  width: 44px;
-  height: 44px;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.42);
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
-  transition: background-color 0.2s ease, transform 0.2s var(--curva);
+  min-height: 44px;
+  padding: 0 8px;
+  display: inline-flex;
+  align-items: center;
+  color: var(--verde);
+  font: italic 900 1.375rem/1 var(--fuente-marca);
+  font-stretch: 62%;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  text-transform: uppercase;
+  text-shadow: 0 0 6px var(--negro), 0 0 12px var(--negro);
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .red:hover {
-  background: rgba(255, 255, 255, 0.18);
-  transform: translateY(-1px);
-}
-
-.red__icono {
-  width: 20px;
-  height: 20px;
-  background: rgba(255, 255, 255, 0.86);
-  -webkit-mask: center / contain no-repeat;
-  mask: center / contain no-repeat;
-}
-
-.red--instagram .red__icono {
-  -webkit-mask-image: url("../img/redes/instagram.svg");
-  mask-image: url("../img/redes/instagram.svg");
-}
-
-.red--facebook .red__icono {
-  -webkit-mask-image: url("../img/redes/facebook.svg");
-  mask-image: url("../img/redes/facebook.svg");
-}
-
-.red--tiktok .red__icono {
-  -webkit-mask-image: url("../img/redes/tiktok.svg");
-  mask-image: url("../img/redes/tiktok.svg");
+  background: var(--verde);
+  color: var(--negro);
+  text-shadow: none;
 }
 
 .idiomas {
@@ -770,6 +751,25 @@ button {
     margin-top: 12px;
     max-width: 26ch;
     font-size: 1.125rem;
+  }
+
+  .pie {
+    gap: 8px 10px;
+  }
+
+  .redes {
+    margin-left: -6px;
+    gap: 0;
+  }
+
+  .red {
+    padding: 0 6px;
+    font-size: 1.0625rem;
+  }
+
+  .idiomas button {
+    min-width: 38px;
+    padding: 0 8px;
   }
 
   .ciudad {
