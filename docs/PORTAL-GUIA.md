@@ -26,8 +26,8 @@ Así solo entra quien tú invites. Las invitaciones siguen funcionando.
 
 ### 3. Direcciones permitidas
 **Authentication → URL Configuration**
-- *Site URL*: `https://abelolivalopez-sketch.github.io/A2WD/portal/login.html`
-- *Redirect URLs* → añade: `https://abelolivalopez-sketch.github.io/A2WD/portal/**`
+- *Site URL*: `https://a2wdstudio.com/portal/login.html`
+- *Redirect URLs* → añade: `https://a2wdstudio.com/portal/**` (deja también `https://abelolivalopez-sketch.github.io/A2WD/portal/**` unas semanas, para las invitaciones ya enviadas)
 
 ### 4. Tu cuenta de creador
 1. **Authentication → Users → Add user → Create new user**: tu correo y una contraseña, marca *Auto Confirm User*.
@@ -127,7 +127,7 @@ La web y el portal se instalan como app (PWA): icono propio en la pantalla de in
 - **Cómo la instalan tus clientes:** botón «Añadir a mi móvil» en el menú móvil y el pie de la web, y tarjeta en el acceso al portal y en su panel. En Android sale el instalador directamente; en iPhone se muestran los 2 pasos de Safari (Compartir → Añadir a pantalla de inicio). Todo en ES/FR/IT/EN.
 - **Archivos:** `manifest.webmanifest` (nombre, icono, colores), `sw.js` (arranque rápido y sin conexión; nunca guarda datos de clientes), `instalar.js` (botón y ventana de instrucciones), `img/icono-192.png`, `img/icono-512.png`, `img/icono-maskable-512.png`.
 - **Al cambiar el portal:** sube `VERSION` en `sw.js` (`a2wd-v1` → `a2wd-v2`) para que las apps instaladas cojan la versión nueva.
-- **Al cambiar de dominio:** no hay que tocar nada de la app (las rutas son relativas); los clientes con la app antigua deberán instalarla de nuevo desde el dominio nuevo. Actualiza también las URL del paso 3.
+- **Al cambiar de dominio:** no hay que tocar nada de la app (las rutas son relativas); los clientes con la app antigua deberán instalarla de nuevo desde el dominio nuevo, volver a iniciar sesión y volver a activar los avisos. Actualiza también las URL del paso 3. (Hecho el 15 oct 2026: a2wdstudio.com, ver `docs/DOMINIO.md`.)
 
 ### Sin conexión
 Cada vez que el cliente abre su panel con internet, la app guarda en su móvil una copia de su proyecto (fase, progreso, avances y mensajes). Si luego la abre sin conexión, ve esa copia con una franja «Sin conexión · copia del …» y todo se actualiza solo al volver internet. Enviar mensajes necesita conexión. Al cerrar sesión la copia se borra del móvil. (`portal/movil.js`)

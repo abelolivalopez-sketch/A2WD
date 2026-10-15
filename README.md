@@ -2,8 +2,8 @@
 
 Agencia de diseño web de **Abel Oliva López** y **Ariel** ([@AOcchietti](https://github.com/AOcchietti)). Este repositorio contiene la web pública de A2WD, el portal de clientes (que también se instala como app en el móvil) y las demos que usamos para captar clientes.
 
-- **Web publicada:** https://abelolivalopez-sketch.github.io/A2WD/ (GitHub Pages, rama `main`)
-- **Portal / app:** https://abelolivalopez-sketch.github.io/A2WD/portal/login.html
+- **Web publicada:** https://a2wdstudio.com/ (GitHub Pages, rama `main`)
+- **Portal / app:** https://a2wdstudio.com/portal/login.html
 - **Contacto:** a2wd.web@gmail.com
 
 ## Qué hay aquí

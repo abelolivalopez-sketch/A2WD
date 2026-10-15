@@ -20,13 +20,9 @@ La app ya existe: el portal es una **PWA** (`manifest.webmanifest`, `sw.js`, ico
 
 ## Requisito técnico que condiciona todo: el dominio
 
-La app Android demuestra que la web es vuestra con un archivo `/.well-known/assetlinks.json` en la **raíz del dominio**. Ahora la web está en `abelolivalopez-sketch.github.io/A2WD/`, es decir, en una subcarpeta, y ese archivo no se puede poner en la raíz desde este repositorio.
+La app Android demuestra que la web es vuestra con un archivo `/.well-known/assetlinks.json` en la **raíz del dominio**. ✅ Resuelto: desde el 15 oct 2026 la web está en la raíz de **a2wdstudio.com** (archivo `CNAME` de este repositorio), así que `assetlinks.json` irá en `.well-known/` de este mismo repositorio. Configuración del dominio en `docs/DOMINIO.md`.
 
-Opciones:
-1. **Dominio propio** (recomendado, unos 10–15 €/año): `a2wd.xx` apuntando a GitHub Pages. Sirve también para correos corporativos más adelante.
-2. Crear el repositorio `abelolivalopez-sketch.github.io` solo para alojar `assetlinks.json`. Funciona, pero la app quedaría ligada a una dirección de GitHub.
-
-Conviene decidir el dominio **antes** de publicar: cambiarlo después obliga a los clientes a reinstalar la app.
+No cambiéis el dominio después de publicar: obligaría a los clientes a reinstalar la app.
 
 Detalle de GitHub Pages: las carpetas que empiezan por punto (`.well-known`) se ignoran salvo que haya un archivo `.nojekyll` en la raíz.
 
