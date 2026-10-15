@@ -8,7 +8,9 @@ Resumen de cómo está montada la web pública (`index.html`, `proyectos.html` y
 |---|---|
 | `index.html` | Hero (A2WD + Möbius), Servicios en dos pantallas, Cómo trabajamos, Nosotros y Contacto |
 | `proyectos.html` | Método en cinco fases y tarjetas de proyectos (se leen de Supabase) |
-| `web.html` | Servicio 01–06: diseño y desarrollo web. Cada tarjeta web de la home lleva a su bloque (`#diseno`, `#velocidad`, `#tiendas`, `#google`, `#apps`, `#mantenimiento`) |
+| `presencia-digital.html` | Grupo 01: las seis tarjetas de servicios web; cada una lleva a su bloque de `web.html` |
+| `servicios-y-sistemas.html` | Grupo 02: las seis tarjetas de servicios de sistemas; cada una lleva a su página |
+| `web.html` | Servicio 01–06: diseño y desarrollo web. Cada tarjeta de `presencia-digital.html` lleva a su bloque (`#diseno`, `#velocidad`, `#tiendas`, `#google`, `#apps`, `#mantenimiento`) |
 | `software-a-medida.html` | Servicio 07: software de gestión a medida |
 | `integracion-de-sistemas.html` | Servicio 08: integración de sistemas |
 | `automatizacion.html` | Servicio 09: automatización de procesos |
@@ -78,12 +80,12 @@ Las barras tipo `(02 — Servicios)` son `<div class="sec-bar">` con dos `<span>
 
 ## «Lo que hacemos» (tarjetas de servicios de la home)
 
-- Dos bloques de seis tarjetas iguales: **01 Presencia digital** (webs) y **02 Sistemas y procesos**. Debajo, la franja «Todo, en casa — Despega con nosotros».
-- La altura de las tarjetas sale del alto de la pantalla (`--cap-h` en `galaxia.css`) para que cada bloque se vea entero al 100 % de zoom.
-- Al pasar el ratón, la tarjeta se amplía, aparece su descripción y la flecha se ilumina. En móvil van de dos en dos y sin descripción.
-- Cada tarjeta es un enlace a su página de servicio. Los dibujos animados están dentro de cada tarjeta (`<svg class="v1">` … `v12`) y sus estilos en `galaxia.css` («Dibujos animados de las tarjetas»).
+- En la home solo hay dos tarjetas grandes: **Presencia digital** (con el dibujo de diseño web) y **Servicios y sistemas** (con el dibujo de integración). Debajo, la franja «Todo, en casa — Despega con nosotros».
+- Cada una abre su página de grupo (`presencia-digital.html` y `servicios-y-sistemas.html`), donde están sus seis tarjetas pequeñas. Esas tarjetas llevan a las páginas de servicio.
+- La altura de las tarjetas sale del alto de la pantalla (`--cap-h`) para que se vean enteras al 100 % de zoom. Al pasar el ratón la tarjeta se amplía; en las pequeñas aparece además la descripción.
+- Los dibujos animados están dentro de cada tarjeta (`<svg class="v1">` … `v12`) y sus estilos en `galaxia.css` («Dibujos animados de las tarjetas»).
 
 ## Páginas de servicio
 
-Todas siguen el mismo esquema: cabecera con el dibujo de su tarjeta, ¿Te suena? (problemas), Qué incluye (seis puntos), Cómo trabajamos (línea de luz), Herramientas, Preguntas frecuentes, Más servicios y llamada a Contacto. Para añadir una nueva, copia una existente, cambia los textos y sus claves (prefijo propio) en `idiomas-servicios.js`, añádela a «Más servicios» de las demás y al `sitemap.xml`.
+Todas siguen el mismo esquema: enlace de vuelta a su grupo, cabecera con el dibujo de su tarjeta, ¿Te suena? (problemas), Qué incluye (seis puntos), Cómo trabajamos (línea de luz), Herramientas, Preguntas frecuentes, Más servicios y llamada a Contacto. Para añadir una nueva, copia una existente, cambia los textos y sus claves (prefijo propio) en `idiomas-servicios.js`, añádela a «Más servicios» de las demás y al `sitemap.xml`.
 
