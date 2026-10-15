@@ -137,3 +137,17 @@
 /* La línea de pasos se alinea a la izquierda como el resto de bloques */
 .sx-como .ruta{max-width:var(--ancho);}
 .sx-como .fase-c{max-width:880px;}
+
+/* ---------- Páginas de grupo (presencia-digital.html, servicios-y-sistemas.html) ----------
+   Reutilizan las tarjetas de la home (.cap en galaxia.css): seis por página, que caben
+   en una pantalla al 100 % y se amplían al pasar el ratón. */
+.hub-cab{padding:calc(100px + env(safe-area-inset-top,0px)) 0 clamp(16px,2.6vh,30px);}
+.hub-cab .sec-bar{margin-bottom:clamp(10px,2vh,22px);}
+.hub-cab .sx-volver{display:flex;width:max-content;margin-bottom:clamp(8px,1.4vh,14px);}
+.hub-cab h1{font-size:clamp(38px,4.4vw,74px);}
+.hub-cab p{font-size:clamp(15px,1.1vw,17px);line-height:1.6;}
+.hub-tarjetas{--cap-h:clamp(200px,calc((100svh - 330px) / 2),330px);max-width:var(--ancho);margin:0 auto;padding:0 var(--gutter);}
+.hub-otro{margin-top:clamp(16px,3vh,30px);}
+@media (max-width:1000px){.hub-tarjetas{--cap-h:240px;}}
+@media (max-width:600px){.hub-tarjetas{--cap-h:clamp(176px,52vw,210px);}}
+

@@ -266,7 +266,7 @@ html.con-cursor input,html.con-cursor textarea,html.con-cursor select,html.con-c
 /* Al abrirse la descripción, un fondo oscuro detrás del texto para que se lea sobre el dibujo */
 .cap-txt::before{content:"";position:absolute;left:-22px;right:-22px;bottom:-22px;top:-46px;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(6,8,13,0),rgba(6,8,13,.9) 46%);opacity:0;transition:opacity .45s ease;}
 .cap:hover .cap-txt::before,.cap:focus-within .cap-txt::before{opacity:1;}
-.cap-txt h4{margin:0;font-family:var(--f-display);font-weight:600;font-size:clamp(21px,1.75vw,30px);line-height:1.05;letter-spacing:-.04em;color:#f2f5fb;text-wrap:balance;}
+.cap-txt h3{margin:0;font-family:var(--f-display);font-weight:600;font-size:clamp(21px,1.75vw,30px);line-height:1.05;letter-spacing:-.04em;color:#f2f5fb;text-wrap:balance;}
 .cap-txt p{
   margin:0;color:#b3bccc;font-size:14.5px;line-height:1.5;max-width:44ch;
   max-height:0;opacity:0;overflow:hidden;transition:max-height .5s ease,opacity .4s ease,margin .4s ease;
@@ -276,6 +276,24 @@ html.con-cursor input,html.con-cursor textarea,html.con-cursor select,html.con-c
 .cap:hover .cap-ir,.cap:focus-within .cap-ir{background:#e9f0fd;color:#070910;border-color:#e9f0fd;}
 .cap:hover .cap-ir .flecha{transform:translate(1px,-1px);}
 .cap-in:focus-visible{outline:2px solid var(--luz);outline-offset:3px;}
+
+/* Home: dos tarjetas grandes, una por grupo. La descripción siempre se ve. */
+.cap-duo{
+  --cap-h:clamp(340px,calc(100svh - 330px),560px);
+  max-width:var(--ancho);margin:clamp(18px,3vh,32px) auto 0;padding:0 var(--gutter);
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;
+}
+.cap-grande .cap-in{padding:24px 28px 30px;}
+.cap-grande .cap-vis{opacity:.85;}
+.cap-grande .cap-txt h3{font-size:clamp(32px,3.4vw,58px);line-height:1;letter-spacing:-.05em;color:#f4f6fb;}
+.cap-grande .cap-txt p{max-height:none;opacity:1;margin-top:14px;font-size:clamp(15px,1.15vw,17.5px);line-height:1.55;max-width:46ch;color:#c6cedc;}
+.cap-grande .cap-txt::before{opacity:1;top:-90px;}
+.cap-ver{display:inline-flex;align-items:center;gap:10px;margin-top:18px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--luz-fuerte);}
+.cap-ver .flecha{width:14px;height:14px;transition:transform .4s cubic-bezier(.2,.8,.2,1);}
+.cap-grande:hover .cap-ver .flecha{transform:translateX(5px);}
+@media (hover:hover){
+  .cap-grande:hover,.cap-grande:focus-within{transform:scale(1.018);}
+}
 @media (hover:hover){
   .cap:hover,.cap:focus-within{transform:scale(1.045);z-index:3;transition:transform .55s cubic-bezier(.2,.8,.2,1),z-index 0s;}
   .cap:hover .cap-in,.cap:focus-within .cap-in{
@@ -304,6 +322,9 @@ html.con-cursor input,html.con-cursor textarea,html.con-cursor select,html.con-c
   .sv-grid{grid-template-columns:minmax(0,1fr);}
   .orb-svg{max-height:40vh;}
 }
+@media (max-width:760px){
+  .cap-duo{grid-template-columns:minmax(0,1fr);--cap-h:clamp(340px,94vw,420px);}
+}
 @media (max-width:600px){
   .sv-cap{--cap-h:clamp(176px,52vw,210px);}
   .cap-grid{gap:5px;}
@@ -311,10 +332,13 @@ html.con-cursor input,html.con-cursor textarea,html.con-cursor select,html.con-c
   .cap-n{font-size:11px;}
   .cap-ir{width:26px;height:26px;}
   .cap-ir .flecha{width:12px;height:12px;}
-  .cap-txt h4{font-size:clamp(16px,4.6vw,19px);}
+  .cap-txt h3{font-size:clamp(16px,4.6vw,19px);}
   .cap-txt p{display:none;}
   .cap-sub{font-size:14.5px;}
   .cap-cta-txt{font-size:clamp(22px,6.4vw,28px);}
+  .cap-grande .cap-in{padding:16px 18px 22px;}
+  .cap-grande .cap-txt p{display:block;font-size:15px;}
+  .cap-grande .cap-txt h3{font-size:clamp(28px,8.4vw,36px);}
   .sv-carga{grid-template-columns:minmax(0,1fr) auto;row-gap:10px;}
   .carga-barra{grid-column:1/-1;grid-row:2;}
 }
