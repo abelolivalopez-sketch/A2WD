@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#000000">
+  <title>Disputatio, espace de création</title>
+  <link rel="icon" href="img/logo.png" type="image/png">
+  <link rel="preload" href="fuentes/archivo-latin-standard-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fuentes/archivo-latin-standard-italic.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="img/tierra-2k.png" as="image" crossorigin>
+  <link rel="stylesheet" href="css/estilos.css">
+  <link rel="stylesheet" href="css/creacion.css">
+</head>
+<body class="cargando creacion" data-vista="lista">
+  <header class="marca">
+    <a class="marca__enlace" href="index.html">
+      <img class="marca__logo" src="img/logo.png" alt="" width="56" height="56">
+      <span class="marca__textos">
+        <span class="marca__antetitulo" data-t="cafePhilo">Café philo</span>
+        <span class="marca__nombre">Disputatio</span>
+      </span>
+    </a>
+    <p class="marca__seccion" data-t="espacioCreacion">Espace de création</p>
+  </header>
+
+  <main class="escenario" aria-label="Globe des disputatio" data-t-aria="escena">
+    <canvas class="escenario__lienzo"></canvas>
+    <div class="escenario__marcadores"></div>
+  </main>
+
+  <aside class="panel panel--creacion" aria-labelledby="creacion-titulo">
+    <div class="panel__barra">
+      <a class="enlace-barra" href="index.html" data-t="verGlobo">Voir le globe</a>
+      <div class="idiomas idiomas--claro" role="group" aria-label="Langue" data-t-aria="idioma">
+        <button type="button" data-idioma="fr" lang="fr" aria-label="Français">FR</button>
+        <button type="button" data-idioma="en" lang="en" aria-label="English">EN</button>
+      </div>
+    </div>
+
+    <section class="vista" data-vista="lista">
+      <h1 class="vista__titulo" id="creacion-titulo" data-t="vuestras">Vos disputatio</h1>
+      <p class="aviso-demo" data-t="demo">Mode démo : ce que vous créez ici est enregistré uniquement dans ce navigateur.</p>
+      <button class="boton boton--principal" type="button" data-accion="nueva" data-t="anadir">Ajouter un disputatio</button>
+      <ul class="propias"></ul>
+      <p class="propias__vacio" data-t="vacio" hidden>Aucun disputatio pour l'instant.</p>
+      <p class="aviso-error" data-error="sin3d" data-t="sin3d" hidden></p>
+      <div class="vista__pie">
+        <button class="boton-texto" type="button" data-accion="exportar" data-t="exportar">Exporter (JSON)</button>
+        <button class="boton-texto" type="button" data-accion="reiniciar" data-t="reiniciar">Réinitialiser la démo</button>
+      </div>
+      <div class="confirmacion" data-confirmacion="reiniciar" hidden>
+        <p data-t="confirmarReinicio">Effacer tout ce qui a été créé dans ce navigateur ?</p>
+        <div class="confirmacion__botones">
+          <button class="boton boton--peligro" type="button" data-accion="si-reiniciar" data-t="siReiniciar">Effacer</button>
+          <button class="boton boton--secundario" type="button" data-accion="no-reiniciar" data-t="noReiniciar">Garder</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="vista" data-vista="colocar" hidden>
+      <ol class="pasos">
+        <li aria-current="step" data-t="paso1">Placer le point</li>
+        <li data-t="paso2">Écrire le disputatio</li>
+      </ol>
+      <h2 class="vista__titulo" tabindex="-1" data-titulo-edicion>Nouveau disputatio</h2>
+      <p class="vista__ayuda" data-t="colocarAyuda">Cliquez ou touchez le globe à l'endroit où s'est tenu le disputatio.</p>
+      <p class="coordenadas" aria-live="polite"></p>
+      <div class="acciones">
+        <button class="boton boton--principal" type="button" data-accion="continuar" data-t="continuar" disabled>Continuer</button>
+        <button class="boton boton--secundario" type="button" data-accion="cancelar" data-t="cancelar">Annuler</button>
+      </div>
+    </section>
+
+    <section class="vista" data-vista="formulario" hidden>
+      <ol class="pasos">
+        <li data-t="paso1">Placer le point</li>
+        <li aria-current="step" data-t="paso2">Écrire le disputatio</li>
+      </ol>
+      <h2 class="vista__titulo" tabindex="-1" data-titulo-edicion>Nouveau disputatio</h2>
+      <div class="punto-elegido">
+        <span class="coordenadas"></span>
+        <button class="boton-texto" type="button" data-accion="mover" data-t="moverPunto">Déplacer le point</button>
+      </div>
+      <div class="modos" role="group" aria-label="Mode d'affichage" data-t-aria="modos">
+        <button type="button" data-modo="editar" aria-pressed="true" data-t="modoEditar">Rédaction</button>
+        <button type="button" data-modo="previa" aria-pressed="false" data-t="modoPrevia">Aperçu</button>
+      </div>
+
+      <form class="formulario" novalidate>
+        <fieldset class="campo campo--idioma">
+          <legend data-t="idiomaTexto">Langue du texte</legend>
+          <label class="opcion" for="campo-idioma-fr"><input type="radio" id="campo-idioma-fr" name="idioma" value="fr" checked><span lang="fr">Français</span></label>
+          <label class="opcion" for="campo-idioma-en"><input type="radio" id="campo-idioma-en" name="idioma" value="en"><span lang="en">English</span></label>
+        </fieldset>
+
+        <div class="campo">
+          <label for="campo-titulo" data-t="campoTitulo">Titre</label>
+          <input id="campo-titulo" name="titulo" type="text" maxlength="120" autocomplete="off" aria-describedby="error-titulo">
+          <p class="campo__error" id="error-titulo" hidden></p>
+        </div>
+
+        <div class="campo">
+          <label for="campo-participantes" data-t="campoParticipantes">Intervenants (facultatif)</label>
+          <input id="campo-participantes" name="participantes" type="text" maxlength="160" autocomplete="off" aria-describedby="ayuda-participantes">
+          <p class="campo__ayuda" id="ayuda-participantes" data-t="ayudaParticipantes">Tel qu'il apparaîtra sous le titre.</p>
+        </div>
+
+        <div class="campo-fila">
+          <div class="campo">
+            <label for="campo-ciudad" data-t="campoCiudad">Ville</label>
+            <input id="campo-ciudad" name="ciudad" type="text" maxlength="80" autocomplete="off" aria-describedby="error-ciudad">
+            <p class="campo__error" id="error-ciudad" hidden></p>
+          </div>
+          <div class="campo">
+            <label for="campo-pais" data-t="campoPais">Pays</label>
+            <input id="campo-pais" name="pais" type="text" maxlength="80" autocomplete="off" aria-describedby="error-pais">
+            <p class="campo__error" id="error-pais" hidden></p>
+          </div>
+        </div>
+
+        <div class="campo campo--corto">
+          <label for="campo-fecha" data-t="campoFecha">Date</label>
+          <input id="campo-fecha" name="fecha" type="date" aria-describedby="error-fecha">
+          <p class="campo__error" id="error-fecha" hidden></p>
+        </div>
+
+        <div class="campo">
+          <span class="campo__etiqueta" data-t="campoImagen">Image (facultative)</span>
+          <figure class="imagen-elegida" hidden><img alt=""></figure>
+          <div class="imagen-botones">
+            <input class="campo__archivo" id="campo-imagen" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="error-imagen">
+            <label class="boton boton--secundario boton--archivo" for="campo-imagen"><span data-elegir-imagen data-t="elegirImagen">Choisir une image</span></label>
+            <button class="boton-texto" type="button" data-accion="quitar-imagen" data-t="quitarImagen" hidden>Retirer l'image</button>
+          </div>
+          <p class="campo__error" id="error-imagen" hidden></p>
+          <div class="campo campo--anidado" data-descripcion-imagen hidden>
+            <label for="campo-imagen-descripcion" data-t="campoImagenDescripcion">Description de l'image</label>
+            <input id="campo-imagen-descripcion" name="imagenDescripcion" type="text" maxlength="160" autocomplete="off" aria-describedby="ayuda-imagen-descripcion">
+            <p class="campo__ayuda" id="ayuda-imagen-descripcion" data-t="ayudaImagenDescripcion">Pour les personnes qui ne voient pas l'image.</p>
+          </div>
+        </div>
+
+        <div class="campo">
+          <div class="campo__cabecera">
+            <label for="campo-texto" data-t="campoTexto">Texte</label>
+            <button class="boton-texto" type="button" data-accion="insertar-enlace" data-t="insertarEnlace">Insérer un lien</button>
+          </div>
+          <textarea id="campo-texto" name="texto" rows="9" aria-describedby="ayuda-texto error-texto"></textarea>
+          <p class="campo__ayuda" id="ayuda-texto" data-t="ayudaTexto">Laissez une ligne vide entre les paragraphes.</p>
+          <p class="campo__error" id="error-texto" hidden></p>
+        </div>
+
+        <fieldset class="campo campo--enlaces">
+          <legend data-t="enlaces">Liens</legend>
+          <p class="campo__ayuda" data-t="ayudaEnlaces">Vidéo, article de presse, inscription…</p>
+          <div class="enlaces-editables"></div>
+          <button class="boton-texto" type="button" data-accion="anadir-enlace" data-t="anadirEnlace">Ajouter un lien</button>
+        </fieldset>
+
+        <p class="aviso-error" data-error="formulario" role="alert" hidden></p>
+
+        <div class="formulario__acciones">
+          <button class="boton boton--principal" type="submit" data-t="publicar">Publier</button>
+          <button class="boton boton--secundario" type="button" data-accion="borrador" data-t="guardarBorrador">Enregistrer en brouillon</button>
+          <button class="boton-texto" type="button" data-accion="cancelar" data-t="cancelar">Annuler</button>
+        </div>
+
+        <div class="formulario__borrar" hidden>
+          <button class="boton-texto boton-texto--peligro" type="button" data-accion="borrar" data-t="borrar">Supprimer ce disputatio</button>
+          <div class="confirmacion" data-confirmacion="borrar" hidden>
+            <p data-t="confirmarBorrado">Supprimer ce disputatio ?</p>
+            <div class="confirmacion__botones">
+              <button class="boton boton--peligro" type="button" data-accion="si-borrar" data-t="siBorrar">Supprimer</button>
+              <button class="boton boton--secundario" type="button" data-accion="no-borrar" data-t="noBorrar">Garder</button>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <article class="articulo articulo--previa" hidden></article>
+    </section>
+  </aside>
+
+  <div class="aviso" role="status" hidden>
+    <span class="aviso__texto"></span>
+    <a class="aviso__enlace" href="disputatio.html" data-t="verPublicacion" hidden>Voir la publication</a>
+  </div>
+
+  <template id="plantilla-enlace">
+    <div class="enlace-editable">
+      <div class="campo">
+        <label data-t="enlaceTexto">Texte affiché</label>
+        <input type="text" maxlength="100" autocomplete="off" data-parte="texto">
+      </div>
+      <div class="campo">
+        <label data-t="enlaceUrl">Adresse (https://…)</label>
+        <input type="url" inputmode="url" autocomplete="off" placeholder="https://" data-parte="url">
+      </div>
+      <button class="enlace-editable__quitar" type="button" data-t-aria="quitarEnlace" aria-label="Retirer ce lien">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <p class="campo__error" hidden></p>
+    </div>
+  </template>
+
+  <script src="vendor/three-r128.min.js"></script>
+  <script type="module" src="js/creacion.js"></script>
+</body>
+</html>
