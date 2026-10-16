@@ -24,7 +24,7 @@ La app Android demuestra que la web es vuestra con un archivo `/.well-known/asse
 
 No cambiéis el dominio después de publicar: obligaría a los clientes a reinstalar la app.
 
-Detalle de GitHub Pages: las carpetas que empiezan por punto (`.well-known`) se ignoran salvo que haya un archivo `.nojekyll` en la raíz.
+La web la publica Cloudflare (ver `docs/DOMINIO.md`). Después de subir el archivo, comprobad que https://a2wdstudio.com/.well-known/assetlinks.json se abre en el navegador; si no se abre, hay que revisar el proyecto `a2wd` en Cloudflare. Si algún día se vuelve a publicar con GitHub Pages, hace falta además un archivo `.nojekyll` en la raíz, porque GitHub ignora las carpetas que empiezan por punto.
 
 ## Fases
 
@@ -60,9 +60,9 @@ Arreglar lo que salga de la Fase 1. Además, antes de Google Play:
 - [ ] Cuenta de cliente de demostración con un proyecto de ejemplo, para la revisión de Google.
 
 ### Fase 3 · Empaquetar para Android
-1. Dominio propio configurado en GitHub Pages (y actualizar las URL de Supabase, `robots.txt` y `sitemap.xml`).
+1. ✅ Dominio propio: a2wdstudio.com, publicado con Cloudflare (`docs/DOMINIO.md`). URL de Supabase, `robots.txt` y `sitemap.xml` ya actualizados.
 2. Generar el proyecto Android con **Bubblewrap** (`npx @bubblewrap/cli init --manifest https://<dominio>/manifest.webmanifest`) o con **PWABuilder** (web, sin instalar nada).
-3. Subir `/.well-known/assetlinks.json` con la huella SHA-256 de la clave de firma que muestra Play Console (sección *Integridad de la app*) y añadir `.nojekyll`. Si la huella no coincide, la app se abre con la barra del navegador arriba.
+3. Subir `/.well-known/assetlinks.json` con la huella SHA-256 de la clave de firma que muestra Play Console (sección *Integridad de la app*) y comprobar que se abre en https://a2wdstudio.com/.well-known/assetlinks.json. Si la huella no coincide, la app se abre con la barra del navegador arriba.
 4. Guardar la clave de subida (`.keystore`) y su contraseña fuera del repositorio, en dos sitios. Google guarda la clave de firma final; si perdéis la de subida se puede pedir otra, pero el trámite es lento.
 
 ### Fase 4 · Prueba cerrada en Google Play

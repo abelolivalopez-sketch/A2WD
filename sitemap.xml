@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://a2wdstudio.com/</loc><changefreq>monthly</changefreq><priority>1.0</priority></url>
-  <url><loc>https://a2wdstudio.com/proyectos.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://a2wdstudio.com/presencia-digital.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://a2wdstudio.com/servicios-y-sistemas.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://a2wdstudio.com/web.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://a2wdstudio.com/software-a-medida.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://a2wdstudio.com/integracion-de-sistemas.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://a2wdstudio.com/automatizacion.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://a2wdstudio.com/inteligencia-artificial.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://a2wdstudio.com/datos-y-bi.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://a2wdstudio.com/cloud-y-seguridad.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://a2wdstudio.com/proyectos</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://a2wdstudio.com/presencia-digital</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://a2wdstudio.com/servicios-y-sistemas</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://a2wdstudio.com/web</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://a2wdstudio.com/software-a-medida</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://a2wdstudio.com/integracion-de-sistemas</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://a2wdstudio.com/automatizacion</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://a2wdstudio.com/inteligencia-artificial</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://a2wdstudio.com/datos-y-bi</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://a2wdstudio.com/cloud-y-seguridad</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
 </urlset>
