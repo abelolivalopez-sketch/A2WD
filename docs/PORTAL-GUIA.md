@@ -9,7 +9,7 @@ Tiempo estimado: 10 minutos. Todo se hace desde el panel web de Supabase, sin in
 | Archivo | Qué es |
 |---|---|
 | `portal/login.html` | Acceso para creadores y clientes, recuperar contraseña y crear contraseña al aceptar la invitación |
-| `portal/creador.html` | Tu panel: resumen, clientes (CRM), proyectos, avances, mensajes y facturas |
+| `portal/creador.html` | Tu panel: resumen, clientes (CRM), proyectos, avances, mensajes, facturas y actividad de la web |
 | `portal/cliente.html` | Panel del cliente: estado del proyecto, vista previa de su web, avances y chat contigo |
 | `portal/js/config.js` | Donde pegas la URL y la clave pública de Supabase |
 | `supabase/schema.sql` | Tablas y reglas de seguridad de la base de datos |
@@ -156,6 +156,10 @@ Cada vez que el cliente abre su panel con internet, la app guarda en su móvil u
 - Cada proyecto: título, descripción en español (y opcionalmente francés, italiano e inglés; si faltan se muestra el español), enlace, etiquetas y una captura. La foto se reduce y se convierte a WebP sola antes de subirla.
 - «Partir de un proyecto de cliente» rellena título, enlace y descripción desde un proyecto del portal.
 - Los cambios se ven en la web al momento, sin tocar código. Datos en la tabla `portfolio` y fotos en el bucket `portfolio` de Supabase (`supabase/portfolio.sql`). Si la base de datos no respondiera, la web muestra los dos proyectos escritos en la página.
+
+## Actividad de la web
+- Pestaña **Actividad** del panel de creador: visitas, páginas vistas, contactos, de dónde llega la gente, dispositivo, país e idioma, con gráficas por día, semana o mes y exportación a Excel y CSV.
+- Sin cookies ni datos personales. Puesta en marcha (`supabase/actividad.sql`), enlaces con `?utm_source=` y cómo llevarlo a Drive: [ACTIVIDAD.md](ACTIVIDAD.md).
 
 ## Chat con clientes (en tiempo real)
 - **Cada cliente tiene una conversación con A2WD**, aunque todavía no tenga proyecto. Los mensajes aparecen al momento en los dos lados, sin recargar.

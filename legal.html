@@ -40,6 +40,7 @@
   [hidden]{display:none!important;}
   @media (max-width:520px){dl{grid-template-columns:1fr;gap:0 0;} dd{margin-bottom:10px;}}
 </style>
+<script type="module" src="assets/js/actividad.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -66,7 +67,7 @@
       <dt>Situación</dt><dd>Estudio en fase de lanzamiento</dd>
       <dt>Correo</dt><dd><a href="mailto:info@a2wdstudio.com">info@a2wdstudio.com</a></dd>
       <dt>Actividad</dt><dd>Diseño y desarrollo de páginas web para comercios y negocios</dd>
-      <dt>Alojamiento</dt><dd>GitHub Pages — GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, EE. UU.</dd>
+      <dt>Alojamiento</dt><dd>Cloudflare, Inc., 101 Townsend St, San Francisco, CA 94107, EE. UU.</dd>
     </dl>
     <h3>Uso de la web</h3>
     <p>Esta web informa sobre nuestros servicios y permite contactar con nosotros. Los precios y condiciones de cada proyecto se acuerdan por escrito con cada cliente antes de empezar; lo que aparece en la web no es una oferta vinculante.</p>
@@ -89,6 +90,7 @@
         <tr><td>Formulario de contacto y correo</td><td>Nombre, correo y lo que nos escribas</td><td>Responder a tu consulta y, si quieres, prepararte un presupuesto</td><td>Tu solicitud y las medidas precontractuales (art. 6.1.b RGPD)</td></tr>
         <tr><td>WhatsApp</td><td>Número de teléfono, nombre y mensajes</td><td>Responderte por ese canal</td><td>Tu solicitud (art. 6.1.b RGPD)</td></tr>
         <tr><td>Asistente «Rodolfo»</td><td>Las preguntas que escribas y un identificador cifrado (hash) de tu IP</td><td>Generar la respuesta, mejorar las respuestas y limitar el abuso del servicio</td><td>Interés legítimo en atenderte y proteger el servicio (art. 6.1.f RGPD)</td></tr>
+        <tr><td>Estadísticas de visitas</td><td>Página que abres, web desde la que llegas, tipo de dispositivo, idioma y zona horaria del navegador y si pulsas un botón de contacto. Sin IP, sin cookies y sin ningún identificador</td><td>Saber cuántas visitas recibe la web y de dónde llegan</td><td>Interés legítimo en conocer el uso de nuestra web (art. 6.1.f RGPD)</td></tr>
         <tr><td>Área de clientes (portal)</td><td>Nombre, correo, empresa, proyectos, mensajes, avances y facturas</td><td>Gestionar tu proyecto y comunicarnos contigo</td><td>Ejecución del contrato (art. 6.1.b) y obligaciones fiscales (art. 6.1.c)</td></tr>
       </tbody>
     </table></div>
@@ -98,6 +100,7 @@
     <ul>
       <li>Consultas que no acaban en proyecto: hasta 12 meses desde el último contacto.</li>
       <li>Preguntas al asistente: hasta 12 meses.</li>
+      <li>Estadísticas de visitas: 25 meses; después se borran solas.</li>
       <li>Clientes: mientras dure la relación y después durante los plazos que exija la ley.</li>
     </ul>
 
@@ -106,9 +109,9 @@
     <ul>
       <li><strong>Google</strong> (Gmail): recepción del correo.</li>
       <li><strong>Meta / WhatsApp</strong>: mensajería, si nos escribes por ahí.</li>
-      <li><strong>Supabase</strong>: base de datos del portal y del asistente.</li>
+      <li><strong>Supabase</strong>: base de datos del portal, del asistente y de las estadísticas de visitas.</li>
       <li><strong>Google (Gemini) y Anthropic (Claude)</strong>: generan las respuestas del asistente a partir de tu pregunta.</li>
-      <li><strong>GitHub</strong>: alojamiento de la web. <strong>jsDelivr</strong>: entrega la librería técnica del portal de clientes.</li>
+      <li><strong>Cloudflare</strong>: alojamiento de la web. <strong>GitHub</strong>: guarda el código de la web. <strong>jsDelivr</strong>: entrega la librería técnica del portal de clientes.</li>
     </ul>
     <p>Algunos de estos proveedores están en Estados Unidos. Las transferencias se amparan en el Marco de Privacidad de Datos UE-EE. UU. o en las cláusulas contractuales tipo de la Comisión Europea.</p>
 
@@ -119,11 +122,13 @@
   <section id="cookies">
     <h2>Cookies</h2>
     <p><strong>Esta web no usa cookies de analítica, publicidad ni seguimiento</strong>, y no carga contenido de terceros al abrirla: las fuentes y las librerías están alojadas en nuestra propia web. Por eso no te mostramos un aviso de cookies.</p>
+    <p>Para contar las visitas usamos una medición propia y anónima que no guarda nada en tu navegador ni crea ningún identificador: solo anota qué página se abre, desde qué web llegas, el tipo de dispositivo y el idioma y la zona horaria del navegador. Si tu navegador envía la señal «Global Privacy Control» o «Do Not Track», no contamos tu visita.</p>
     <p>Solo guardamos en tu navegador (almacenamiento local) lo imprescindible para que la web funcione como pides:</p>
     <div class="tabla"><table>
       <thead><tr><th>Nombre</th><th>Para qué</th><th>Duración</th></tr></thead>
       <tbody>
         <tr><td><code>a2wd_lang</code></td><td>Recordar el idioma que elegiste</td><td>Hasta que borres los datos del navegador</td></tr>
+        <tr><td><code>a2wd_equipo</code></td><td>Solo en los dispositivos de nuestro equipo: no contar nuestras propias visitas</td><td>Hasta que borres los datos del navegador</td></tr>
         <tr><td><code>sb-…-auth-token</code></td><td>Mantener tu sesión en el área de clientes</td><td>Hasta que cierres sesión</td></tr>
         <tr><td><code>a2wd_…</code> (portal)</td><td>Copia de tu proyecto para ver el portal sin conexión y recordar si pospusiste los avisos</td><td>Se borra al cerrar sesión</td></tr>
         <tr><td>Caché de la app</td><td>Abrir la web y el portal rápido y sin conexión si la instalas en el móvil</td><td>Hasta que la desinstales o borres los datos</td></tr>
@@ -149,7 +154,7 @@
       <dt>E-mail</dt><dd><a href="mailto:info@a2wdstudio.com">info@a2wdstudio.com</a></dd>
       <dt>Directeurs de la publication</dt><dd>Abel Oliva et Ariel Occhietti</dd>
       <dt>Activité</dt><dd>Conception et développement de sites web pour commerces et entreprises</dd>
-      <dt>Hébergeur</dt><dd>GitHub Pages — GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis</dd>
+      <dt>Hébergeur</dt><dd>Cloudflare, Inc., 101 Townsend St, San Francisco, CA 94107, États-Unis</dd>
     </dl>
     <h3>Utilisation du site</h3>
     <p>Ce site présente nos services et permet de nous contacter. Les prix et conditions de chaque projet sont convenus par écrit avec chaque client avant le début des travaux ; le contenu du site ne constitue pas une offre contractuelle.</p>
@@ -172,6 +177,7 @@
         <tr><td>Formulaire de contact et e-mail</td><td>Nom, e-mail et contenu de votre message</td><td>Répondre à votre demande et, si vous le souhaitez, établir un devis</td><td>Votre demande et mesures précontractuelles (art. 6.1.b RGPD)</td></tr>
         <tr><td>WhatsApp</td><td>Numéro de téléphone, nom et messages</td><td>Vous répondre par ce canal</td><td>Votre demande (art. 6.1.b RGPD)</td></tr>
         <tr><td>Assistant « Rodolfo »</td><td>Vos questions et un identifiant chiffré (hash) de votre adresse IP</td><td>Générer la réponse, améliorer les réponses et limiter les abus</td><td>Intérêt légitime à vous répondre et à protéger le service (art. 6.1.f RGPD)</td></tr>
+        <tr><td>Statistiques de visite</td><td>Page consultée, site de provenance, type d'appareil, langue et fuseau horaire du navigateur, et clic éventuel sur un bouton de contact. Sans adresse IP, sans cookie et sans aucun identifiant</td><td>Savoir combien de visites reçoit le site et d'où elles viennent</td><td>Intérêt légitime à connaître l'utilisation de notre site (art. 6.1.f RGPD)</td></tr>
         <tr><td>Espace client (portail)</td><td>Nom, e-mail, entreprise, projets, messages, avancements et factures</td><td>Gérer votre projet et communiquer avec vous</td><td>Exécution du contrat (art. 6.1.b) et obligations fiscales (art. 6.1.c)</td></tr>
       </tbody>
     </table></div>
@@ -181,6 +187,7 @@
     <ul>
       <li>Demandes qui n'aboutissent pas à un projet : jusqu'à 12 mois après le dernier contact.</li>
       <li>Questions posées à l'assistant : jusqu'à 12 mois.</li>
+      <li>Statistiques de visite : 25 mois, puis effacement automatique.</li>
       <li>Clients : pendant toute la relation, puis pendant les durées imposées par la loi.</li>
     </ul>
 
@@ -189,9 +196,9 @@
     <ul>
       <li><strong>Google</strong> (Gmail) : réception des e-mails.</li>
       <li><strong>Meta / WhatsApp</strong> : messagerie, si vous nous écrivez par ce biais.</li>
-      <li><strong>Supabase</strong> : base de données du portail et de l'assistant.</li>
+      <li><strong>Supabase</strong> : base de données du portail, de l'assistant et des statistiques de visite.</li>
       <li><strong>Google (Gemini) et Anthropic (Claude)</strong> : génèrent les réponses de l'assistant à partir de votre question.</li>
-      <li><strong>GitHub</strong> : hébergement du site. <strong>jsDelivr</strong> : fournit la bibliothèque technique de l'espace client.</li>
+      <li><strong>Cloudflare</strong> : hébergement du site. <strong>GitHub</strong> : stockage du code du site. <strong>jsDelivr</strong> : fournit la bibliothèque technique de l'espace client.</li>
     </ul>
     <p>Certains de ces prestataires sont situés aux États-Unis. Les transferts reposent sur le cadre de protection des données UE–États-Unis ou sur les clauses contractuelles types de la Commission européenne.</p>
 
@@ -202,11 +209,13 @@
   <section id="fr-cookies">
     <h2>Cookies</h2>
     <p><strong>Ce site n'utilise aucun cookie de mesure d'audience, de publicité ou de suivi</strong>, et ne charge aucun contenu tiers à l'ouverture : les polices et bibliothèques sont hébergées sur notre propre site. C'est pourquoi aucun bandeau cookies ne s'affiche.</p>
+    <p>Pour compter les visites, nous utilisons une mesure d'audience interne et anonyme qui n'enregistre rien dans votre navigateur et ne crée aucun identifiant : elle note seulement la page ouverte, le site de provenance, le type d'appareil, ainsi que la langue et le fuseau horaire du navigateur. Si votre navigateur envoie le signal « Global Privacy Control » ou « Do Not Track », votre visite n'est pas comptée.</p>
     <p>Nous enregistrons uniquement dans votre navigateur (stockage local) ce qui est strictement nécessaire au fonctionnement que vous demandez :</p>
     <div class="tabla"><table>
       <thead><tr><th>Nom</th><th>Finalité</th><th>Durée</th></tr></thead>
       <tbody>
         <tr><td><code>a2wd_lang</code></td><td>Mémoriser la langue choisie</td><td>Jusqu'à ce que vous effaciez les données du navigateur</td></tr>
+        <tr><td><code>a2wd_equipo</code></td><td>Uniquement sur les appareils de notre équipe : ne pas compter nos propres visites</td><td>Jusqu'à ce que vous effaciez les données du navigateur</td></tr>
         <tr><td><code>sb-…-auth-token</code></td><td>Maintenir votre session dans l'espace client</td><td>Jusqu'à la déconnexion</td></tr>
         <tr><td><code>a2wd_…</code> (portail)</td><td>Copie de votre projet pour consulter le portail hors ligne et mémoriser le report des notifications</td><td>Effacée à la déconnexion</td></tr>
         <tr><td>Cache de l'application</td><td>Ouvrir le site et le portail rapidement et hors ligne si vous l'installez sur votre téléphone</td><td>Jusqu'à la désinstallation ou l'effacement des données</td></tr>

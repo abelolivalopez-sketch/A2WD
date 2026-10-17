@@ -14,6 +14,7 @@ import { crearFacturas } from './creador/facturas.js';
 import { crearGestionTarifas } from './creador/gestion-tarifas.js';
 import { crearEquipo } from './creador/equipo.js';
 import { crearPortfolio } from './creador/portfolio.js';
+import { crearActividad } from './creador/actividad.js';
 import { crearAsistente } from './creador/asistente.js';
 import { crearBarra } from './creador/barra.js';
 import { crearAjustes, aplicarPreferencias } from './creador/ajustes.js';
@@ -28,6 +29,7 @@ const ctx = await exigirSesion('creador');
 if (!ctx) throw new Error('Sin sesión');
 
 const { perfil } = ctx;
+try { localStorage.setItem('a2wd_equipo', '1'); } catch {}
 const vista = document.getElementById('vista');
 
 document.getElementById('salir').onclick = salir;
@@ -109,6 +111,8 @@ const { vWeb } = crearPortfolio({
   sb, vista, esc, toast, fallo,
 });
 
+const { vActividad } = crearActividad({ sb, vista, esc, toast });
+
 const { vAsistente, actualizarAsis } = crearAsistente({
   sb, vista, esc, fecha, chatAsistente,
   fallo, opts, abrirForm, guardarEn, borrar, refrescar,
@@ -135,6 +139,7 @@ async function router() {
     tarifas: vTarifas,
     equipo: vEquipo,
     web: vWeb,
+    actividad: vActividad,
     asistente: vAsistente,
     ajustes: vAjustes,
   };

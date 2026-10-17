@@ -15,7 +15,7 @@ export function aplicarPreferencias() {
 }
 
 export function crearAjustes({ sb, vista, perfil, esc, toast, fallo, salir, botonAvisos, activarCambioPassword, pintarPerfil }) {
-  const INICIOS = [['resumen', 'Resumen'], ['mensajes', 'Mensajes'], ['proyectos', 'Proyectos'], ['clientes', 'Clientes'], ['facturas', 'Facturas'], ['equipo', 'Equipo']];
+  const INICIOS = [['resumen', 'Resumen'], ['mensajes', 'Mensajes'], ['proyectos', 'Proyectos'], ['clientes', 'Clientes'], ['facturas', 'Facturas'], ['equipo', 'Equipo'], ['actividad', 'Actividad de la web']];
   const interruptor = (id, on, etiqueta) =>
     `<label class="interruptor"><input type="checkbox" role="switch" id="${id}" ${on ? 'checked' : ''} aria-label="${esc(etiqueta)}"><span aria-hidden="true"></span></label>`;
   const fila = (titulo, texto, control) =>
