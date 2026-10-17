@@ -4,7 +4,7 @@ Agencia de diseño web de **Abel Oliva López** y **Ariel** ([@AOcchietti](https
 
 - **Web publicada:** https://a2wdstudio.com/ (la publica Cloudflare sola desde la rama `main`; ver `docs/DOMINIO.md`)
 - **Portal / app:** https://a2wdstudio.com/portal/login.html
-- **Contacto:** a2wd.web@gmail.com
+- **Contacto:** info@a2wdstudio.com
 
 ## Qué hay aquí
 
