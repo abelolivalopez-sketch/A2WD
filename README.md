@@ -14,6 +14,7 @@ Agencia de diseño web de **Abel Oliva López** y **Ariel** ([@AOcchietti](https
 | Portal de clientes y panel de creadores | `portal/` | [docs/PORTAL-GUIA.md](docs/PORTAL-GUIA.md) |
 | App del móvil (PWA) | `manifest.webmanifest`, `sw.js`, `instalar.js`, `img/icono-*` | [docs/PORTAL-GUIA.md](docs/PORTAL-GUIA.md#app-para-el-móvil) |
 | Base de datos y funciones (Supabase) | `supabase/` | [docs/PORTAL-GUIA.md](docs/PORTAL-GUIA.md) |
+| Actividad de la web (visitas, gráficas, Excel y CSV) | `assets/js/actividad.js`, `portal/js/creador/actividad.js`, `supabase/actividad.sql` | [docs/ACTIVIDAD.md](docs/ACTIVIDAD.md) |
 | Demos para prospección | `demos/` (no indexadas) | — |
 | Tarifas internas | `tarifas.js` | [docs/PORTAL-GUIA.md](docs/PORTAL-GUIA.md#tarifas) |
 | Hoja de ruta y tareas pendientes | — | [docs/PENDIENTES.md](docs/PENDIENTES.md) |

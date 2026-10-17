@@ -58,7 +58,7 @@ export function crearBarra({ sb, esc, euros, perfil, ESTADOS }) {
   const SECCIONES = [
     ['Resumen', '#resumen', 'resumen'], ['Clientes', '#clientes', 'clientes'], ['Proyectos', '#proyectos', 'proyectos'],
     ['Facturas y presupuestos', '#facturas', 'facturas'], ['Mensajes de clientes', '#mensajes', 'mensajes'],
-    ['Chat de equipo', '#equipo', 'equipo'], ['Rodolfo IA', '#asistente', 'asistente'], ['Web (portafolio)', '#web', 'web'],
+    ['Chat de equipo', '#equipo', 'equipo'], ['Rodolfo IA', '#asistente', 'asistente'], ['Web (portafolio)', '#web', 'web'], ['Actividad de la web', '#actividad', 'actividad'],
     ['Tarifas', '#tarifas', 'tarifas'], ['Ajustes', '#ajustes', 'ajustes'],
   ];
   const ESTADO_FAC = { borrador: 'Borrador', pendiente: 'Pendiente', pagada: 'Pagada', vencida: 'Vencida', anulada: 'Anulada' };
