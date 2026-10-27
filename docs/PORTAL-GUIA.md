@@ -9,7 +9,7 @@ Tiempo estimado: 10 minutos. Todo se hace desde el panel web de Supabase, sin in
 | Archivo | Qué es |
 |---|---|
 | `portal/login.html` | Acceso para creadores y clientes, recuperar contraseña y crear contraseña al aceptar la invitación |
-| `portal/creador.html` | Tu panel: resumen, clientes (CRM), proyectos, avances, mensajes y facturas |
+| `portal/creador.html` | Tu panel: resumen, clientes (CRM), proyectos, avances, mensajes, facturas y actividad de la web |
 | `portal/cliente.html` | Panel del cliente: estado del proyecto, vista previa de su web, avances y chat contigo |
 | `portal/js/config.js` | Donde pegas la URL y la clave pública de Supabase |
 | `supabase/schema.sql` | Tablas y reglas de seguridad de la base de datos |
@@ -26,8 +26,8 @@ Así solo entra quien tú invites. Las invitaciones siguen funcionando.
 
 ### 3. Direcciones permitidas
 **Authentication → URL Configuration**
-- *Site URL*: `https://abelolivalopez-sketch.github.io/A2WD/portal/login.html`
-- *Redirect URLs* → añade: `https://abelolivalopez-sketch.github.io/A2WD/portal/**`
+- *Site URL*: `https://a2wdstudio.com/portal/login.html`
+- *Redirect URLs* → añade: `https://a2wdstudio.com/portal/**` (deja también `https://abelolivalopez-sketch.github.io/A2WD/portal/**` unas semanas, para las invitaciones ya enviadas)
 
 ### 4. Tu cuenta de creador
 1. **Authentication → Users → Add user → Create new user**: tu correo y una contraseña, marca *Auto Confirm User*.
@@ -127,7 +127,7 @@ La web y el portal se instalan como app (PWA): icono propio en la pantalla de in
 - **Cómo la instalan tus clientes:** botón «Añadir a mi móvil» en el menú móvil y el pie de la web, y tarjeta en el acceso al portal y en su panel. En Android sale el instalador directamente; en iPhone se muestran los 2 pasos de Safari (Compartir → Añadir a pantalla de inicio). Todo en ES/FR/IT/EN.
 - **Archivos:** `manifest.webmanifest` (nombre, icono, colores), `sw.js` (arranque rápido y sin conexión; nunca guarda datos de clientes), `instalar.js` (botón y ventana de instrucciones), `img/icono-192.png`, `img/icono-512.png`, `img/icono-maskable-512.png`.
 - **Al cambiar el portal:** sube `VERSION` en `sw.js` (`a2wd-v1` → `a2wd-v2`) para que las apps instaladas cojan la versión nueva.
-- **Al cambiar de dominio:** no hay que tocar nada de la app (las rutas son relativas); los clientes con la app antigua deberán instalarla de nuevo desde el dominio nuevo. Actualiza también las URL del paso 3.
+- **Al cambiar de dominio:** no hay que tocar nada de la app (las rutas son relativas); los clientes con la app antigua deberán instalarla de nuevo desde el dominio nuevo, volver a iniciar sesión y volver a activar los avisos. Actualiza también las URL del paso 3. (Hecho el 15 oct 2026: a2wdstudio.com, ver `docs/DOMINIO.md`.)
 
 ### Sin conexión
 Cada vez que el cliente abre su panel con internet, la app guarda en su móvil una copia de su proyecto (fase, progreso, avances y mensajes). Si luego la abre sin conexión, ve esa copia con una franja «Sin conexión · copia del …» y todo se actualiza solo al volver internet. Enviar mensajes necesita conexión. Al cerrar sesión la copia se borra del móvil. (`portal/movil.js`)
@@ -156,6 +156,10 @@ Cada vez que el cliente abre su panel con internet, la app guarda en su móvil u
 - Cada proyecto: título, descripción en español (y opcionalmente francés, italiano e inglés; si faltan se muestra el español), enlace, etiquetas y una captura. La foto se reduce y se convierte a WebP sola antes de subirla.
 - «Partir de un proyecto de cliente» rellena título, enlace y descripción desde un proyecto del portal.
 - Los cambios se ven en la web al momento, sin tocar código. Datos en la tabla `portfolio` y fotos en el bucket `portfolio` de Supabase (`supabase/portfolio.sql`). Si la base de datos no respondiera, la web muestra los dos proyectos escritos en la página.
+
+## Actividad de la web
+- Pestaña **Actividad** del panel de creador: visitas, páginas vistas, contactos, de dónde llega la gente, dispositivo, país e idioma, con gráficas por día, semana o mes y exportación a Excel y CSV.
+- Sin cookies ni datos personales. Puesta en marcha (`supabase/actividad.sql`), enlaces con `?utm_source=` y cómo llevarlo a Drive: [ACTIVIDAD.md](ACTIVIDAD.md).
 
 ## Chat con clientes (en tiempo real)
 - **Cada cliente tiene una conversación con A2WD**, aunque todavía no tenga proyecto. Los mensajes aparecen al momento en los dos lados, sin recargar.

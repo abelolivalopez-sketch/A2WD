@@ -2,8 +2,8 @@
 
 Agencia de diseño web de **Abel Oliva López** y **Ariel** ([@AOcchietti](https://github.com/AOcchietti)). Este repositorio contiene la web pública de A2WD, el portal de clientes (que también se instala como app en el móvil) y las demos que usamos para captar clientes.
 
-- **Web publicada:** https://abelolivalopez-sketch.github.io/A2WD/ (GitHub Pages, rama `main`)
-- **Portal / app:** https://abelolivalopez-sketch.github.io/A2WD/portal/login.html
+- **Web publicada:** https://a2wdstudio.com/ (la publica Cloudflare sola desde la rama `main`; ver `docs/DOMINIO.md`)
+- **Portal / app:** https://a2wdstudio.com/portal/login.html
 - **Contacto:** a2wd.web@gmail.com
 
 ## Qué hay aquí
@@ -14,6 +14,7 @@ Agencia de diseño web de **Abel Oliva López** y **Ariel** ([@AOcchietti](https
 | Portal de clientes y panel de creadores | `portal/` | [docs/PORTAL-GUIA.md](docs/PORTAL-GUIA.md) |
 | App del móvil (PWA) | `manifest.webmanifest`, `sw.js`, `instalar.js`, `img/icono-*` | [docs/PORTAL-GUIA.md](docs/PORTAL-GUIA.md#app-para-el-móvil) |
 | Base de datos y funciones (Supabase) | `supabase/` | [docs/PORTAL-GUIA.md](docs/PORTAL-GUIA.md) |
+| Actividad de la web (visitas, gráficas, Excel y CSV) | `assets/js/actividad.js`, `portal/js/creador/actividad.js`, `supabase/actividad.sql` | [docs/ACTIVIDAD.md](docs/ACTIVIDAD.md) |
 | Demos para prospección | `demos/` (no indexadas) | — |
 | Tarifas internas | `tarifas.js` | [docs/PORTAL-GUIA.md](docs/PORTAL-GUIA.md#tarifas) |
 | Hoja de ruta y tareas pendientes | — | [docs/PENDIENTES.md](docs/PENDIENTES.md) |

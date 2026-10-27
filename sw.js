@@ -7,7 +7,7 @@
 //  - Recibe las notificaciones push y abre la app al tocarlas.
 //  Al cambiar archivos del portal, sube el número de VERSION.
 // =====================================================================
-const VERSION = 'a2wd-v22';
+const VERSION = 'a2wd-v24';
 const CARCASA = [
   './',
   './index.html',
@@ -31,9 +31,19 @@ const CARCASA = [
 // Librería de Supabase (sus piezas internas se guardan en la siguiente visita)
 const LIBRERIAS = ['https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/+esm'];
 
+// Copia «limpia» de una respuesta que llegó tras una redirección (Cloudflare: /index.html → /).
+// Guardada tal cual, el navegador la rechazaría al usarla para abrir una página sin conexión.
+function limpia(res) {
+  return res.redirected ? new Response(res.body, { status: res.status, statusText: res.statusText, headers: res.headers }) : res;
+}
+
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(VERSION).then(async (c) => {
-    await c.addAll(CARCASA);
+    await Promise.all(CARCASA.map(async (u) => {
+      const res = await fetch(u, { cache: 'no-cache' });
+      if (!res.ok) throw new Error('No se pudo guardar ' + u);
+      await c.put(u, limpia(res));
+    }));
     await Promise.all(LIBRERIAS.map((u) => c.add(new Request(u, { mode: 'cors' })).catch(() => {})));
   }).then(() => self.skipWaiting()));
 });
@@ -60,10 +70,19 @@ self.addEventListener('fetch', (e) => {
     // (una petición de navegación no se puede copiar con opciones: se pide por su URL)
     e.respondWith(
       fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' })
-        .then((res) => { guardar(req, res.clone()); return res; })
+        .then((res) => {
+          // Si el servidor redirige (Cloudflare quita el «.html»: /web.html → /web), el navegador
+          // NO acepta para una navegación una respuesta que ya viene redirigida (da ERR_FAILED).
+          // Se le devuelve la redirección para que cambie él de dirección y vuelva a pedirla.
+          if (res.redirected && res.url !== req.url) return Response.redirect(res.url, 302);
+          guardar(req, res.clone());
+          return res;
+        })
         .catch(async () =>
           (await caches.match(req, { ignoreSearch: true })) ||
-          (await caches.match('./portal/login.html')))
+          (await caches.match(req.url.replace(/\.html(?=$|[?#])/, ''), { ignoreSearch: true })) ||
+          (await caches.match('./portal/login.html')) ||
+          (await caches.match('./portal/login')))
     );
     return;
   }
