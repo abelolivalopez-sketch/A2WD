@@ -36,6 +36,12 @@
       otro1: 'Abre el menú del navegador <span class="a2-ico">⋮</span>.',
       otro2: 'Elige <b>Instalar app</b> o <b>Añadir a pantalla de inicio</b>.',
       pc: 'Abre esta página en tu móvil (Chrome en Android o Safari en iPhone) y pulsa «Añadir a mi móvil».',
+      and_titulo: 'Descarga la app de A2WD',
+      and_pasos: ['Toca <b>Descargar la app</b>.', 'Cuando termine, abre <b>A2WD.apk</b> desde el aviso de descarga o desde <b>Descargas</b>.', 'Si Android lo pide, permite instalar apps desde Chrome y toca <b>Instalar</b>.'],
+      and_pasos_play: ['Toca <b>Abrir en Google Play</b>.', 'Toca <b>Instalar</b> y abre A2WD desde tu pantalla de inicio.'],
+      and_nota: 'Android avisará de que la app no viene de Google Play: es normal mientras la publicamos allí.',
+      and_descargar: 'Descargar la app', and_play: 'Abrir en Google Play', and_web: 'Prefiero un acceso directo sin descargar', and_cerrar: 'Cerrar',
+      and_sub: 'Tu proyecto y el chat con nosotros en una app para Android, con avisos al momento.', and_boton: 'Descargar la app',
       listo: 'Entendido', ok: '¡Listo! Ya tienes A2WD en tu pantalla de inicio.'
     },
     fr: {
@@ -53,6 +59,12 @@
       otro1: 'Ouvrez le menu du navigateur <span class="a2-ico">⋮</span>.',
       otro2: "Choisissez <b>Installer l'application</b> ou <b>Ajouter à l'écran d'accueil</b>.",
       pc: "Ouvrez cette page sur votre mobile (Chrome sur Android ou Safari sur iPhone) et touchez « Ajouter à mon téléphone ».",
+      and_titulo: 'Téléchargez l’app A2WD',
+      and_pasos: ['Touchez <b>Télécharger l’app</b>.', 'À la fin, ouvrez <b>A2WD.apk</b> depuis la notification de téléchargement ou depuis <b>Téléchargements</b>.', 'Si Android le demande, autorisez l’installation d’apps depuis Chrome puis touchez <b>Installer</b>.'],
+      and_pasos_play: ['Touchez <b>Ouvrir dans Google Play</b>.', 'Touchez <b>Installer</b> et ouvrez A2WD depuis votre écran d’accueil.'],
+      and_nota: 'Android indiquera que l’app ne vient pas de Google Play : c’est normal le temps que nous l’y publiions.',
+      and_descargar: 'Télécharger l’app', and_play: 'Ouvrir dans Google Play', and_web: 'Je préfère un raccourci sans téléchargement', and_cerrar: 'Fermer',
+      and_sub: 'Votre projet et la discussion avec nous dans une app Android, avec des notifications en temps réel.', and_boton: 'Télécharger l’app',
       listo: "C'est compris", ok: "C'est fait ! A2WD est sur votre écran d'accueil."
     },
     it: {
@@ -70,6 +82,12 @@
       otro1: 'Apri il menu del browser <span class="a2-ico">⋮</span>.',
       otro2: "Scegli <b>Installa app</b> o <b>Aggiungi a schermata Home</b>.",
       pc: "Apri questa pagina sul telefono (Chrome su Android o Safari su iPhone) e tocca «Aggiungi al telefono».",
+      and_titulo: 'Scarica l’app di A2WD',
+      and_pasos: ['Tocca <b>Scarica l’app</b>.', 'Al termine, apri <b>A2WD.apk</b> dalla notifica di download o da <b>Download</b>.', 'Se Android lo chiede, consenti l’installazione di app da Chrome e tocca <b>Installa</b>.'],
+      and_pasos_play: ['Tocca <b>Apri in Google Play</b>.', 'Tocca <b>Installa</b> e apri A2WD dalla schermata Home.'],
+      and_nota: 'Android ti avviserà che l’app non viene da Google Play: è normale finché non la pubblichiamo lì.',
+      and_descargar: 'Scarica l’app', and_play: 'Apri in Google Play', and_web: 'Preferisco un collegamento senza scaricare', and_cerrar: 'Chiudi',
+      and_sub: 'Il tuo progetto e la chat con noi in un’app per Android, con notifiche in tempo reale.', and_boton: 'Scarica l’app',
       listo: 'Ho capito', ok: 'Fatto! A2WD è nella tua schermata Home.'
     },
     en: {
@@ -87,6 +105,12 @@
       otro1: 'Open your browser menu <span class="a2-ico">⋮</span>.',
       otro2: 'Choose <b>Install app</b> or <b>Add to Home screen</b>.',
       pc: 'Open this page on your phone (Chrome on Android or Safari on iPhone) and tap “Add to my phone”.',
+      and_titulo: 'Download the A2WD app',
+      and_pasos: ['Tap <b>Download the app</b>.', 'When it finishes, open <b>A2WD.apk</b> from the download notification or from <b>Downloads</b>.', 'If Android asks, allow installing apps from Chrome and tap <b>Install</b>.'],
+      and_pasos_play: ['Tap <b>Open in Google Play</b>.', 'Tap <b>Install</b> and open A2WD from your home screen.'],
+      and_nota: 'Android will warn that the app doesn’t come from Google Play: that’s expected until we publish it there.',
+      and_descargar: 'Download the app', and_play: 'Open in Google Play', and_web: 'I’d rather add a shortcut without downloading', and_cerrar: 'Close',
+      and_sub: 'Your project and your chat with us in an Android app, with instant notifications.', and_boton: 'Download the app',
       listo: 'Got it', ok: 'Done! A2WD is now on your home screen.'
     }
   };
@@ -102,6 +126,10 @@
   var versionSafari = parseInt((ua.match(/Version\/(\d+)/) || [])[1] || '0', 10);
   var esIPad = /iPad/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   var esMovil = esIOS || /Android|Mobi/i.test(ua);
+  var esAndroid = /Android/i.test(ua) && !esIOS;
+  var ANDROID_PLAY = '';
+  var ANDROID_APK = 'https://github.com/abelolivalopez-sketch/A2WD/releases/latest/download/A2WD.apk';
+  var appAndroid = esAndroid && !!(ANDROID_PLAY || ANDROID_APK);
   var avisoNativo = null;
 
   if ('serviceWorker' in navigator) {
@@ -125,7 +153,7 @@
     '.a2-banner p{font-size:13.5px;color:var(--muted,#83837B);margin:0 0 12px;line-height:1.45}' +
     '.a2-banner button{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:13px;font-weight:500;background:var(--ink,#0B0B0A);color:var(--bg,#fff);border:1px solid var(--ink,#0B0B0A);padding:9px 16px;cursor:pointer;border-radius:2px}' +
     '.a2-velo{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}' +
-    '.a2-hoja{background:var(--bg,#fff);color:var(--ink,#0B0B0A);width:100%;max-width:420px;padding:24px 22px 20px;border:1px solid var(--line,#E9E9E4);font-family:"IBM Plex Sans",system-ui,sans-serif;animation:a2sube .25s ease}' +
+    '.a2-hoja{background:var(--bg,#fff);color:var(--ink,#0B0B0A);width:100%;max-width:420px;max-height:calc(100dvh - 32px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));overflow-y:auto;padding:24px 22px 20px;border:1px solid var(--line,#E9E9E4);font-family:"IBM Plex Sans",system-ui,sans-serif;animation:a2sube .25s ease}' +
     '@keyframes a2sube{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}' +
     '.a2-hoja .a2-cab{display:flex;gap:12px;align-items:center;margin-bottom:18px}' +
     '.a2-hoja .a2-cab img{width:40px;height:40px;border-radius:9px}' +
@@ -140,6 +168,9 @@
     '.a2-velo.arriba{align-items:flex-start;padding-top:calc(16px + env(safe-area-inset-top,0px))}' +
     '.a2-hoja .a2-nota{font-size:12.5px;color:var(--muted,#83837B);margin:-8px 0 16px;line-height:1.45}' +
     '.a2-hoja .a2-copiar{background:transparent;color:var(--ink,#0B0B0A);border:1px solid var(--ink,#0B0B0A);margin-bottom:10px}' +
+    '.a2-hoja .a2-descargar{display:block;width:100%;text-align:center;text-decoration:none;font-family:"IBM Plex Mono",monospace;font-size:13.5px;background:var(--ink,#0B0B0A);color:var(--bg,#fff);padding:13px;border-radius:2px;margin-bottom:12px}' +
+    '.a2-hoja .a2-sec{background:transparent;color:var(--ink,#0B0B0A);border:1px solid var(--line,#E9E9E4)}' +
+    '.a2-hoja .a2-alt{background:none;border:0;color:var(--muted,#83837B);text-decoration:underline;text-underline-offset:3px;font-size:13px;padding:6px 0 14px}' +
     '.a2-flecha{position:fixed;z-index:1001;bottom:calc(6px + env(safe-area-inset-bottom,0px));font-size:34px;line-height:1;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.6);animation:a2bota 1s ease-in-out infinite;pointer-events:none}' +
     '@keyframes a2bota{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}' +
     '.a2-toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink,#0B0B0A);color:var(--bg,#fff);font-size:13.5px;padding:12px 18px;z-index:1001;max-width:90vw}';
@@ -157,6 +188,22 @@
   // ---------- Acciones ----------
   function instalar(e) {
     if (e) e.preventDefault();
+    if (appAndroid) return hojaAndroid();
+    instalarWeb();
+  }
+
+  function hojaAndroid() {
+    var play = !!ANDROID_PLAY;
+    var enlace = play
+      ? '<a class="a2-descargar" href="' + ANDROID_PLAY + '" target="_blank" rel="noopener">' + t('and_play') + '</a>'
+      : '<a class="a2-descargar" href="' + ANDROID_APK + '" download="A2WD.apk">' + t('and_descargar') + '</a>';
+    hoja(pasos(t(play ? 'and_pasos_play' : 'and_pasos')) + enlace +
+      (play ? '' : '<p class="a2-nota">' + t('and_nota') + '</p>') +
+      '<button type="button" class="a2-alt">' + t('and_web') + '</button>',
+      { titulo: t('and_titulo'), cerrar: t('and_cerrar'), alt: instalarWeb });
+  }
+
+  function instalarWeb() {
     if (avisoNativo) {
       avisoNativo.prompt();
       avisoNativo.userChoice.finally(function () { avisoNativo = null; });
@@ -178,7 +225,7 @@
     var velo = document.createElement('div');
     velo.className = 'a2-velo' + (op.arriba ? ' arriba' : '');
     velo.innerHTML = '<div class="a2-hoja" role="dialog" aria-modal="true"><div class="a2-cab"><img src="' + icono + '" alt=""><h3>' +
-      t('titulo') + '</h3></div>' + cuerpo + '<button type="button">' + t('listo') + '</button></div>';
+      (op.titulo || t('titulo')) + '</h3></div>' + cuerpo + '<button type="button"' + (op.cerrar ? ' class="a2-sec"' : '') + '>' + (op.cerrar || t('listo')) + '</button></div>';
     var flecha = null;
     if (op.flecha) {                                   // flecha que señala el botón de Safari en la barra de abajo
       flecha = document.createElement('div'); flecha.className = 'a2-flecha'; flecha.textContent = '↓';
@@ -192,10 +239,11 @@
         (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(function () { aviso(t('copiado')); }, function () { prompt(t('copiar'), url); });
         return;
       }
+      if (e.target.classList && e.target.classList.contains('a2-alt')) { cerrar(); if (op.alt) op.alt(); return; }
       if (e.target === velo || e.target.tagName === 'BUTTON') cerrar();
     });
     document.body.appendChild(velo);
-    velo.querySelector('button').focus();
+    (velo.querySelector('.a2-descargar') || velo.querySelector('button')).focus();
   }
 
   function aviso(msg) {
@@ -209,17 +257,20 @@
     if (instalada) return;
     var botones = document.querySelectorAll('[data-instalar]');
     for (var i = 0; i < botones.length; i++) {
-      if (!botones[i].textContent.trim()) botones[i].textContent = t('boton');
+      if (!botones[i].textContent.trim()) botones[i].textContent = t(appAndroid ? 'and_boton' : 'boton');
       botones[i].addEventListener('click', instalar);
     }
     var banners = document.querySelectorAll('[data-instalar-banner]');
     for (var j = 0; j < banners.length; j++) {
       banners[j].innerHTML = '<div class="a2-banner"><img src="' + icono + '" alt=""><div><h3>' + t('titulo') +
-        '</h3><p>' + t('sub') + '</p><button type="button">' + t('boton') + '</button></div></div>';
+        '</h3><p>' + t(appAndroid ? 'and_sub' : 'sub') + '</p><button type="button">' + t(appAndroid ? 'and_boton' : 'boton') + '</button></div></div>';
       banners[j].querySelector('button').addEventListener('click', instalar);
     }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', preparar); else preparar();
+  if (!instalada && navigator.getInstalledRelatedApps) {
+    navigator.getInstalledRelatedApps().then(function (l) { if (l && l.length) ocultarTodo(); }).catch(function () {});
+  }
 
   window.A2WDApp = { instalar: instalar, instalada: instalada };
 })();

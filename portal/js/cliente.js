@@ -151,16 +151,22 @@ if (error) {
   chatAsistente({ proyecto: () => null });
 } else {
   let actual = proyectos[0].id;
+  let turno = 0;
   const pintarSelector = () => proyectos.length < 2 ? '' :
     `<div class="selector">${proyectos.map((p) => `<button data-id="${p.id}" class="${p.id === actual ? 'on' : ''}">${esc(p.nombre)}</button>`).join('')}</div>`;
 
   async function mostrar(id) {
     actual = id;
+    const mio = ++turno;
+    app.setAttribute('aria-busy', 'true');
+    app.querySelectorAll('.selector button').forEach((b) => b.classList.toggle('on', b.dataset.id === id));
     const p = proyectos.find((x) => x.id === id);
     let [{ data: avances, error: e1 }, chatSinRed] = await Promise.all([
       sb.from('avances').select('*').eq('proyecto_id', id).order('created_at', { ascending: false }),
       cargarChat(),
     ]);
+    if (mio !== turno) return;
+    app.removeAttribute('aria-busy');
     const sinRed = esFalloRed(e1) || chatSinRed || !navigator.onLine;
     if (sinRed) {
       const copia = leerCopia(uid, 'proyecto_' + id);

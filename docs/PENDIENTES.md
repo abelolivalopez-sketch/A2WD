@@ -38,7 +38,7 @@ Comprobar en Supabase que están hechos:
 - [ ] Borrar la cuenta de creador temporal cuando ya no haga falta.
 
 ## Decisiones de negocio
-- [ ] **Dominio propio.** Hace falta antes de publicar en Google Play (ver `PLAY-STORE.md`); cambiarlo después obliga a reinstalar la app.
+- [x] **Dominio propio:** a2wdstudio.com (15 oct 2026). Cambiarlo después obligaría a reinstalar la app.
 - [ ] **Forma jurídica** (autónomos o sociedad) antes de empezar a cobrar.
 - [ ] **Cuenta de Google Play**: personal (Abel) para empezar, u organización cuando exista la empresa.
 - [ ] Actualizar `legal.html` (privacidad) para la app: datos de clientes, chat, avisos al móvil y uso de Gemini.
@@ -48,6 +48,6 @@ Plan completo en [`PLAY-STORE.md`](PLAY-STORE.md).
 
 - [ ] Fase 1 · Pruebas de usabilidad con 3–5 personas.
 - [ ] Fase 2 · Mejoras a partir de las pruebas.
-- [ ] Fase 3 · Dominio, `assetlinks.json` y empaquetado Android.
+- [x] Fase 3 · Dominio, `assetlinks.json` y empaquetado Android (`app-android/`, ver [`APP-ANDROID.md`](APP-ANDROID.md)). Falta la primera compilación en GitHub y probar el APK en un móvil.
 - [ ] Fase 4 · Prueba cerrada en Google Play (12 testers, 14 días seguidos).
 - [ ] Fase 5 · Ficha, solicitud de producción y publicación.

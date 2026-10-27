@@ -1,5 +1,8 @@
 /* Estilos específicos del panel de cliente */
 .layout{max-width:1240px;margin:0 auto;padding:32px 24px 60px;}
+#app{transition:opacity .18s ease;}
+#app[aria-busy="true"]{opacity:.45;pointer-events:none;transition-delay:.12s;}
+body{padding-bottom:env(safe-area-inset-bottom,0px);}
   .selector{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 28px;}
   .selector button{font-family:var(--f-text);font-size:14px;font-weight:500;padding:8px 16px;border:1px solid var(--line);border-radius:999px;background:var(--soft);color:var(--ink-soft);cursor:pointer;}
   .selector button:hover{border-color:var(--line-strong);color:var(--ink);}

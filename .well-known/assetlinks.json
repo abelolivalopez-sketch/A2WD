@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.a2wdstudio.app",
+      "sha256_cert_fingerprints": [
+        "A7:E5:C1:2C:73:6F:D7:19:E0:AD:E5:04:D0:77:30:70:8B:85:AD:C7:19:FF:23:88:15:3F:4D:1F:BC:9F:9A:D7"
+      ]
+    }
+  }
+]

@@ -18,6 +18,7 @@ Agencia de diseño web de **Abel Oliva López** y **Ariel** ([@AOcchietti](https
 | Demos para prospección | `demos/` (no indexadas) | — |
 | Tarifas internas | `tarifas.js` | [docs/PORTAL-GUIA.md](docs/PORTAL-GUIA.md#tarifas) |
 | Hoja de ruta y tareas pendientes | — | [docs/PENDIENTES.md](docs/PENDIENTES.md) |
+| App de Android (descargable, sin barra de Chrome) | `app-android/`, `.github/workflows/app-android.yml`, `.well-known/assetlinks.json` | [docs/APP-ANDROID.md](docs/APP-ANDROID.md) |
 | Plan para publicar la app en Google Play | — | [docs/PLAY-STORE.md](docs/PLAY-STORE.md) |
 
 ```
@@ -31,6 +32,7 @@ Agencia de diseño web de **Abel Oliva López** y **Ariel** ([@AOcchietti](https
 ├── demos/       webs de muestra para clientes potenciales
 ├── img/ fonts/ vendor/   imágenes, tipografías y librerías alojadas aquí
 ├── herramientas/         scripts de mantenimiento (CSP del portal)
+├── app-android/ app de Android (se compila en GitHub; ver docs/APP-ANDROID.md)
 ├── docs/        guías, pendientes y plan de Play Store
 └── recursos/originales/  fotos y capturas originales (no se cargan en la web)
 ```
