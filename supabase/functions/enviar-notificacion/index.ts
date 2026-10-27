@@ -1,8 +1,10 @@
 // =====================================================================
 //  Edge Function: enviar-notificacion
-//  La llama la base de datos (privado.notificar) al crear un mensaje o un
-//  avance, o al cambiar la fase/progreso de un proyecto. Envía un aviso
-//  Web Push a los móviles del cliente o de los creadores, en su idioma.
+//  La llama la base de datos (privado.notificar) al crear un mensaje, un
+//  avance o un mensaje del formulario de la web, o al cambiar la fase/progreso
+//  de un proyecto. Envía un aviso Web Push a los móviles del cliente o de los
+//  creadores, en su idioma. Los mensajes de la web llegan además por correo
+//  (Resend, clave RESEND_API_KEY).
 //  Protegida con la cabecera x-a2wd-secreto (NOTIF_SECRET en privado.ajustes).
 // =====================================================================
 import { createClient } from 'npm:@supabase/supabase-js@2';
@@ -26,6 +28,29 @@ const TXT: Record<Idioma, Record<string, string>> = {
 };
 const recorta = (s: string, n = 140) => (s.length > n ? s.slice(0, n - 1) + '…' : s);
 const idioma = (s: string): Idioma => (['es', 'fr', 'it', 'en'].includes(s) ? s as Idioma : 'es');
+const NOMBRE_IDIOMA: Record<Idioma, string> = { es: 'Español', fr: 'Francés', it: 'Italiano', en: 'Inglés' };
+const PANEL = 'https://a2wdstudio.com/portal/creador';
+const escHtml = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
+const unaLinea = (s: string) => s.replace(/\s+/g, ' ').trim();
+
+type MensajeWeb = { id: string; nombre: string; email: string; asunto: string; mensaje: string; idioma: string; pagina: string; created_at: string };
+
+function correoMensajeWeb(m: MensajeWeb) {
+  const fecha = new Date(m.created_at).toLocaleString('es-ES', { timeZone: 'Europe/Madrid', dateStyle: 'full', timeStyle: 'short' });
+  const filas: [string, string][] = [
+    ['Nombre', m.nombre], ['Correo', m.email], ['Asunto', m.asunto || '—'],
+    ['Idioma', NOMBRE_IDIOMA[idioma(m.idioma)]], ['Página', m.pagina || '/'], ['Fecha', fecha],
+  ];
+  const enlace = `${PANEL}#buzon/${m.id}`;
+  const html = `<div style="font-family:system-ui,-apple-system,Segoe UI,sans-serif;font-size:15px;line-height:1.5;color:#111">
+<p style="margin:0 0 14px">Nuevo mensaje desde el formulario de a2wdstudio.com. Pulsa <b>Responder</b> para contestar a ${escHtml(m.nombre)}.</p>
+<table cellpadding="6" style="border-collapse:collapse;font-size:14px">${filas.map(([k, v]) => `<tr><td style="color:#667;padding-right:14px">${k}</td><td>${escHtml(v)}</td></tr>`).join('')}</table>
+<div style="margin:16px 0;padding:14px 16px;border-left:3px solid #9cc0ff;background:#f4f7ff;white-space:pre-wrap">${escHtml(m.mensaje)}</div>
+<p style="margin:0;color:#667;font-size:13px">También está en el panel: <a href="${enlace}">${enlace}</a></p>
+</div>`;
+  const text = `Nuevo mensaje desde el formulario de a2wdstudio.com\n\n${filas.map(([k, v]) => `${k}: ${v}`).join('\n')}\n\n${m.mensaje}\n\nPanel: ${enlace}`;
+  return { subject: recorta(unaLinea(`Web · ${m.asunto || 'Nuevo mensaje'} · ${m.nombre}`), 160), html, text };
+}
 
 Deno.serve(async (req) => {
   if (req.method !== 'POST') return json({ error: 'Método no permitido' }, 405);
@@ -37,7 +62,7 @@ Deno.serve(async (req) => {
 
   const [pub, priv, subject] = await Promise.all([ajuste('VAPID_PUBLIC_KEY'), ajuste('VAPID_PRIVATE_KEY'), ajuste('VAPID_SUBJECT')]);
   if (!pub || !priv) return json({ error: 'Faltan claves VAPID' }, 500);
-  webpush.setVapidDetails(subject || 'mailto:a2wd.web@gmail.com', pub, priv);
+  webpush.setVapidDetails(subject || 'mailto:info@a2wdstudio.com', pub, priv);
 
   const { tabla, id } = await req.json().catch(() => ({}));
   if (!tabla || !id) return json({ error: 'Falta tabla o id' }, 400);
@@ -96,6 +121,32 @@ Deno.serve(async (req) => {
     url = 'portal/creador.html#equipo' + (m.proyecto_id ? '/' + m.proyecto_id : '');
     etiqueta = 'equipo-' + (m.proyecto_id || 'general');
     crear = () => ({ title: `👥 ${m.autor_nombre || 'Equipo'} · ${canal || 'General'}`, body: recorta(m.mensaje) });
+  } else if (tabla === 'mensajes_web') {
+    const { data: m } = await admin.from('mensajes_web').select('id, nombre, email, asunto, mensaje, idioma, pagina, created_at').eq('id', id).single();
+    if (!m) return json({ ok: true, enviados: 0 });
+    const clave = await ajuste('RESEND_API_KEY');
+    let errorCorreo: string | null = 'Falta RESEND_API_KEY';
+    if (clave) {
+      const [de, para] = await Promise.all([ajuste('CORREO_REMITENTE'), ajuste('CORREO_DESTINO')]);
+      try {
+        const r = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${clave}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ from: de || 'Formulario A2WD <info@a2wdstudio.com>', to: [para || 'info@a2wdstudio.com'], reply_to: m.email, ...correoMensajeWeb(m as MensajeWeb) }),
+        });
+        errorCorreo = r.ok ? null : `Resend ${r.status}: ${(await r.text()).slice(0, 300)}`;
+      } catch (e) {
+        errorCorreo = `Resend: ${(e as Error).message}`.slice(0, 300);
+      }
+    }
+    await admin.from('mensajes_web')
+      .update(errorCorreo ? { correo_error: errorCorreo } : { correo_enviado_en: new Date().toISOString(), correo_error: null })
+      .eq('id', id);
+    const { data: creadores } = await admin.from('perfiles').select('id').eq('rol', 'creador');
+    destinatarios = (creadores ?? []).map((p) => p.id);
+    url = 'portal/creador.html#buzon/' + id;
+    etiqueta = 'web-' + id;
+    crear = () => ({ title: `✉️ ${m.nombre} · web`, body: recorta(m.asunto ? `${m.asunto} · ${m.mensaje}` : m.mensaje) });
   } else {
     return json({ error: 'Tabla no admitida' }, 400);
   }

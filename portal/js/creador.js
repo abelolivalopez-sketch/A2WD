@@ -15,6 +15,7 @@ import { crearGestionTarifas } from './creador/gestion-tarifas.js';
 import { crearEquipo } from './creador/equipo.js';
 import { crearPortfolio } from './creador/portfolio.js';
 import { crearActividad } from './creador/actividad.js';
+import { crearBuzon } from './creador/buzon.js';
 import { crearAsistente } from './creador/asistente.js';
 import { crearBarra } from './creador/barra.js';
 import { crearAjustes, aplicarPreferencias } from './creador/ajustes.js';
@@ -113,6 +114,8 @@ const { vWeb } = crearPortfolio({
 
 const { vActividad } = crearActividad({ sb, vista, esc, toast });
 
+const { vBuzon, actualizarBuzon } = crearBuzon({ sb, vista, esc, toast, fallo, borrar });
+
 const { vAsistente, actualizarAsis } = crearAsistente({
   sb, vista, esc, fecha, chatAsistente,
   fallo, opts, abrirForm, guardarEn, borrar, refrescar,
@@ -128,6 +131,7 @@ const VISTAS = {
   proyectos: vProyectos,
   proyecto: vProyecto,
   mensajes: vMensajes,
+  buzon: vBuzon,
   facturas: vFacturas,
   tarifas: vTarifas,
   equipo: vEquipo,
@@ -159,6 +163,7 @@ async function pintar(seccion, id) {
   actualizarSinLeer();
   actualizarAsis();
   actualizarEquipo();
+  actualizarBuzon();
 }
 
 function router({ arriba = false } = {}) {

@@ -59,10 +59,11 @@ declare
 begin
   select valor into v_secreto from privado.ajustes where clave = 'NOTIF_SECRET';
   if v_secreto is null then return new; end if;
-  if tg_table_name = 'proyectos'
-     and new.estado is not distinct from old.estado
-     and new.progreso is not distinct from old.progreso then
-    return new;
+  if tg_table_name = 'proyectos' then
+    if new.estado is not distinct from old.estado
+       and new.progreso is not distinct from old.progreso then
+      return new;
+    end if;
   end if;
   perform net.http_post(
     url     := 'https://vsqxcxmsvsektvsceqpx.supabase.co/functions/v1/enviar-notificacion',

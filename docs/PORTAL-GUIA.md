@@ -161,6 +161,11 @@ Cada vez que el cliente abre su panel con internet, la app guarda en su móvil u
 - Pestaña **Actividad** del panel de creador: visitas, páginas vistas, contactos, de dónde llega la gente, dispositivo, país e idioma, con gráficas por día, semana o mes y exportación a Excel y CSV.
 - Sin cookies ni datos personales. Puesta en marcha (`supabase/actividad.sql`), enlaces con `?utm_source=` y cómo llevarlo a Drive: [ACTIVIDAD.md](ACTIVIDAD.md).
 
+## Mensajes de la web
+- Pestaña **Mensajes web** del panel de creador (`#buzon`): los mensajes que llegan desde el formulario de contacto de la web, con buscador, leído/no leído, archivados, borrar y **Responder** (abre tu correo con la respuesta empezada).
+- Llegan también al móvil (avisos) y por correo a info@. No crean clientes solos: si queréis, el cliente se da de alta a mano en **Clientes**.
+- Puesta en marcha (`supabase/mensajes-web.sql`, función `enviar-notificacion` y clave de Resend): [MENSAJES-WEB.md](MENSAJES-WEB.md).
+
 ## Chat con clientes (en tiempo real)
 - **Cada cliente tiene una conversación con A2WD**, aunque todavía no tenga proyecto. Los mensajes aparecen al momento en los dos lados, sin recargar.
 - **Pestaña Mensajes (creadores):** lista de conversaciones con buscador, iniciales de cada cliente, hora del último mensaje y contador de no leídos (las más recientes arriba), y el chat al lado para responder. Al elegir «Sobre: …» se indica de qué proyecto habla la respuesta.

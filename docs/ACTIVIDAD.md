@@ -12,7 +12,7 @@ Panel › Actividad ──► lee la tabla visitas (solo creadores) ──► gr
 - **Medición propia, sin cookies y sin datos personales.** No se guarda la IP, ni un identificador, ni nada en el navegador del visitante. Por eso no hace falta banner de cookies (está explicado en `legal.html`, en español y en francés).
 - Cada fila de `visitas` es una **página vista** o un **contacto**, con: página, si es una **visita nueva** (llega desde fuera de la web), web de procedencia, campaña (`utm_source`), dispositivo, idioma y zona horaria del navegador.
 - **Visita** = llegada desde fuera (Google, Instagram, un enlace, el QR o escribiendo la dirección). Lo que se ve después dentro de la web suma **páginas vistas**. Recargar la página de entrada vuelve a contar como visita.
-- **Contacto** = pulsar WhatsApp, un enlace de correo o de teléfono, o enviar el formulario de contacto.
+- **Contacto** = pulsar WhatsApp, un enlace de correo o de teléfono, o enviar el formulario de contacto (solo cuenta si el mensaje se guarda bien).
 - **País**: sale de la zona horaria del navegador (Europe/Paris → Francia). Sin IP no hay ciudad.
 - **No se cuenta**: fuera de a2wdstudio.com (Live Server, raw.githack), robots, navegadores con «Global Privacy Control» o «Do Not Track», y los dispositivos del equipo.
 

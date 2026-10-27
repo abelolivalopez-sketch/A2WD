@@ -422,9 +422,10 @@
           <label for="cf-message" data-i18n="f.mensaje">Mensaje</label>
           <textarea id="cf-message" name="message" required></textarea>
         </div>
+        <input class="cf-trampa" name="web" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
         <div class="send-row">
           <button type="submit" data-i18n="f.enviar">Enviar mensaje</button>
-          <span class="form-status" id="formStatus" data-i18n="f.status">Se abrirá tu gestor de correo con el mensaje ya redactado.</span>
+          <span class="form-status" id="formStatus" data-i18n="f.status" role="status" aria-live="polite">Te contestamos por correo lo antes posible.</span>
         </div>
         <p class="form-legal" data-i18n="f.legal">Usamos tus datos solo para responderte. Más información en nuestra <a href="legal.html#privacidad">política de privacidad</a>.</p>
       </form>
@@ -663,8 +664,29 @@ window.A2WD_mobius = function(){
   const CONFIG = {
     EMAIL: "info@a2wdstudio.com",              // <- correo de la empresa
     WHATSAPP_ABEL: "34665795600",              // <- formato internacional sin + ni espacios
-    WHATSAPP_ARIEL: "34646795526"              // <- número de Ariel
+    WHATSAPP_ARIEL: "34646795526",             // <- número de Ariel
+    SUPABASE: "https://vsqxcxmsvsektvsceqpx.supabase.co",
+    CLAVE: "sb_publishable_W0nqmsiA9O9H3mgBxpQlNQ_UBlMH_kk"
   };
+  const ERRORES = { demasiados_mensajes: 'f.limite', correo_no_valido: 'f.correo' };
+
+  function aviso(status, clave, tipo){
+    status.setAttribute('data-i18n', clave);
+    status.textContent = window.A2WD_t(clave);
+    status.classList.toggle('ok', tipo === 'ok');
+    status.classList.toggle('mal', tipo === 'mal');
+  }
+
+  async function enviarMensaje(datos){
+    const r = await fetch(CONFIG.SUPABASE + '/rest/v1/rpc/enviar_mensaje_web', {
+      method: 'POST',
+      headers: { apikey: CONFIG.CLAVE, 'Content-Type': 'application/json' },
+      body: JSON.stringify(datos)
+    });
+    if (r.ok) return '';
+    const e = await r.json().catch(function(){ return {}; });
+    return e.message || 'error';
+  }
 
   // Pintar datos de contacto desde la configuración
   document.getElementById('emailValue').textContent = CONFIG.EMAIL;
@@ -701,21 +723,35 @@ window.A2WD_mobius = function(){
   window.addEventListener('scroll', onScroll, {passive:true});
   onScroll();
 
-  // Formulario de contacto -> abre el gestor de correo con el mensaje redactado
+  // Formulario de contacto -> se guarda en Supabase y nos llega por correo y al móvil
   const form = document.getElementById('contactForm');
   const status = document.getElementById('formStatus');
-  form.addEventListener('submit', function(e){
+  const boton = form.querySelector('button[type="submit"]');
+  form.addEventListener('submit', async function(e){
     e.preventDefault();
-    const name = form.name.value.trim();
-    const email = form.email.value.trim();
-    const subject = form.subject.value.trim() || window.A2WD_t('f.asunto.def');
-    const message = form.message.value.trim();
-
-    const body = `${window.A2WD_t('f.nombre')}: ${name}\n${window.A2WD_t('f.email')}: ${email}\n\n${message}`;
-    const mailto = `mailto:${CONFIG.EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-
-    window.location.href = mailto;
-    status.textContent = window.A2WD_t('f.abriendo');
+    if (boton.disabled) return;
+    boton.disabled = true;
+    aviso(status, 'f.enviando');
+    let fallo = 'error';
+    try {
+      fallo = await enviarMensaje({
+        p_nombre: form.name.value.trim(),
+        p_email: form.email.value.trim(),
+        p_asunto: form.subject.value.trim(),
+        p_mensaje: form.message.value.trim(),
+        p_idioma: document.documentElement.lang || 'es',
+        p_pagina: location.pathname,
+        p_trampa: form.web.value
+      });
+    } catch (err) {}
+    boton.disabled = false;
+    if (!fallo) {
+      form.reset();
+      aviso(status, 'f.enviado', 'ok');
+      document.dispatchEvent(new CustomEvent('a2wd:mensaje-enviado'));
+      return;
+    }
+    aviso(status, ERRORES[fallo] || 'f.error', 'mal');
   });
 })();
 </script>

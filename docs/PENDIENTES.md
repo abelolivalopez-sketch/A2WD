@@ -20,6 +20,11 @@ Su web principal es **lareinemathilde.fr** (la pâtisserie, hecha en Drupal 9 po
 - [ ] Subdominio `boulangerie.lareinemathilde.fr`: preparar la línea DNS (CNAME) y el archivo `CNAME` del sitio.
 - [ ] Enlace «La Boulangerie» en el menú de lareinemathilde.fr (lo hacen ellos o su proveedor).
 
+## Mensajes de la web
+- [x] El formulario de contacto envía directo (sin abrir el correo de quien escribe) y guarda el mensaje en Supabase. Bandeja **Mensajes web** en el panel ([MENSAJES-WEB.md](MENSAJES-WEB.md)).
+- [ ] Aplicar `supabase/mensajes-web.sql` y desplegar `enviar-notificacion` antes de fusionar en `main`. El SQL arregla además los avisos al móvil del chat, los avances y el equipo, que no salían por un fallo en `privado.notificar()`.
+- [ ] Cuenta de Resend, dominio verificado en Cloudflare y secreto `RESEND_API_KEY` en Supabase.
+
 ## Rodolfo en varios idiomas
 - [x] Columnas `idioma` y `traduccion_de` en `conocimiento` (aplicado en Supabase el 7 oct).
 - [x] 38 traducciones FR/EN cargadas (`supabase/traducciones-rodolfo.sql`).

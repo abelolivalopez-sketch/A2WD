@@ -82,9 +82,7 @@ function vigilarContactos() {
     const detalle = enlace && tipoContacto(enlace);
     if (detalle) contacto(detalle);
   }, true);
-  document.addEventListener('submit', (e) => {
-    if (e.target.id === 'contactForm') contacto('formulario');
-  }, true);
+  document.addEventListener('a2wd:mensaje-enviado', () => contacto('formulario'));
 }
 
 function contarVista() {

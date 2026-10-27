@@ -25,6 +25,7 @@ export function crearBarra({ sb, esc, euros, perfil, ESTADOS }) {
   // Las cifras salen de los contadores del menú lateral, que ya se actualizan solos
   const fuentes = [
     { badge: 'nSinLeer', n: 'bMsj', txt: 'bMsjTxt', si: (n) => n === 1 ? '1 mensaje sin leer' : `${n} mensajes sin leer`, no: 'Al día' },
+    { badge: 'nBuzon', n: 'bWeb', txt: 'bWebTxt', si: (n) => n === 1 ? '1 mensaje nuevo desde la web' : `${n} mensajes nuevos desde la web`, no: 'Al día' },
     { badge: 'nEquipo', n: 'bEq', txt: 'bEqTxt', si: (n) => n === 1 ? '1 mensaje nuevo de tu socio' : `${n} mensajes nuevos`, no: 'Al día' },
     { badge: 'nAsis', n: 'bAsis', txt: 'bAsisTxt', si: (n) => n === 1 ? '1 pregunta que no supo responder' : `${n} preguntas que no supo responder`, no: 'Sabe responder todo lo que le preguntan' },
   ];
@@ -57,7 +58,7 @@ export function crearBarra({ sb, esc, euros, perfil, ESTADOS }) {
 
   const SECCIONES = [
     ['Resumen', '#resumen', 'resumen'], ['Clientes', '#clientes', 'clientes'], ['Proyectos', '#proyectos', 'proyectos'],
-    ['Facturas y presupuestos', '#facturas', 'facturas'], ['Mensajes de clientes', '#mensajes', 'mensajes'],
+    ['Facturas y presupuestos', '#facturas', 'facturas'], ['Mensajes de clientes', '#mensajes', 'mensajes'], ['Mensajes de la web', '#buzon', 'correo'],
     ['Chat de equipo', '#equipo', 'equipo'], ['Rodolfo IA', '#asistente', 'asistente'], ['Web (portafolio)', '#web', 'web'], ['Actividad de la web', '#actividad', 'actividad'],
     ['Tarifas', '#tarifas', 'tarifas'], ['Ajustes', '#ajustes', 'ajustes'],
   ];
