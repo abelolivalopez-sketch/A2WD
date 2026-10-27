@@ -21,9 +21,9 @@ jobs:
       A2WD_VERSION_CODE: ${{ github.run_number }}
       A2WD_VERSION_NAME: 1.0.${{ github.run_number }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -50,8 +50,20 @@ jobs:
           A2WD_KEYSTORE_PASSWORD: ${{ secrets.A2WD_KEYSTORE_PASSWORD }}
           A2WD_KEY_ALIAS: a2wd
         run: |
+          set -o pipefail
           chmod +x gradlew
-          ./gradlew --no-daemon assembleRelease bundleRelease
+          ./gradlew --no-daemon assembleRelease bundleRelease 2>&1 | tee "$RUNNER_TEMP/gradle.log"
+
+      - name: Mostrar el error de Gradle
+        if: failure()
+        run: |
+          [ -f "$RUNNER_TEMP/gradle.log" ] || exit 0
+          msg=$(grep -A14 "What went wrong" "$RUNNER_TEMP/gradle.log" | head -40)
+          [ -n "$msg" ] || msg=$(tail -40 "$RUNNER_TEMP/gradle.log")
+          msg="${msg//'%'/'%25'}"
+          msg="${msg//$'\r'/'%0D'}"
+          msg="${msg//$'\n'/'%0A'}"
+          echo "::error title=Gradle::$msg"
 
       - name: Comprobar la firma
         run: |

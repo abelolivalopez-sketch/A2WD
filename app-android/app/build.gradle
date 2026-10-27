@@ -55,7 +55,7 @@ android {
     namespace "com.a2wdstudio.app"
     defaultConfig {
         applicationId "com.a2wdstudio.app"
-        minSdkVersion 21
+        minSdkVersion 24
         targetSdkVersion 36
         versionCode((System.getenv('A2WD_VERSION_CODE') ?: '1') as int)
         versionName(System.getenv('A2WD_VERSION_NAME') ?: '1.0.0')

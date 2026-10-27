@@ -54,6 +54,8 @@ El resto del proceso (cuenta, 12 testers durante 14 días, ficha) está en [PLAY
 
 ## Si la compilación falla
 
-La primera compilación es la prueba de verdad: el proyecto se generó con las plantillas de Bubblewrap, pero no se pudo compilar fuera de GitHub. Si falla, el registro está en *Actions › App Android*; con ese texto se arregla.
+Si falla, el error de Gradle sale en el resumen de la ejecución (*Actions › App Android › la ejecución › Annotations*), y Claude puede leerlo desde ahí. El registro completo está en el trabajo *compilar* › ⚙ › *View raw logs*.
+
+- 27 oct 2026: la primera compilación falló porque `androidbrowserhelper` 2.7.4 exige Android 7.0 o superior. Se subió `minSdkVersion` de 21 a 24 en `app-android/app/build.gradle`. La app ya no se instala en móviles con Android 5 o 6.
 
 Plan B sin GitHub: [PWABuilder](https://www.pwabuilder.com) › a2wdstudio.com › *Package for stores › Android*, con paquete `com.a2wdstudio.app` y, en la firma, *Use mine* con `a2wd-firma.keystore` y alias `a2wd`. Así la huella sigue siendo la misma y `assetlinks.json` no cambia.
