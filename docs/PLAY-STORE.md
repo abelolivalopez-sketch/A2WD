@@ -61,9 +61,9 @@ Arreglar lo que salga de la Fase 1. Además, antes de Google Play:
 
 ### Fase 3 · Empaquetar para Android
 1. ✅ Dominio propio: a2wdstudio.com, publicado con Cloudflare (`docs/DOMINIO.md`). URL de Supabase, `robots.txt` y `sitemap.xml` ya actualizados.
-2. Generar el proyecto Android con **Bubblewrap** (`npx @bubblewrap/cli init --manifest https://<dominio>/manifest.webmanifest`) o con **PWABuilder** (web, sin instalar nada).
-3. Subir `/.well-known/assetlinks.json` con la huella SHA-256 de la clave de firma que muestra Play Console (sección *Integridad de la app*) y comprobar que se abre en https://a2wdstudio.com/.well-known/assetlinks.json. Si la huella no coincide, la app se abre con la barra del navegador arriba.
-4. Guardar la clave de subida (`.keystore`) y su contraseña fuera del repositorio, en dos sitios. Google guarda la clave de firma final; si perdéis la de subida se puede pedir otra, pero el trámite es lento.
+2. ✅ Proyecto Android en `app-android/`, compilado por GitHub (`.github/workflows/app-android.yml`), que publica `A2WD.apk` para descargar. Pasos en [APP-ANDROID.md](APP-ANDROID.md).
+3. ✅ `.well-known/assetlinks.json` con la huella de nuestra clave. Al subir a Play Console hay que añadir también la huella que muestra la sección *Integridad de la app*, y comprobar que se abre en https://a2wdstudio.com/.well-known/assetlinks.json. Si la huella no coincide, la app se abre con la barra del navegador arriba.
+4. Guardar la clave (`a2wd-firma.keystore`) y su contraseña fuera del repositorio, en dos sitios. Para Google Play es la clave de subida: Google guarda la de firma final; si perdéis la de subida se puede pedir otra, pero el trámite es lento.
 
 ### Fase 4 · Prueba cerrada en Google Play
 1. Crear la cuenta de desarrollador (25 USD, verificación con DNI y tarjeta).

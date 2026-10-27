@@ -14,9 +14,12 @@ Agencia de diseño web de **Abel Oliva López** y **Ariel** ([@AOcchietti](https
 | Portal de clientes y panel de creadores | `portal/` | [docs/PORTAL-GUIA.md](docs/PORTAL-GUIA.md) |
 | App del móvil (PWA) | `manifest.webmanifest`, `sw.js`, `instalar.js`, `img/icono-*` | [docs/PORTAL-GUIA.md](docs/PORTAL-GUIA.md#app-para-el-móvil) |
 | Base de datos y funciones (Supabase) | `supabase/` | [docs/PORTAL-GUIA.md](docs/PORTAL-GUIA.md) |
+| Actividad de la web (visitas, gráficas, Excel y CSV) | `assets/js/actividad.js`, `portal/js/creador/actividad.js`, `supabase/actividad.sql` | [docs/ACTIVIDAD.md](docs/ACTIVIDAD.md) |
+| Mensajes del formulario de la web (se guardan, panel, móvil y correo) | `index.html`, `portal/js/creador/buzon.js`, `supabase/mensajes-web.sql` | [docs/MENSAJES-WEB.md](docs/MENSAJES-WEB.md) |
 | Demos para prospección | `demos/` (no indexadas) | — |
 | Tarifas internas | `tarifas.js` | [docs/PORTAL-GUIA.md](docs/PORTAL-GUIA.md#tarifas) |
 | Hoja de ruta y tareas pendientes | — | [docs/PENDIENTES.md](docs/PENDIENTES.md) |
+| App de Android (descargable, sin barra de Chrome) | `app-android/`, `.github/workflows/app-android.yml`, `.well-known/assetlinks.json` | [docs/APP-ANDROID.md](docs/APP-ANDROID.md) |
 | Plan para publicar la app en Google Play | — | [docs/PLAY-STORE.md](docs/PLAY-STORE.md) |
 
 ```
@@ -30,6 +33,7 @@ Agencia de diseño web de **Abel Oliva López** y **Ariel** ([@AOcchietti](https
 ├── demos/       webs de muestra para clientes potenciales
 ├── img/ fonts/ vendor/   imágenes, tipografías y librerías alojadas aquí
 ├── herramientas/         scripts de mantenimiento (CSP del portal)
+├── app-android/ app de Android (se compila en GitHub; ver docs/APP-ANDROID.md)
 ├── docs/        guías, pendientes y plan de Play Store
 └── recursos/originales/  fotos y capturas originales (no se cargan en la web)
 ```

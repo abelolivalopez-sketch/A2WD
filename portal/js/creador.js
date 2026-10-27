@@ -14,6 +14,8 @@ import { crearFacturas } from './creador/facturas.js';
 import { crearGestionTarifas } from './creador/gestion-tarifas.js';
 import { crearEquipo } from './creador/equipo.js';
 import { crearPortfolio } from './creador/portfolio.js';
+import { crearActividad } from './creador/actividad.js';
+import { crearBuzon } from './creador/buzon.js';
 import { crearAsistente } from './creador/asistente.js';
 import { crearBarra } from './creador/barra.js';
 import { crearAjustes, aplicarPreferencias } from './creador/ajustes.js';
@@ -28,6 +30,7 @@ const ctx = await exigirSesion('creador');
 if (!ctx) throw new Error('Sin sesión');
 
 const { perfil } = ctx;
+try { localStorage.setItem('a2wd_equipo', '1'); } catch {}
 const vista = document.getElementById('vista');
 
 document.getElementById('salir').onclick = salir;
@@ -109,6 +112,10 @@ const { vWeb } = crearPortfolio({
   sb, vista, esc, toast, fallo,
 });
 
+const { vActividad } = crearActividad({ sb, vista, esc, toast });
+
+const { vBuzon, actualizarBuzon } = crearBuzon({ sb, vista, esc, toast, fallo, borrar });
+
 const { vAsistente, actualizarAsis } = crearAsistente({
   sb, vista, esc, fecha, chatAsistente,
   fallo, opts, abrirForm, guardarEn, borrar, refrescar,
@@ -117,45 +124,71 @@ const { vAsistente, actualizarAsis } = crearAsistente({
 // ---------------------------------------------------------------------
 // Router
 // ---------------------------------------------------------------------
-async function router() {
-  const [seccion, id] = (location.hash.slice(1) || INICIO).split('/');
-  const menu = { cliente: 'clientes', proyecto: 'proyectos' }[seccion] || seccion;
+const VISTAS = {
+  resumen: vResumen,
+  clientes: vClientes,
+  cliente: vCliente,
+  proyectos: vProyectos,
+  proyecto: vProyecto,
+  mensajes: vMensajes,
+  buzon: vBuzon,
+  facturas: vFacturas,
+  tarifas: vTarifas,
+  equipo: vEquipo,
+  web: vWeb,
+  actividad: vActividad,
+  asistente: vAsistente,
+  ajustes: vAjustes,
+};
+const MENU_DE = { cliente: 'clientes', proyecto: 'proyectos' };
+const side = document.getElementById('side');
+let pedida = 0;
+let cola = Promise.resolve();
 
-  document.querySelectorAll('#side a')
-    .forEach((a) => a.classList.toggle('on', a.dataset.s === menu));
+function marcarMenu(seccion) {
+  const menu = MENU_DE[seccion] || seccion;
+  let activo = null;
+  side.querySelectorAll('a').forEach((a) => {
+    const on = a.dataset.s === menu;
+    a.classList.toggle('on', on);
+    if (on) { a.setAttribute('aria-current', 'page'); activo = a; } else a.removeAttribute('aria-current');
+  });
+  if (!activo || side.scrollWidth <= side.clientWidth) return;
+  const suave = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  side.scrollTo({ left: activo.offsetLeft - (side.clientWidth - activo.offsetWidth) / 2, behavior: suave ? 'smooth' : 'auto' });
+}
 
-  const vistas = {
-    resumen: vResumen,
-    clientes: vClientes,
-    cliente: vCliente,
-    proyectos: vProyectos,
-    proyecto: vProyecto,
-    mensajes: vMensajes,
-    facturas: vFacturas,
-    tarifas: vTarifas,
-    equipo: vEquipo,
-    web: vWeb,
-    asistente: vAsistente,
-    ajustes: vAjustes,
-  };
-
-  await (vistas[seccion] || vResumen)(id);
+async function pintar(seccion, id) {
+  try { await (VISTAS[seccion] || vResumen)(id); } catch (e) { console.error(e); }
   actualizarSinLeer();
   actualizarAsis();
   actualizarEquipo();
+  actualizarBuzon();
 }
 
-// Clics en filas/tarjetas con data-go
+function router({ arriba = false } = {}) {
+  const [seccion, id] = (location.hash.slice(1) || INICIO).split('/');
+  const turno = ++pedida;
+  marcarMenu(seccion);
+  if (arriba) vista.setAttribute('aria-busy', 'true');
+  cola = cola.then(async () => {
+    if (turno !== pedida) return;
+    await pintar(seccion, id);
+    if (turno !== pedida) return;
+    vista.removeAttribute('aria-busy');
+    if (!arriba) return;
+    window.scrollTo(0, 0);
+    vista.focus({ preventScroll: true });
+  });
+  return cola;
+}
+
 vista.addEventListener('click', (e) => {
   if (e.target.closest('a,button')) return;
   const go = e.target.closest('[data-go]');
   if (go) location.hash = go.dataset.go;
 });
 
-window.addEventListener('hashchange', () => {
-  router();
-  window.scrollTo(0, 0);
-  vista.focus({ preventScroll: true });
-});
+window.addEventListener('hashchange', () => router({ arriba: true }));
 
 router();

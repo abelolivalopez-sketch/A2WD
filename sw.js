@@ -7,7 +7,7 @@
 //  - Recibe las notificaciones push y abre la app al tocarlas.
 //  Al cambiar archivos del portal, sube el número de VERSION.
 // =====================================================================
-const VERSION = 'a2wd-v23';
+const VERSION = 'a2wd-v26';
 const CARCASA = [
   './',
   './index.html',
@@ -35,6 +35,28 @@ const LIBRERIAS = ['https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/+
 // Guardada tal cual, el navegador la rechazaría al usarla para abrir una página sin conexión.
 function limpia(res) {
   return res.redirected ? new Response(res.body, { status: res.status, statusText: res.statusText, headers: res.headers }) : res;
+}
+
+let quitaHtml = self.location.hostname === 'a2wdstudio.com';
+
+function sinHtml(u) {
+  return new URL(u.pathname.replace(/(^|\/)index\.html$/, '$1').replace(/\.html$/, '') + u.search, u).href;
+}
+
+function candidatas(u) {
+  const base = u.origin + u.pathname;
+  const lista = [u.href, base, base.replace(/\.html$/, '')];
+  if (base.endsWith('/')) lista.push(base + 'index.html');
+  else if (!/\.[a-z0-9]+$/i.test(u.pathname)) lista.push(base + '.html');
+  return lista;
+}
+
+async function copiaPagina(u) {
+  for (const c of candidatas(u)) {
+    const r = await caches.match(c, { ignoreSearch: true });
+    if (r) return r;
+  }
+  return (await caches.match('./portal/login.html')) || caches.match('./portal/login');
 }
 
 self.addEventListener('install', (e) => {
@@ -67,6 +89,10 @@ self.addEventListener('fetch', (e) => {
 
   // Páginas: primero la red (siempre lo último), si no hay conexión la copia guardada
   if (req.mode === 'navigate') {
+    if (quitaHtml && /\.html$/.test(url.pathname)) {
+      e.respondWith(Response.redirect(sinHtml(url), 302));
+      return;
+    }
     // (una petición de navegación no se puede copiar con opciones: se pide por su URL)
     e.respondWith(
       fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' })
@@ -74,15 +100,14 @@ self.addEventListener('fetch', (e) => {
           // Si el servidor redirige (Cloudflare quita el «.html»: /web.html → /web), el navegador
           // NO acepta para una navegación una respuesta que ya viene redirigida (da ERR_FAILED).
           // Se le devuelve la redirección para que cambie él de dirección y vuelva a pedirla.
-          if (res.redirected && res.url !== req.url) return Response.redirect(res.url, 302);
+          if (res.redirected && res.url !== req.url) {
+            if (res.url === sinHtml(url)) quitaHtml = true;
+            return Response.redirect(res.url, 302);
+          }
           guardar(req, res.clone());
           return res;
         })
-        .catch(async () =>
-          (await caches.match(req, { ignoreSearch: true })) ||
-          (await caches.match(req.url.replace(/\.html(?=$|[?#])/, ''), { ignoreSearch: true })) ||
-          (await caches.match('./portal/login.html')) ||
-          (await caches.match('./portal/login')))
+        .catch(() => copiaPagina(url))
     );
     return;
   }
