@@ -516,6 +516,9 @@ window.A2WD_mobius = function(){
     var width = container.clientWidth || 900;
     var height = container.clientHeight || 700;
     var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // Modo ligero (móvil y tablet): resolución 1,25x y 30 imágenes por segundo.
+    var ligero = !!(window.matchMedia && window.matchMedia('(pointer: coarse), (max-width: 860px)').matches);
+    var capa = document.querySelector('.hero-mobius');
     var visible = true;
 
     var scene = new THREE.Scene();
@@ -528,8 +531,8 @@ window.A2WD_mobius = function(){
     }
     encuadrar(width / height);
 
-    var renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    var renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });   // en GPU de móvil el antialias sale casi gratis
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, ligero ? 1.25 : 2));
     renderer.setSize(width, height);
     renderer.setClearColor(0x000000, 0);
 
@@ -638,11 +641,15 @@ window.A2WD_mobius = function(){
     if (reduceMotion) return;
 
     var last = performance.now();
+    var minFrame = ligero ? 31 : 0;
     function animar(now){
+      if (minFrame && now - last < minFrame) { requestAnimationFrame(animar); return; }
       var dt = Math.min((now - last) / 1000, 0.05);
       last = now;
+      // Cuando el scroll la ha desvanecido del todo (opacidad 0), no se dibuja.
+      var oculta = capa && capa.style.opacity !== '' && parseFloat(capa.style.opacity) < 0.02;
 
-      if (!document.hidden && visible) {
+      if (!document.hidden && visible && !oculta) {
         mesh.rotation.y += dt * 0.17;
         mesh.rotation.x = -0.24 + Math.sin(now * 0.00023) * 0.055;
         mesh.rotation.z = 0.12 + Math.sin(now * 0.00031) * 0.07;
