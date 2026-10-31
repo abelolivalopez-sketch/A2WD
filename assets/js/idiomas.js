@@ -127,7 +127,6 @@
       "pr3.p": "Frameworks y herramientas actuales, código estructurado y documentado. Nada de plantillas.",
       "pr4.h": "Formación certificada",
       "pr4.p": "Certificaciones en desarrollo y análisis de software, y formación continua para estar al día.",
-      "met.tec": "Con qué construimos",
       "met.cta": "Ver método y proyectos",
       "pl.carga": "Carga ≤ 2 s",
       "pl.movil": "100 % móvil",
@@ -287,7 +286,6 @@
       "pr3.p": "Frameworks et outils actuels, code structuré et documenté. Aucun modèle.",
       "pr4.h": "Formation certifiée",
       "pr4.p": "Certifications en développement et analyse logicielle, et formation continue pour rester à jour.",
-      "met.tec": "Nos outils",
       "met.cta": "Voir la méthode et les projets",
       "pl.carga": "Chargement ≤ 2 s",
       "pl.movil": "100 % mobile",
@@ -447,7 +445,6 @@
       "pr3.p": "Framework e strumenti attuali, codice strutturato e documentato. Niente modelli.",
       "pr4.h": "Formazione certificata",
       "pr4.p": "Certificazioni in sviluppo e analisi del software e formazione continua per restare aggiornati.",
-      "met.tec": "Con cosa costruiamo",
       "met.cta": "Vedi metodo e progetti",
       "pl.carga": "Caricamento ≤ 2 s",
       "pl.movil": "100% mobile",
@@ -607,7 +604,6 @@
       "pr3.p": "Modern frameworks and tools, structured and documented code. No templates.",
       "pr4.h": "Certified training",
       "pr4.p": "Certifications in software development and analysis, plus ongoing training to stay up to date.",
-      "met.tec": "What we build with",
       "met.cta": "See our method and projects",
       "pl.carga": "Load ≤ 2 s",
       "pl.movil": "100% mobile",
@@ -679,5 +675,55 @@
   document.querySelectorAll('#langSwitch button').forEach(function(b){
     b.addEventListener('click', function(){ window.A2WD_setLang(b.getAttribute('data-lang')); });
   });
+
+  /* Selector de idioma como desplegable: se ve solo el cuadradito del idioma
+     actual y, al pulsarlo, se abren los otros debajo, separados entre sí.
+     Si este bloque no se ejecuta, quedan los cuatro botones en fila como antes. */
+  (function(){
+    var sw = document.getElementById('langSwitch');
+    if (!sw || sw.classList.contains('lang-dd')) return;
+    var botones = Array.prototype.slice.call(sw.querySelectorAll('button[data-lang]'));
+    if (!botones.length) return;
+    var NOMBRES = { es: 'Español', fr: 'Français', it: 'Italiano', en: 'English' };
+
+    var disparador = document.createElement('button');
+    disparador.type = 'button';
+    disparador.className = 'lang-actual';
+    disparador.setAttribute('aria-haspopup', 'true');
+    disparador.setAttribute('aria-expanded', 'false');
+    disparador.setAttribute('aria-controls', 'langMenu');
+
+    var menu = document.createElement('div');
+    menu.className = 'lang-menu';
+    menu.id = 'langMenu';
+    botones.forEach(function(b){
+      b.setAttribute('title', NOMBRES[b.getAttribute('data-lang')] || '');
+      menu.appendChild(b);
+    });
+    sw.appendChild(disparador);
+    sw.appendChild(menu);
+    sw.classList.add('lang-dd');
+
+    function abierto(){ return sw.classList.contains('abierto'); }
+    function abrir(){ sw.classList.add('abierto'); disparador.setAttribute('aria-expanded', 'true'); }
+    function cerrar(foco){
+      if (!abierto()) return;
+      sw.classList.remove('abierto'); disparador.setAttribute('aria-expanded', 'false');
+      if (foco) disparador.focus();
+    }
+    function pintar(){
+      disparador.innerHTML = '<span>' + actual.toUpperCase() + '</span><i aria-hidden="true"></i>';
+      disparador.setAttribute('aria-label', 'Idioma / Language: ' + (NOMBRES[actual] || actual));
+    }
+
+    disparador.addEventListener('click', function(ev){ ev.stopPropagation(); abierto() ? cerrar() : abrir(); });
+    botones.forEach(function(b){ b.addEventListener('click', function(){ cerrar(true); }); });
+    document.addEventListener('click', function(ev){ if (!sw.contains(ev.target)) cerrar(); });
+    document.addEventListener('keydown', function(ev){ if (ev.key === 'Escape') cerrar(true); });
+    sw.addEventListener('focusout', function(ev){ if (ev.relatedTarget && !sw.contains(ev.relatedTarget)) cerrar(); });
+    window.addEventListener('scroll', function(){ cerrar(); }, { passive: true });
+    document.addEventListener('a2wd:idioma', pintar);
+  })();
+
   window.A2WD_setLang(elegirInicial());
 })();
