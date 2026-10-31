@@ -26,9 +26,6 @@
   var ahorro = !!(navigator.connection && navigator.connection.saveData);
   var quieto = reduce || ahorro;
   var finePointer = window.matchMedia && matchMedia('(hover: hover) and (pointer: fine)').matches;
-  // Modo ligero (móvil y tablet): el mismo cielo, pintado a resolución 1x y a 30 imágenes por segundo.
-  // Las estrellas son puntos de 1-2 px, así que no se nota, y el móvil trabaja unas 4 veces menos.
-  var ligero = !!(window.matchMedia && matchMedia('(pointer: coarse), (max-width: 860px)').matches);
 
   var heroEl = document.querySelector('[data-cosmos-hero]');
   var oscuroBase = parseFloat(document.body.getAttribute('data-cosmos-oscuro') || '0') || 0;
@@ -56,7 +53,7 @@
     // solo se rehace el cielo si cambia el ancho o la altura crece bastante.
     if (!cambioAncho && h <= H + 120 && stars.length) { medirPagina(); return; }
     W = w; H = h;
-    DPR = ligero ? 1 : Math.min(window.devicePixelRatio || 1, W < 700 ? 2 : 1.5);
+    DPR = Math.min(window.devicePixelRatio || 1, W < 700 ? 2 : 1.5);
     cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     crearEstrellas();
@@ -356,10 +353,8 @@
   }
 
   /* ---------- bucle ---------- */
-  var MIN_FRAME = ligero ? 31 : 0;   // ~30 fps en modo ligero
   function bucle(t){
     if (!running) return;
-    if (MIN_FRAME && lastT && t - lastT < MIN_FRAME) { requestAnimationFrame(bucle); return; }
     var dt = lastT ? Math.min(50, t - lastT) : 16;
     lastT = t;
     if (!document.hidden) dibujar(t, dt);

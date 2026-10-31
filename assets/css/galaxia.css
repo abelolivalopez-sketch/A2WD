@@ -52,8 +52,6 @@ html.lenis,html.lenis body{height:auto;}
   filter:blur(calc((1 - var(--t)) * 10px));
 }
 .partido.listo .w{filter:none;transform:none;}
-/* Móvil y tablet: las palabras aparecen igual, pero sin desenfoque (es lo más caro de pintar) */
-@media (pointer:coarse),(max-width:860px){.partido .w{filter:none;}}
 
 /* ---------- Barra de sección (estilo «(02 — Servicios)») ---------- */
 .sec-bar{
