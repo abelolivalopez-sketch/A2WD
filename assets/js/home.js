@@ -42,7 +42,8 @@
     gsap.from('.hero-scroll-cue', { autoAlpha: 0, y: 12, duration: 1, delay: 1.1 });
 
     // Al bajar: el logotipo se aleja y la Möbius se difumina
-    gsap.timeline({ scrollTrigger: { trigger: '#heroIntro', start: 'top top', end: 'bottom top', scrub: true } })
+    // En táctil, un suavizado corto: así no va «un paso por detrás» del dedo a tirones.
+    gsap.timeline({ scrollTrigger: { trigger: '#heroIntro', start: 'top top', end: 'bottom top', scrub: fine ? true : 0.4 } })
       .to('.hero-brand-center', { yPercent: -35, scale: 0.84, autoAlpha: 0, filter: 'blur(10px)', ease: 'none' }, 0)
       .to('.hero-scroll-cue', { autoAlpha: 0, ease: 'none', duration: 0.3 }, 0)
       .fromTo('.hero-mobius', { opacity: 1, filter: 'blur(0px)' }, { opacity: 0.5, filter: 'blur(6px)', ease: 'none' }, 0);

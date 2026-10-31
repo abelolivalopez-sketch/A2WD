@@ -31,7 +31,10 @@
 
   /* ---------- scroll suave ---------- */
   var ALTO_NAV = function(){ var n = document.querySelector('header.nav'); return n ? n.offsetHeight : 80; };
-  if (!reduce && window.Lenis) {
+  // Solo con ratón o trackpad. En pantallas táctiles se deja el scroll nativo del sistema: Lenis añade
+  // escuchas de dedo no pasivas y el navegador tendría que esperar a la web antes de mover la página,
+  // lo que da tirones en el móvil aunque la web no esté haciendo nada pesado.
+  if (!reduce && fine && window.Lenis) {
     // anchors: Lenis ya respeta el scroll-padding-top del CSS (altura de la barra)
     var lenis = new Lenis({ lerp: 0.085, wheelMultiplier: 1, anchors: true, stopInertiaOnNavigate: true });
     fx.lenis = lenis;
@@ -40,6 +43,20 @@
     gsap.ticker.add(function(t){ lenis.raf(t * 1000); });
     gsap.ticker.lagSmoothing(0);
     root.classList.add('lenis-activo');
+  }
+  // Sin Lenis (táctil): los enlaces a una sección de la misma página se deslizan con el scroll nativo.
+  if (!reduce && !fx.lenis) {
+    document.addEventListener('click', function(e){
+      if (e.defaultPrevented || e.button) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a || a.getAttribute('href').length < 2) return;
+      var el = document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+      if (!el) return;
+      e.preventDefault();
+      var pad = parseFloat(getComputedStyle(root).scrollPaddingTop) || ALTO_NAV();
+      window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - pad, behavior: 'smooth' });
+      if (history.replaceState) history.replaceState(null, '', a.getAttribute('href'));
+    });
   }
   // Llegar desde otra página a index.html#seccion: tras montar las animaciones
   // (que cambian la altura de la página) se vuelve a colocar en su sitio.

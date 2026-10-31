@@ -34,6 +34,9 @@
   var stars = [], comets = [];
   var nebula = null, planet = null, planetR = 0;
   var offset = 0, lastY = window.scrollY, vel = 0;
+  // En táctil la página la mueve el sistema y el cielo se recoloca un instante después: si las estrellas
+  // siguieran el scroll al píxel, ese desfase se vería como temblor. Ahí lo siguen con un poco de inercia.
+  var suave = !finePointer, offVis = 0;
   var mouse = { x: 0, y: 0, tx: 0, ty: 0, px: -9999, py: -9999, active: false };
   var nextComet = 0, running = true, lastT = 0;
 
@@ -222,6 +225,7 @@
     var w = quieto ? 0 : salto(y);
     var gain = 1 + w * 7;
     if (!quieto) offset += dy * gain;
+    offVis = suave ? offVis + (offset - offVis) * (1 - Math.pow(0.8, dt / 16.7)) : offset;
     vel = vel * 0.82 + (quieto ? 0 : dy * gain) * 0.18;
 
     // ratón suavizado
@@ -243,7 +247,7 @@
     var na = clamp(1 - d * 1.5, 0.16, 1);
     if (nebula) {
       ctx.globalAlpha = na;
-      var nx = -W * 0.1 - mouse.x * 14, ny = -H * 0.15 - (quieto ? 0 : offset * 0.04) % (H * 0.3) - mouse.y * 10;
+      var nx = -W * 0.1 - mouse.x * 14, ny = -H * 0.15 - (quieto ? 0 : offVis * 0.04) % (H * 0.3) - mouse.y * 10;
       ctx.drawImage(nebula.img, nx, ny, nebula.w, nebula.h);
     }
 
@@ -268,7 +272,7 @@
       if (vis <= 0) continue;
       var sp = 0.05 + 0.55 * s.z;
       var sx = s.x - mx * s.z * 26;
-      var sy = s.y - offset * sp - my * s.z * 18;
+      var sy = s.y - offVis * sp - my * s.z * 18;
       sy = ((sy % H) + H) % H;
       sx = ((sx % W) + W) % W;
       var tw = quieto ? 1 : 0.72 + 0.28 * Math.sin(t * 0.001 * s.ts + s.tw);
