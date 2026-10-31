@@ -17,10 +17,6 @@
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   var fine = window.matchMedia && matchMedia('(hover: hover) and (pointer: fine)').matches;
   var hayGsap = !!(window.gsap && window.ScrollTrigger);
-  // Modo ligero (móvil y tablet): mismas animaciones, pero sin desenfoques (blur), que son lo más caro de pintar.
-  var ligero = !!(window.matchMedia && matchMedia('(pointer: coarse), (max-width: 860px)').matches);
-  function blur(px){ return ligero ? {} : { filter: 'blur(' + px + 'px)' }; }
-  function con(a, b){ for (var k in b) a[k] = b[k]; return a; }
 
   function montar(){
     var fx = window.A2WD_fx || {};
@@ -41,15 +37,15 @@
     if (reduce) return;
 
     // Entrada: letras de A2WD y Möbius
-    gsap.from('.hero-brand-name span', con({ autoAlpha: 0, yPercent: 40, duration: 1.7, ease: 'expo.out', stagger: 0.09, delay: 0.15, clearProps: 'filter' }, blur(14)));
+    gsap.from('.hero-brand-name span', { autoAlpha: 0, yPercent: 40, filter: 'blur(14px)', duration: 1.7, ease: 'expo.out', stagger: 0.09, delay: 0.15, clearProps: 'filter' });
     gsap.from('#mobiusContainer', { autoAlpha: 0, scale: 0.9, duration: 2.4, ease: 'power3.out' });
     gsap.from('.hero-scroll-cue', { autoAlpha: 0, y: 12, duration: 1, delay: 1.1 });
 
     // Al bajar: el logotipo se aleja y la Möbius se difumina
     gsap.timeline({ scrollTrigger: { trigger: '#heroIntro', start: 'top top', end: 'bottom top', scrub: true } })
-      .to('.hero-brand-center', con({ yPercent: -35, scale: 0.84, autoAlpha: 0, ease: 'none' }, blur(10)), 0)
+      .to('.hero-brand-center', { yPercent: -35, scale: 0.84, autoAlpha: 0, filter: 'blur(10px)', ease: 'none' }, 0)
       .to('.hero-scroll-cue', { autoAlpha: 0, ease: 'none', duration: 0.3 }, 0)
-      .fromTo('.hero-mobius', con({ opacity: 1 }, blur(0)), con({ opacity: 0.5, ease: 'none' }, blur(6)), 0);
+      .fromTo('.hero-mobius', { opacity: 1, filter: 'blur(0px)' }, { opacity: 0.5, filter: 'blur(6px)', ease: 'none' }, 0);
 
     // Frase 1: aparece mientras el mensaje entra en pantalla
     gsap.set([l1, l2], { '--p': 0 });
